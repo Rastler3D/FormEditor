@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <PackageJsonName Condition="$(PackageJsonName) == ''">formeditor.client</PackageJsonName>
+    <PackageJsonPrivate Condition="$(PackageJsonPrivate) == ''">true</PackageJsonPrivate>
+    <PackageJsonVersion Condition="$(PackageJsonVersion) == ''">0.0.0</PackageJsonVersion>
+    <PackageJsonType Condition="$(PackageJsonType) == ''">module</PackageJsonType>
+    <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">vite</PackageJsonScriptsDev>
+    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">tsc -b &amp;&amp; vite build</PackageJsonScriptsBuild>
+    <PackageJsonScriptsPreview Condition="$(PackageJsonScriptsPreview) == ''">vite preview</PackageJsonScriptsPreview>
+    <PackageJsonDependenciesCorvuResizable Condition="$(PackageJsonDependenciesCorvuResizable) == ''">^0.2.3</PackageJsonDependenciesCorvuResizable>
+    <PackageJsonDependenciesKobalteCore Condition="$(PackageJsonDependenciesKobalteCore) == ''">^0.13.7</PackageJsonDependenciesKobalteCore>
+    <PackageJsonDependenciesSolidPrimitivesUpload Condition="$(PackageJsonDependenciesSolidPrimitivesUpload) == ''">^0.0.117</PackageJsonDependenciesSolidPrimitivesUpload>
+    <PackageJsonDependenciesSolidjsRouter Condition="$(PackageJsonDependenciesSolidjsRouter) == ''">^0.14.7</PackageJsonDependenciesSolidjsRouter>
+    <PackageJsonDependenciesTailwindcssLineClamp Condition="$(PackageJsonDependenciesTailwindcssLineClamp) == ''">^0.4.4</PackageJsonDependenciesTailwindcssLineClamp>
+    <PackageJsonDependenciesTanstackSolidTable Condition="$(PackageJsonDependenciesTanstackSolidTable) == ''">^8.20.5</PackageJsonDependenciesTanstackSolidTable>
+    <PackageJsonDependenciesThisbeyondSolidDnd Condition="$(PackageJsonDependenciesThisbeyondSolidDnd) == ''">^0.7.5</PackageJsonDependenciesThisbeyondSolidDnd>
+    <PackageJsonDependenciesThisbeyondSolidSelect Condition="$(PackageJsonDependenciesThisbeyondSolidSelect) == ''">^0.15.0</PackageJsonDependenciesThisbeyondSolidSelect>
+    <PackageJsonDependenciesClassVarianceAuthority Condition="$(PackageJsonDependenciesClassVarianceAuthority) == ''">^0.7.0</PackageJsonDependenciesClassVarianceAuthority>
+    <PackageJsonDependenciesClsx Condition="$(PackageJsonDependenciesClsx) == ''">^2.1.1</PackageJsonDependenciesClsx>
+    <PackageJsonDependenciesD3 Condition="$(PackageJsonDependenciesD3) == ''">^7.9.0</PackageJsonDependenciesD3>
+    <PackageJsonDependenciesD3Cloud Condition="$(PackageJsonDependenciesD3Cloud) == ''">^1.2.7</PackageJsonDependenciesD3Cloud>
+    <PackageJsonDependenciesLucideSolid Condition="$(PackageJsonDependenciesLucideSolid) == ''">^0.447.0</PackageJsonDependenciesLucideSolid>
+    <PackageJsonDependenciesMarked Condition="$(PackageJsonDependenciesMarked) == ''">^14.1.2</PackageJsonDependenciesMarked>
+    <PackageJsonDependenciesSolidIcons Condition="$(PackageJsonDependenciesSolidIcons) == ''">^1.1.0</PackageJsonDependenciesSolidIcons>
+    <PackageJsonDependenciesSolidJs Condition="$(PackageJsonDependenciesSolidJs) == ''">^1.9.1</PackageJsonDependenciesSolidJs>
+    <PackageJsonDependenciesSolidMarkdown Condition="$(PackageJsonDependenciesSolidMarkdown) == ''">^2.0.13</PackageJsonDependenciesSolidMarkdown>
+    <PackageJsonDependenciesSolidMotionone Condition="$(PackageJsonDependenciesSolidMotionone) == ''">^1.0.2</PackageJsonDependenciesSolidMotionone>
+    <PackageJsonDependenciesTailwindMerge Condition="$(PackageJsonDependenciesTailwindMerge) == ''">^2.5.2</PackageJsonDependenciesTailwindMerge>
+    <PackageJsonDependenciesTailwindcssAnimate Condition="$(PackageJsonDependenciesTailwindcssAnimate) == ''">^1.0.7</PackageJsonDependenciesTailwindcssAnimate>
+    <PackageJsonDevdependenciesTypesD3 Condition="$(PackageJsonDevdependenciesTypesD3) == ''">^7.4.3</PackageJsonDevdependenciesTypesD3>
+    <PackageJsonDevdependenciesTypesD3Cloud Condition="$(PackageJsonDevdependenciesTypesD3Cloud) == ''">^1.2.9</PackageJsonDevdependenciesTypesD3Cloud>
+    <PackageJsonDevdependenciesTypesNode Condition="$(PackageJsonDevdependenciesTypesNode) == ''">^22.7.4</PackageJsonDevdependenciesTypesNode>
+    <PackageJsonDevdependenciesAutoprefixer Condition="$(PackageJsonDevdependenciesAutoprefixer) == ''">^10.4.20</PackageJsonDevdependenciesAutoprefixer>
+    <PackageJsonDevdependenciesEslint Condition="$(PackageJsonDevdependenciesEslint) == ''">^8.2.0</PackageJsonDevdependenciesEslint>
+    <PackageJsonDevdependenciesEslintConfigAirbnbBase Condition="$(PackageJsonDevdependenciesEslintConfigAirbnbBase) == ''">^15.0.0</PackageJsonDevdependenciesEslintConfigAirbnbBase>
+    <PackageJsonDevdependenciesEslintConfigAirbnbTypescript Condition="$(PackageJsonDevdependenciesEslintConfigAirbnbTypescript) == ''">^18.0.0</PackageJsonDevdependenciesEslintConfigAirbnbTypescript>
+    <PackageJsonDevdependenciesEslintConfigPrettier Condition="$(PackageJsonDevdependenciesEslintConfigPrettier) == ''">^9.1.0</PackageJsonDevdependenciesEslintConfigPrettier>
+    <PackageJsonDevdependenciesEslintPluginPrettier Condition="$(PackageJsonDevdependenciesEslintPluginPrettier) == ''">^5.2.1</PackageJsonDevdependenciesEslintPluginPrettier>
+    <PackageJsonDevdependenciesEslintPluginSolid Condition="$(PackageJsonDevdependenciesEslintPluginSolid) == ''">^0.14.3</PackageJsonDevdependenciesEslintPluginSolid>
+    <PackageJsonDevdependenciesGlobals Condition="$(PackageJsonDevdependenciesGlobals) == ''">^15.9.0</PackageJsonDevdependenciesGlobals>
+    <PackageJsonDevdependenciesPostcss Condition="$(PackageJsonDevdependenciesPostcss) == ''">^8.4.47</PackageJsonDevdependenciesPostcss>
+    <PackageJsonDevdependenciesSolidDevtools Condition="$(PackageJsonDevdependenciesSolidDevtools) == ''">^0.30.1</PackageJsonDevdependenciesSolidDevtools>
+    <PackageJsonDevdependenciesTailwindcss Condition="$(PackageJsonDevdependenciesTailwindcss) == ''">^3.4.13</PackageJsonDevdependenciesTailwindcss>
+    <PackageJsonDevdependenciesTypescript Condition="$(PackageJsonDevdependenciesTypescript) == ''">^5.5.3</PackageJsonDevdependenciesTypescript>
+    <PackageJsonDevdependenciesTypescriptEslint Condition="$(PackageJsonDevdependenciesTypescriptEslint) == ''">^8.0.1</PackageJsonDevdependenciesTypescriptEslint>
+    <PackageJsonDevdependenciesVite Condition="$(PackageJsonDevdependenciesVite) == ''">^5.4.8</PackageJsonDevdependenciesVite>
+    <PackageJsonDevdependenciesVitePluginSolid Condition="$(PackageJsonDevdependenciesVitePluginSolid) == ''">^2.10.2</PackageJsonDevdependenciesVitePluginSolid>
+  </PropertyGroup>
+</Project>
