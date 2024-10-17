@@ -1,5 +1,5 @@
 ﻿// src/services/api.ts
-import {Template, FilledForm, User, TemplateInfo, TagInfo} from '~/types/template.ts';
+import {Template, Form, User, TemplateInfo, TagInfo, LikesInfo} from '~/types/template.ts';
 
 
 export const fetchLatestTemplates = async (): Promise<TemplateInfo[]> => {
@@ -14,10 +14,22 @@ export const fetchPopularTemplates = async (): Promise<TemplateInfo[]> => {
     return [await fetchTemplate(1), await fetchTemplate(2)];
 };
 
-export const fetchTags = async (): Promise<TagInfo[]> => {
+export const fetchTagsInfo = async (): Promise<TagInfo[]> => {
     await delay(500);
     // Simulated API call
     return [{name: "Hello", count: 10}, {name: "World", count: 2}];
+};
+
+export const fetchTags = async (): Promise<string[]> => {
+    await delay(500);
+    // Simulated API call
+    return ["Hello", "World"];
+};
+
+export const fetchTopics = async (): Promise<string[]> => {
+    await delay(500);
+    // Simulated API call
+    return ["Hello", "World"];
 };
 
 export const createTemplate = async (template: Template): Promise<Template> => {
@@ -31,6 +43,32 @@ export const updateTemplate = async (template: Template): Promise<Template> => {
     // Simulated API call
     return template;
 };
+
+export const searchTemplate = async (params: {
+    query: string,
+    page: number,
+    pageSize: number,
+    filters: Record<string, string[]>,
+    sorting: { field: string, direction: string }
+}) => {
+    const {query, page, pageSize, filters, sorting} = params;
+    const filterString = Object.entries(filters)
+        .map(([key, value]) => `${key} IN [${value.join(', ')}]`)
+        .join(' AND ');
+
+    const results = await meiliSearchClient.index('templates').search(query, {
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+        filter: filterString,
+        sort: [`${sorting.field}:${sorting.direction}`],
+    });
+
+    return {
+        hits: results.hits as TemplateInfo[],
+        totalHits: results.nbHits,
+        totalPages: Math.ceil(results.nbHits / pageSize),
+    };
+}
 
 export const fetchTemplate = async (id: number): Promise<Template> => {
     await delay(500); // Simulate network delay
@@ -66,7 +104,7 @@ export const fetchTemplate = async (id: number): Promise<Template> => {
     };
 };
 
-export const fetchFilledForms = async (): Promise<{ data: FilledForm[], totalPages: number }> => {
+export const fetchFilledForms = async (): Promise<{ data: Form[], totalPages: number }> => {
     await delay(500);
     return {
         data: [
@@ -104,18 +142,15 @@ export const addComment = async (templateId: number, comment: string): Promise<v
     // In a real app, you'd send this to your backend
 };
 
-export const toggleLike = async (templateId: number): Promise<number> => {
+export const toggleLike = async (templateId: number): Promise<LikesInfo> => {
     await delay(500);
     // In a real app, you'd update this on the backend and return the new count
     return 43;
 };
 
-export const login = async (username: string, password: string): Promise<User> => {
+export const fetchLikes = async (templateId: number): Promise<LikesInfo> => {
     await delay(500);
-    if (username === 'admin' && password === 'password') {
-        return {id: 1, name: 'Admin User', role: 'admin'};
-    } else if (username === 'user' && password === 'password') {
-        return {id: 2, name: 'Regular User', role: 'user'};
-    }
-    throw new Error('Invalid credentials');
+    // In a real app, you'd update this on the backend and return the new count
+    return 43;
 };
+

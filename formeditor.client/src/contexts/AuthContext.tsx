@@ -1,17 +1,23 @@
 ﻿import { createContext, useContext, createSignal, createEffect } from 'solid-js';
-import { login } from '~/services/api';
+import {api} from "~/lib/api.ts";
+import * as userServices from "~/services/userService"
 
-interface User {
+export interface User {
     id: number;
     name: string;
     email: string;
+    avatar?: string;
     role: 'user' | 'admin';
 }
 
 interface AuthContextType {
     user: () => User | null;
     signIn: (email: string, password: string) => Promise<void>;
+    signInWithProvider: (provider: 'google' | 'facebook') => Promise<void>;
+    register: (name: string, email: string, password: string) => Promise<void>;
+    refreshToken: () => Promise<string>;
     signOut: () => void;
+    updateUser: (data: Partial<User>) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType>();
@@ -42,8 +48,44 @@ export function AuthProvider(props) {
         localStorage.removeItem('user');
     };
 
+    const register = async (name: string, email: string, password: string) => {
+        const response = await api.post('/auth/register', { name, email, password });
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+    };
+
+    const signInWithProvider = async (provider: 'google' | 'facebook') => {
+        const response = await api.get(`/auth/${provider}`);
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+    };
+
+    const refreshToken = async () => {
+        let token = localStorage.getItem('refresh_token');
+        const accessToken= await userServices.refreshToken(token)
+        localStorage.setItem('access_token', accessToken);
+        return accessToken;
+    };
+
+    const updateUser = async (data: Partial<User>) => {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined) {
+                formData.append(key, value);
+            }
+        });
+
+        const response = await api.put('/users/profile', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        setUser(response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
+        return response.data;
+    };
+
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut }}>
+        <AuthContext.Provider value={{ user, signIn, signOut, signInWithProvider, register, updateUser }}>
             {props.children}
         </AuthContext.Provider>
     );

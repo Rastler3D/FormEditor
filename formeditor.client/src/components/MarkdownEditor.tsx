@@ -217,9 +217,9 @@ const MarkdownEditor = (props) => {
                     </TextField>
                 </TabsContent>
                 <TabsContent value="preview">
-                    <div
-                        class="w-full h-64 p-4 overflow-y-auto prose dark:prose-invert max-w-none"
-                    ><SolidMarkdown children={props.value}/></div>
+                    <div class="w-full h-64 p-4 overflow-y-auto prose dark:prose-invert max-w-none">
+                        <SolidMarkdown>{props.value}</SolidMarkdown>
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>

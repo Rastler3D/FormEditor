@@ -18,9 +18,9 @@ interface GeneralSettingsProps {
 
 export default function GeneralSettings(props: GeneralSettingsProps) {
     return (
-        <div className="space-y-6">
+        <div class="space-y-6">
             <div>
-                <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
+                <label htmlFor="title" class="block text-sm font-medium mb-1">Title</label>
                 <TextField>
                     <TextFieldInput
                         type="text"
@@ -32,7 +32,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                 </TextField>
             </div>
             <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-2">Description (Markdown
+                <label htmlFor="description" class="block text-sm font-medium mb-2">Description (Markdown
                     supported)</label>
                 <MarkdownEditor
                     value={props.template.description}
@@ -40,7 +40,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                 />
             </div>
             <div>
-                <label htmlFor="topic" className="block text-sm font-medium mb-1">Topic</label>
+                <label htmlFor="topic" class="block text-sm font-medium mb-1">Topic</label>
                 <Select
                     value={props.template.topic}
                     onChange={(value) => props.updateTemplate({topic: value})}
@@ -67,7 +67,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                 onTagsChange={(tags) => props.updateTemplate({tags})}
             />
             <div>
-                <label htmlFor="access-setting" className="block text-sm font-medium mb-1">
+                <label htmlFor="access-setting" class="block text-sm font-medium mb-1">
                     Access Setting
                 </label>
                 <Select
@@ -90,9 +90,9 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
             <Show when={props.template.accessSetting === 'specified'}>
                 <div>
                     <Button onClick={props.showUserTableList} variant="outline">Select Users</Button>
-                    <div className="mt-2 text-sm text-muted-foreground">
+                    <div class="mt-2 text-sm text-muted-foreground">
                         <p>{props.selectedUsers().length} users selected</p>
-                        <ul className="list-disc list-inside mt-2">
+                        <ul class="list-disc list-inside mt-2">
                             <For each={props.selectedUsersDetails().slice(0, 3)}>
                                 {(user) => <li>{user.name} ({user.role})</li>}
                             </For>

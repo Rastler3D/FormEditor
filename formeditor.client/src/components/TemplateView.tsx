@@ -2,7 +2,7 @@
 import {Card} from "~/components/ui/card";
 import {Answer,  QuestionTypes, Template} from '~/types/template';
 import {TextField, TextFieldInput,  TextFieldTextArea} from "~/components/ui/text-field";
-import {createStore, SetStoreFunction, Store} from "solid-js/store";
+import { SetStoreFunction, Store} from "solid-js/store";
 import {Checkbox} from "~/components/ui/checkbox";
 import {
     NumberField, NumberFieldDecrementTrigger,
@@ -12,12 +12,13 @@ import {
 } from "~/components/ui/number-field";
 import {Label} from "~/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
+import {SolidMarkdown} from "solid-markdown";
 
 interface TemplateViewProps {
     template: Template;
-    answers: Store<Record<number, Answer>>;
-    setAnswers: SetStoreFunction<Record<number, Answer>>;
-    isReadonly: boolean;
+    answers?: Store<Record<number, Answer>>;
+    setAnswers?: SetStoreFunction<Record<number, Answer>>;
+    isReadonly?: boolean;
 }
 
 export default function TemplateView(props: TemplateViewProps) {
@@ -32,7 +33,7 @@ export default function TemplateView(props: TemplateViewProps) {
                 />
                 <div class="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-2">
                     <h3 class="text-sm font-medium truncate">{props.template.name}</h3>
-                    <p class="text-xs text-muted-foreground truncate">{props.template.description}</p>
+                    <p class="text-xs text-muted-foreground truncate"><SolidMarkdown>{props.template.description}</SolidMarkdown></p>
                 </div>
             </div>
             <div class="space-y-2 p-2">
@@ -50,8 +51,8 @@ export default function TemplateView(props: TemplateViewProps) {
                                         <TextField
                                             readOnly={props.isReadonly}
                                             required
-                                            value={props.answers[question.id].stringValue}
-                                            onChange={(value) => props.setAnswers(question.id, {stringValue: value})}
+                                            value={props?.answers?.[question.id]?.stringValue}
+                                            onChange={(value) => props?.setAnswers?.(question.id, {stringValue: value})}
                                         >
                                             <TextFieldInput type="text" id={`question-${question.id}`}
                                                             class="w-full p-2 bg-background border border-input rounded-md"/>
@@ -61,8 +62,8 @@ export default function TemplateView(props: TemplateViewProps) {
                                         <TextField
                                             readOnly={props.isReadonly}
                                             required
-                                            value={props.answers[question.id].stringValue}
-                                            onChange={(value) => props.setAnswers(question.id, {stringValue: value})}
+                                            value={props?.answers?.[question.id]?.stringValue}
+                                            onChange={(value) => props?.setAnswers?.(question.id, {stringValue: value})}
                                         >
                                             <TextFieldTextArea id={`question-${question.id}`}
                                                                class="w-full p-2 bg-background border border-input rounded-md"/>
@@ -72,8 +73,8 @@ export default function TemplateView(props: TemplateViewProps) {
                                         <NumberField
                                             readOnly={props.isReadonly}
                                             required
-                                            onRawValueChange={(value) => props.setAnswers(question.id, {numericValue: value})}
-                                            rawValue={props.answers[question.id].numericValue}
+                                            onRawValueChange={(value) => props?.setAnswers?.(question.id, {numericValue: value})}
+                                            rawValue={props?.answers?.[question.id]?.numericValue}
                                             class="w-full p-2 bg-background border border-input rounded-md"
                                         >
                                             <NumberFieldGroup>
@@ -87,8 +88,8 @@ export default function TemplateView(props: TemplateViewProps) {
                                         <Checkbox
                                             readOnly={props.isReadonly}
                                             id={`question-${question.id}`}
-                                            checked={props.answers[question.id].booleanValue}
-                                            onChange={(value) => props.setAnswers(question.id, {booleanValue: value})}
+                                            checked={props?.answers?.[question.id]?.booleanValue}
+                                            onChange={(value) => props?.setAnswers?.(question.id, {booleanValue: value})}
                                             required
                                             class="w-full p-2 bg-background border border-input rounded-md"
                                         />
@@ -96,8 +97,8 @@ export default function TemplateView(props: TemplateViewProps) {
                                     <Match when={question.type === QuestionTypes.Select}>
                                         <Select
                                             readOnly={props.isReadonly}
-                                            value={props.answers[question.id].stringValue}
-                                            onChange={(value) => props.setAnswers(question.id, {stringValue: value!})}
+                                            value={props?.answers?.[question.id]?.stringValue}
+                                            onChange={(value) => props?.setAnswers?.(question.id, {stringValue: value!})}
                                             options={question.options!}
                                             placeholder="Select a variant"
                                             required

@@ -25,7 +25,7 @@ export interface Answer {
     booleanValue: boolean;
 }
 
-export interface Form {
+export interface FilledForm {
     templateId: number;
     answers: Record<number, Answer>
 }
@@ -54,7 +54,7 @@ export interface Template {
     }[];
 }
 
-export interface FilledForm {
+export interface Form {
     id: number;
     templateId: number;
     userId: number;
@@ -63,7 +63,12 @@ export interface FilledForm {
     answers: Record<number, Answer>;
 }
 
-export type SubmittedForm = Omit<FilledForm, "answers">
+export type FormInfo = Omit<Form, "answers">
+
+export interface FormWithQuestion{
+    form: Form;
+    template: Template;
+}
 
 export const TopicOptions = [
     { value: 'education', label: 'Education' },
@@ -86,13 +91,24 @@ export interface AggregatedResults {
     questions: Record<number, Aggregation>;
 }
 
-export interface Aggregation{
+export interface Aggregation {
     averageNumber?: number;
     minNumber?: number;
     maxNumber?: number;
     mostCommonText?: string;
     uniqueCountText?: number;
-    optionCountsSelect?: Record<number, number>;
-    falseCountBool?: number;
-    trueCountBool?: boolean;
+    optionCountsSelect?: Record<number, number>
+}
+
+export interface Comment {
+    id: string;
+    userId: string;
+    userName: string;
+    content: string;
+    createdAt: string;
+}
+
+export interface LikesInfo{
+    likes: number;
+    isLiked: boolean;
 }

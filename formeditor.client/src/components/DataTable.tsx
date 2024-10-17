@@ -2,7 +2,7 @@
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table.tsx";
-import {createResource, For} from "solid-js";
+import {createResource, For, untrack, createEffect, on} from "solid-js";
 import {
     ColumnDef,
     createSolidTable,
@@ -22,6 +22,7 @@ import {Skeleton} from "~/components/ui/skeleton.tsx";
 import {TableOption} from "~/types/template.ts";
 import {createStore} from "solid-js/store";
 import {Checkbox} from "./ui/checkbox";
+import {createWritableMemo} from "@solid-primitives/memo"
 
 const selectionColumn = {
     id: 'select',
@@ -41,16 +42,26 @@ const selectionColumn = {
     ),
 };
 
-interface DataTableProps<TData> {
+interface DataTableProps<TData, Key extends string> {
     columns: ColumnDef<TData> [];
     isSelectable?: boolean;
-    onSelectionChange?: (selection: Updater<RowSelectionState>) => void;
-    selection?: RowSelectionState;
+    onSelectionChange?: (selection: TData[Key][]) => void;
+    initialSelection?: TData[Key][];
     onRowClick?: (row: TData) => void;
     fetchData: (options: TableOption) => Promise<{ data: TData[]; totalPages: number }>;
+    onFetchData?: (data: TData[], options: TableOption) => void;
+    rowId: Key;
+    refetchTrigger: () => void;
 }
 
-const DataTable = <TData, >(props: DataTableProps<TData>) => {
+const DataTable = <TData,Key extends string>(props: DataTableProps<TData, Key>) => {
+        const [selection, setSelection] = createWritableMemo(() =>
+            props.initialSelectedUsers?.reduce((acc, row, index) => ({
+                ...acc,
+                [props.rowId ? row[props.rowId] : index]: true
+            }), {}) ?? []
+        );
+        
         const [options, setOptions] = createStore<TableOption>({
             sort: [],
             filter: '',
@@ -59,30 +70,49 @@ const DataTable = <TData, >(props: DataTableProps<TData>) => {
                 pageSize: 10
             }
         });
-        const [response] = createResource(options, props.fetchData);
+        const [response, {refetch}] = createResource(options, props.fetchData);
+        const handleRowSelectionChange = (updater: RowSelectionState | ((prev: RowSelectionState) => RowSelectionState)) => {
+            setSelection(updater);
+            props.onSelectionChange?.(Object.keys(selection()).filter(id => selection()[id]).map(Number));
+        };
+        
+        createEffect(()=> {
+            if (response()){
+                const args = untrack(options)
+                props.onFetchData(response().data, args);
+            }
+        })
+
+        createEffect(on(props.refetchTrigger(),refetch));
 
         const table = createSolidTable({
                 get data() {
                     return response()?.data ?? [];
                 },
-                get columns(){ 
-                    return props.isSelectable? [selectionColumn, ...props.columns] : props.columns
+                get columns() {
+                    return props.isSelectable ? [selectionColumn, ...props.columns] : props.columns
                 },
                 getCoreRowModel: getCoreRowModel(),
-                getSortedRowModel: getSortedRowModel(),
-                onRowSelectionChange: props.onSelectionChange,
+                onRowSelectionChange: handleRowSelectionChange,
                 onSortingChange: (sort) => setOptions("sort", sort),
                 onPaginationChange: (pagination) => setOptions("pagination", pagination),
                 onGlobalFilterChange: (pagination) => setOptions("pagination", pagination),
                 manualSorting: true,
                 manualFiltering: true,
                 manualPagination: true,
+                get enableRowSelection() {
+                    return props.isSelectable
+                },
+                get enableMultiRowSelection() {
+                    return props.isSelectable
+                },
+                getRowId: (row, index) => props.rowId ? row[props.rowId] : index,
                 get pageCount() {
                     return response()?.totalPages
                 },
                 state: {
                     get rowSelection() {
-                        return props.selection;
+                        return selection();
                     },
                     get sorting() {
                         return options.sort;
@@ -179,7 +209,7 @@ const DataTable = <TData, >(props: DataTableProps<TData>) => {
                             ) : (
                                 <For each={table.getRowModel().rows}>
                                     {(row) => (
-                                        <TableRow 
+                                        <TableRow
                                             class="hover:bg-accent transition-colors duration-200"
                                             classList={{"cursor-pointer": !!props.onRowClick}}
                                             onClick={() => props.onRowClick?.(row.original)}

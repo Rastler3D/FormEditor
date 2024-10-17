@@ -10,12 +10,16 @@
     <PackageJsonScriptsPreview Condition="$(PackageJsonScriptsPreview) == ''">vite preview</PackageJsonScriptsPreview>
     <PackageJsonDependenciesCorvuResizable Condition="$(PackageJsonDependenciesCorvuResizable) == ''">^0.2.3</PackageJsonDependenciesCorvuResizable>
     <PackageJsonDependenciesKobalteCore Condition="$(PackageJsonDependenciesKobalteCore) == ''">^0.13.7</PackageJsonDependenciesKobalteCore>
+    <PackageJsonDependenciesMicrosoftSignalr Condition="$(PackageJsonDependenciesMicrosoftSignalr) == ''">^8.0.7</PackageJsonDependenciesMicrosoftSignalr>
+    <PackageJsonDependenciesSolidPrimitivesDebounce Condition="$(PackageJsonDependenciesSolidPrimitivesDebounce) == ''">^1.3.0</PackageJsonDependenciesSolidPrimitivesDebounce>
     <PackageJsonDependenciesSolidPrimitivesUpload Condition="$(PackageJsonDependenciesSolidPrimitivesUpload) == ''">^0.0.117</PackageJsonDependenciesSolidPrimitivesUpload>
+    <PackageJsonDependenciesSolidPrimitivesMemo Condition="$(PackageJsonDependenciesSolidPrimitivesMemo) == ''">^1.3.9</PackageJsonDependenciesSolidPrimitivesMemo>
     <PackageJsonDependenciesSolidjsRouter Condition="$(PackageJsonDependenciesSolidjsRouter) == ''">^0.14.7</PackageJsonDependenciesSolidjsRouter>
     <PackageJsonDependenciesTailwindcssLineClamp Condition="$(PackageJsonDependenciesTailwindcssLineClamp) == ''">^0.4.4</PackageJsonDependenciesTailwindcssLineClamp>
     <PackageJsonDependenciesTanstackSolidTable Condition="$(PackageJsonDependenciesTanstackSolidTable) == ''">^8.20.5</PackageJsonDependenciesTanstackSolidTable>
     <PackageJsonDependenciesThisbeyondSolidDnd Condition="$(PackageJsonDependenciesThisbeyondSolidDnd) == ''">^0.7.5</PackageJsonDependenciesThisbeyondSolidDnd>
     <PackageJsonDependenciesThisbeyondSolidSelect Condition="$(PackageJsonDependenciesThisbeyondSolidSelect) == ''">^0.15.0</PackageJsonDependenciesThisbeyondSolidSelect>
+    <PackageJsonDependenciesAxios Condition="$(PackageJsonDependenciesAxios) == ''">^1.7.7</PackageJsonDependenciesAxios>
     <PackageJsonDependenciesClassVarianceAuthority Condition="$(PackageJsonDependenciesClassVarianceAuthority) == ''">^0.7.0</PackageJsonDependenciesClassVarianceAuthority>
     <PackageJsonDependenciesClsx Condition="$(PackageJsonDependenciesClsx) == ''">^2.1.1</PackageJsonDependenciesClsx>
     <PackageJsonDependenciesD3 Condition="$(PackageJsonDependenciesD3) == ''">^7.9.0</PackageJsonDependenciesD3>

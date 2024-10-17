@@ -3,7 +3,7 @@ import {createResource, Show} from "solid-js";
 import {fetchTemplate} from "~/services/api.ts";
 import {useAuth} from "~/contexts/AuthContext.tsx";
 import {ProgressCircle} from "~/components/ui/progress-circle";
-import FormSubmission from "~/components/FormSubmission.tsx";
+import TemplateSubmission from "~/components/TemplateSubmission.tsx";
 import TemplateManager from "~/components/TemplateManager.tsx";
 
 const TemplatePage = () => {
@@ -12,11 +12,11 @@ const TemplatePage = () => {
     const [template] = createResource(() => Number(params.id), fetchTemplate);
     
     return (
-        <Show when={user() && template()} fallback={
+        <Show when={template()} fallback={
             <div class="m-auto"> Loading <ProgressCircle showAnimation={true}></ProgressCircle></div>
         }>
             <Show when={user()?.id == template()?.creatorId || user()?.role == 'admin'} fallback={
-                <FormSubmission template={template()!} />
+                <TemplateSubmission template={template()!} />
             }>
                 <TemplateManager template={template()!} />
             </Show>

@@ -1,21 +1,21 @@
-﻿import {Answer, Template} from "~/types/template.ts";
-import {createResource} from "solid-js/types/server";
-import {fetchSubmittedForm, submitForm} from "../services/formService";
+﻿import {Answer, Form, Template} from "~/types/template.ts";
+import {fetchTemplateSubmission, submitForm} from "../services/formService";
 import {Card} from "./ui/card";
 import TemplateView from "~/components/TemplateView.tsx";
 import {createStore, reconcile, unwrap} from "solid-js/store";
-import {createEffect, createSignal, Match, Show, Switch} from "solid-js";
+import {createEffect, createSignal, createResource, Match, Show, Switch, Signal} from "solid-js";
 import {Button} from "~/components/ui/button.tsx";
 import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 
 interface FormSubmissionProps {
     template: Template;
+    isReadonly: boolean;
 }
 
-export default function FormSubmission(props: FormSubmissionProps) {
-    const [submit, setSubmit] = createSignal();
+export default function TemplateSubmission(props: FormSubmissionProps) {
+    const [submit, setSubmit] = createSignal<Form | undefined>();
     const [formSubmission] = createResource(submit, submitForm);
-    const [form, {mutate: mutateForm}] = createResource(props.template.id, fetchSubmittedForm);
+    const [form, {mutate: mutateForm}] = createResource(props.template.id, fetchTemplateSubmission);
     const [answers, setAnswers] = createStore({} as Record<number, Answer>);
     const [isEdit, setIsEdit] = createSignal(false);
 
@@ -72,22 +72,24 @@ export default function FormSubmission(props: FormSubmissionProps) {
                             Loading <ProgressCircle showAnimation={true}></ProgressCircle>
                         </Button>
                     }>
-                        <Show when={form()} fallback={
-                            <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                    onClick={handleSubmit}>Submit</Button>
-                        }>
-                            <p class="text-sm text-muted-foreground">
-                                Form submitted: {form().submittedAt}
-                            </p>
-                            <Show when={isEdit} fallback={
+                        <Show>
+                            <Show when={form()} fallback={
                                 <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={handleEditForm}>Edit</Button>
+                                        onClick={handleSubmit}>Submit</Button>
                             }>
-                                <Button type="submit"
-                                        class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={handleSubmit}>Save</Button>
-                                <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={handleCancelEditForm}>Cancel</Button>
+                                <p class="text-sm text-muted-foreground">
+                                    Form submitted: {form().submittedAt}
+                                </p>
+                                <Show when={isEdit} fallback={
+                                    <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                                            onClick={handleEditForm}>Edit</Button>
+                                }>
+                                    <Button type="submit"
+                                            class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                                            onClick={handleSubmit}>Save</Button>
+                                    <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                                            onClick={handleCancelEditForm}>Cancel</Button>
+                                </Show>
                             </Show>
                         </Show>
 

@@ -28,9 +28,11 @@ import {fetchFilledForms, submitForm, addComment, toggleLike} from '~/services/a
 import {useAuth} from '~/contexts/AuthContext';
 import TemplateSettings from "~/components/TemplateSettings";
 import {Template} from "~/types/template.ts";
-import FormSubmission from "~/components/FormSubmission.tsx";
+import TemplateSubmission from "~/components/TemplateSubmission.tsx";
 import TemplateSubmissions from "~/components/TemplateSubmissions.tsx";
 import FormAggregation from "~/components/FormAggregation.tsx";
+import Likes from "~/components/Likes.tsx";
+import Comments from "~/components/Comments.tsx";
 
 interface TemplateManagerProps {
     template: Template;
@@ -85,10 +87,7 @@ const TemplateManager = (props: TemplateManagerProps) => {
         }
     };
 
-    const handleToggleLike = async () => {
-        const newLikeCount = await toggleLike(template().id);
-        // In a real app, you'd update the template data here with the new like count
-    };
+   
 
     return (
         <div class="container mx-auto p-4">
@@ -113,7 +112,7 @@ const TemplateManager = (props: TemplateManagerProps) => {
                 </TabsList>
 
                 <TabsContent value="form">
-                    <FormSubmission template={props.template} />
+                    <TemplateSubmission template={props.template} />
                 </TabsContent>
                 <TabsContent value="answers">
                     <TemplateSubmissions template={props.template} />
@@ -127,49 +126,8 @@ const TemplateManager = (props: TemplateManagerProps) => {
             </Tabs>
 
             <div class="p-6 border-t border-border">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold">Engagement</h2>
-                    <Button onClick={handleToggleLike} variant="outline"
-                            class="bg-primary/10 text-primary hover:bg-primary/20 inline-flex items-center">
-                        <FaSolidHeart class="mr-2"/>
-                        <span>{template().likes} Likes</span>
-                    </Button>
-                </div>
-
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold mb-4">Comments</h3>
-                    <div class="space-y-4 max-h-60 overflow-y-auto">
-                        <For each={template().comments}>
-                            {(comment) => (
-                                <Card class="bg-accent">
-                                    <div class="p-4">
-                                        <p class="mb-2">{comment.text}</p>
-                                        <div class="text-sm text-muted-foreground flex justify-between">
-                                            <span>{comment.author}</span>
-                                            <span>{new Date(comment.date).toLocaleString()}</span>
-                                        </div>
-                                    </div>
-                                </Card>
-                            )}
-                        </For>
-                    </div>
-                    <div class="mt-4">
-                        <TextField>
-                            <TextFieldInput
-                                type="text"
-                                value={newComment()}
-                                onInput={(e) => setNewComment(e.currentTarget.value)}
-                                placeholder="Add a comment..."
-                                class="mb-2 w-full bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring"
-                            />
-                        </TextField>
-                        <Button onClick={handleAddComment}
-                                class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center">
-                            <FaSolidComment class="mr-2"/>
-                            <span>Add Comment</span>
-                        </Button>
-                    </div>
-                </div>
+                <Likes template={props.template}></Likes>
+                <Comments template={props.template}></Comments>
             </div>
         </div>
     );

@@ -11,7 +11,7 @@ export const fetchFilledForms = async (templateId: number): Promise<FilledForm[]
         ];
 };
 
-export const fetchSubmittedForm = async (templateId: number): Promise<FilledForm> => {
+export const fetchTemplateSubmission = async (templateId: number): Promise<FilledForm> => {
     // Implement API call to submit form
 };
 export const submitForm = async (form: Form): Promise<SubmittedForm> => {

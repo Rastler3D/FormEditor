@@ -80,7 +80,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                     />
                 </TabsContent>
                 <TabsContent value="preview" class="p-6">
-                    <TemplateView questions={template()!.questions}/>
+                    <TemplateView template={template()!}/>
                 </TabsContent>
             </Tabs>
             <Show when={showUserTableList()}>

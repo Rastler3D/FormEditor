@@ -5,6 +5,7 @@ import {FaSolidHeart} from "solid-icons/fa";
 import {A} from "@solidjs/router";
 import {For} from "solid-js";
 import {Skeleton} from "~/components/ui/skeleton";
+import {SolidMarkdown} from "solid-markdown";
 
 interface TemplateCardProps {
     template: TemplateInfo;
@@ -28,7 +29,7 @@ const TemplateCard = (props: TemplateCardProps) => {
                 </div>
                 <CardContent class="p-4 h-[180px] overflow-hidden">
                     <h3 class="text-lg font-semibold mb-2 line-clamp-1">{props.template.name}</h3>
-                    <p class="text-sm text-muted-foreground mb-3 line-clamp-3">{props.template.description}</p>
+                    <p class="text-sm text-muted-foreground mb-3 line-clamp-3"><SolidMarkdown>{props.template.description}</SolidMarkdown></p>
                     <div class="flex flex-wrap gap-2">
                         <For each={props.template.tags.slice(0, 3)}>
                             {(tag) => <Badge variant="secondary" class="truncate max-w-[80px]">{tag}</Badge>}
