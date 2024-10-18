@@ -27,7 +27,7 @@ import {FaSolidComment, FaSolidHeart} from 'solid-icons/fa';
 import {fetchFilledForms, submitForm, addComment, toggleLike} from '~/services/api';
 import {useAuth} from '~/contexts/AuthContext';
 import TemplateSettings from "~/components/TemplateSettings";
-import {Template} from "~/types/template.ts";
+import {Template, TemplateConfiguration} from "~/types/template.ts";
 import TemplateSubmission from "~/components/TemplateSubmission.tsx";
 import TemplateSubmissions from "~/components/TemplateSubmissions.tsx";
 import FormAggregation from "~/components/FormAggregation.tsx";
@@ -36,62 +36,14 @@ import Comments from "~/components/Comments.tsx";
 
 interface TemplateManagerProps {
     template: Template;
+    isSavingChanges: boolean;
+    onSavedChanges: (template: TemplateConfiguration) => void;
 }
 
 const TemplateManager = (props: TemplateManagerProps) => {
-    const [activeTab, setActiveTab] = createSignal('form');
-    const [formData, setFormData] = createSignal({});
-    const [globalFilter, setGlobalFilter] = createSignal('');
-    const [newComment, setNewComment] = createSignal('');
-    const {user} = useAuth();
-
-    
-
-    const table = createSolidTable({
-        get data() {
-            return filledForms() || [];
-        },
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        initialState: {
-            pagination: {
-                pageSize: 5,
-            },
-        },
-        state: {
-            get globalFilter() {
-                return globalFilter();
-            },
-        },
-        onGlobalFilterChange: setGlobalFilter,
-    });
-
-    const handleInputChange = (questionId, value) => {
-        setFormData(prev => ({...prev, [questionId]: value}));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await submitForm(formData());
-        // You might want to show a success message or redirect the user here
-    };
-
-    const handleAddComment = async () => {
-        if (newComment().trim()) {
-            await addComment(template().id, newComment());
-            setNewComment('');
-            // In a real app, you'd update the template data here with the new comment
-        }
-    };
-
-   
-
     return (
         <div class="container mx-auto p-4">
-            <Tabs value={activeTab()} onChange={setActiveTab}>
+            <Tabs defaultValue="form" disabled={props.isSavingChanges}>
                 <TabsList class="flex space-x-2 mb-4">
                     <TabsTrigger value="form"
                                  class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
@@ -118,7 +70,7 @@ const TemplateManager = (props: TemplateManagerProps) => {
                     <TemplateSubmissions template={props.template} />
                 </TabsContent>
                 <TabsContent value="configuration">
-                    <TemplateSettings template={props.template} />
+                    <TemplateSettings template={props.template} isSavingChanges={props.isSavingChanges} onSaveChanges={props.onSavedChanges} />
                 </TabsContent>
                 <TabsContent value="aggregation">
                     <FormAggregation template={props.template} />

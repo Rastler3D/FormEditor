@@ -7,17 +7,20 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
-    role: 'user' | 'admin';
+    role: 'User' | 'Admin';
+    status: "Active" | "Blocked";
 }
 
 interface AuthContextType {
     user: () => User | null;
-    signIn: (email: string, password: string) => Promise<void>;
+    signIn: (args: {email: string, password: string}) => Promise<void>;
     signInWithProvider: (provider: 'google' | 'facebook') => Promise<void>;
-    register: (name: string, email: string, password: string) => Promise<void>;
+    signUp: (args: {name: string, email: string, password: string }) => Promise<void>;
     refreshToken: () => Promise<string>;
     signOut: () => void;
     updateUser: (data: Partial<User>) => Promise<User>;
+    isAuthenticated: () => boolean;
+    hasRole: (roles?: string[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>();
@@ -31,8 +34,12 @@ export function AuthProvider(props) {
             setUser(JSON.parse(storedUser));
         }
     });
+    
+    const isAuthenticated = () => !!user();
 
-    const signIn = async (email: string, password: string) => {
+    const hasRole = (roles?: string[]) => user() ? (roles ? roles.includes(user()!.role): true) : false;
+
+    const signIn = async ({email, password}: {email: string, password: string}) => {
         try {
             const user = await login(email, password);
             setUser(user);
@@ -48,7 +55,7 @@ export function AuthProvider(props) {
         localStorage.removeItem('user');
     };
 
-    const register = async (name: string, email: string, password: string) => {
+    const signUp = async ({name, email, password}: {name: string, email: string, password: string}) => {
         const response = await api.post('/auth/register', { name, email, password });
         setUser(response.data.user);
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -85,7 +92,7 @@ export function AuthProvider(props) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut, signInWithProvider, register, updateUser }}>
+        <AuthContext.Provider value={{ user, signIn, signOut, signInWithProvider, signUp, updateUser, isAuthenticated, hasRole, refreshToken }}>
             {props.children}
         </AuthContext.Provider>
     );

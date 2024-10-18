@@ -9,6 +9,8 @@ export enum QuestionTypes {
 }
 export type QuestionType = typeof QuestionTypes[keyof typeof QuestionTypes];
 
+export type QuestionConfiguration = Omit<Question, "id"> & { id?: number };
+
 
 export interface Question {
     id: number;
@@ -30,35 +32,36 @@ export interface FilledForm {
     answers: Record<number, Answer>
 }
 
-export type TemplateInfo = Omit<Template, "questions" | "comments">
+export type TemplateInfo = Omit<Template, "questions">
+export type TemplateConfiguration = Omit<Template, "id" | "creatorId" | "createdBy" | "createdAt" | "image" | "likes" | "filledCount"> & {image?: string | File}
 export interface Template {
     id: number;
     name: string;
     description: string;
     topic: string;
-    image: string | null;
+    image?: string;
     creatorId: number;
     createdBy: string;
     createdAt: string;
     tags: string[];
-    accessSetting: 'all' | 'specified';
-    allowList: number[];
+    accessSetting: AccessSetting;
+    allowList?: number[];
     filledCount: number;
-    questions: Question[];
+    questions: QuestionConfiguration[];
     likes: number;
-    comments: {
-        id: number;
-        author: string;
-        text: string;
-        date: string;
-    }[];
+}
+
+export enum AccessSetting {
+    All = "All",
+    Specified=  "Specified",
 }
 
 export interface Form {
     id: number;
     templateId: number;
-    userId: number;
-    userName: string;
+    templateName: string;
+    submitterId: number;
+    submittedBy: string;
     submittedAt: string;
     answers: Record<number, Answer>;
 }

@@ -1,11 +1,19 @@
-﻿import { createEffect, createSignal } from 'solid-js';
-import { Bold, Italic, List, ListOrdered, Link, Image, Code, Heading, Quote } from 'lucide-solid';
-import { Button } from "~/components/ui/button";
-import { TextField, TextFieldTextArea } from "~/components/ui/text-field";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { SolidMarkdown } from 'solid-markdown';
-const MarkdownEditor = (props) => {
+﻿import {createEffect, createSignal} from 'solid-js';
+import {Bold, Italic, List, ListOrdered, Link, Image, Code, Heading, Quote} from 'lucide-solid';
+import {Button} from "~/components/ui/button";
+import {TextField, TextFieldTextArea} from "~/components/ui/text-field";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "~/components/ui/tabs";
+import {Tooltip, TooltipContent, TooltipTrigger} from '~/components/ui/tooltip';
+import {SolidMarkdown} from 'solid-markdown';
+
+interface MarkdownEditorProps {
+    value: string;
+    onChange: (text: string) => void;
+    id?: string;
+    required?: boolean;
+}
+
+const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [activeTab, setActiveTab] = createSignal('edit');
     const [selectedStyles, setSelectedStyles] = createSignal({});
 
@@ -203,11 +211,11 @@ const MarkdownEditor = (props) => {
                     </TabsList>
                 </div>
                 <TabsContent value="edit">
-                    <TextField>
+                    <TextField required={props.required} 
+                               value={props.value}
+                               onChange={(value) => props.onChange(value)}>
                         <TextFieldTextArea
-                            id="markdown-editor"
-                            value={props.value}
-                            onInput={(e) => props.onChange(e.currentTarget.value)}
+                            id={props.id}
                             onSelect={updateSelectedStyles}
                             onKeyDown={handleKeyDown}
                             class="mt-1 block w-full rounded-md  border-gray-300 shadow-sm ring-0 outline-none border focus-visible:ring-0 focus-visible:ring-offset-0"

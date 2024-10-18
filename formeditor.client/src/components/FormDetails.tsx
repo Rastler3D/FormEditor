@@ -1,22 +1,10 @@
-﻿import {createSignal, createEffect, Show} from 'solid-js';
-import {useParams} from '@solidjs/router';
-import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
+﻿import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';
-import {useAuth} from '~/contexts/AuthContext';
-import {fetchForm} from '~/services/formService';
-import FormSubmission from '~/components/FormSubmission';
-import CommentaryComponent from '~/components/CommentaryComponent';
-import {Template, Form} from '~/types/template';
-import {Avatar, AvatarFallback, AvatarImage} from '~/components/ui/avatar';
 import {Separator} from '~/components/ui/separator';
-
-import {Answer, FilledForm, Form, FormInfo, QuestionTypes, Template} from "~/types/template.ts";
-import {Card} from "~/components/ui/card.tsx";
-import {createEffect, createResource, createSignal, For, Show} from "solid-js";
-import {fetchForm, fetchTemplateSubmission, submitForm} from "../services/formService";
+import { Form,  Template} from "~/types/template.ts";
+import {createEffect,  createSignal,  Show} from "solid-js";
 import {createStore, reconcile, unwrap} from "solid-js/store";
 import TemplateView from "./TemplateView";
-import {Button} from "./ui/button";
 import {ProgressCircle} from "./ui/progress-circle";
 
 interface FormDetailsProps {
@@ -36,6 +24,8 @@ export default function FormDetails(props: FormDetailsProps) {
             setIsEdit(false);
         }
         setAnswers(props.form.answers);
+
+        return prevId;
     }, props.form.id)
 
     const handleEditForm = () => {
@@ -47,7 +37,7 @@ export default function FormDetails(props: FormDetailsProps) {
     }
 
     const handleSubmit = () => {
-        props.onFormChange(unwrap(answers))
+        props.onFormChange({...props.form, answers: unwrap(answers)})
     }
     return (
         <div class="container mx-auto p-4">
@@ -57,8 +47,8 @@ export default function FormDetails(props: FormDetailsProps) {
                 </CardHeader>
                 <CardContent>
                     <div class="mb-6">
-                        <h3 className="text-lg font-semibold mb-2">Template: {props.template.name}</h3>
-                        <h3 className="text-lg font-semibold mb-2">Submitted by: {props.form.userName}</h3>
+                        <h3 class="text-lg font-semibold mb-2">Template: {props.template.name}</h3>
+                        <h3 class="text-lg font-semibold mb-2">Submitted by: {props.form.submittedBy}</h3>
                         <p class="text-sm text-muted-foreground mt-2">
                             Submitted on: {new Date(props.form.submittedAt).toLocaleString()}
                         </p>
@@ -69,7 +59,7 @@ export default function FormDetails(props: FormDetailsProps) {
                         <TemplateView template={props.template} answers={answers} setAnswers={setAnswers}
                                       isReadonly={props.isReadonly || !isEdit() || props.isSubmitting}/>
                         <Show when={!props.isSubmitting} fallback={
-                            <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                            <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                                 Loading <ProgressCircle showAnimation={true}></ProgressCircle>
                             </Button>
                         }>

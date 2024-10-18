@@ -2,7 +2,6 @@ import {createSignal, createEffect} from 'solid-js';
 import {ColumnDef} from "@tanstack/solid-table";
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
-import {User} from '~/types/user';
 import {
     fetchUsers,
     blockUser,
@@ -12,14 +11,15 @@ import {
     bulkDeleteUsers,
     bulkUnblockUsers
 } from '~/services/api';
-import {toast} from '~/components/ui/use-toast';
-import {useAuth} from "~/contexts/AuthContext";
+import {useAuth, User} from "~/contexts/AuthContext";
+import {createTrigger} from "@solid-primitives/trigger"
+import {showToast} from "./ui/toast";
 
 export default function UserManagement() {
-    const [selection, setSelection] = createSignal([]);
-    const [fetchedUsers, setFetchedUsers] = createSignal([]);
-    const [selectedUsers, setSelectedUsers] = createSignal([]);
-    const [user, refreshToken] = useAuth();
+    const [selection, setSelection] = createSignal<number[]>([]);
+    const [fetchedUsers, setFetchedUsers] = createSignal<User[]>([]);
+    const [selectedUsers, setSelectedUsers] = createSignal<User[]>([]);
+    const {user, refreshToken} = useAuth();
     const columns: ColumnDef<User>[] = [
         {
             accessorKey: 'name',
@@ -65,53 +65,53 @@ export default function UserManagement() {
     ];
     
 
-    const handleToggleAdminRole = async (userId: string, currentRole: string) => {
+    const handleToggleAdminRole = async (userId: number, currentRole: string) => {
         try {
             const newRole = currentRole === 'Admin' ? 'User' : 'Admin';
             await updateUserRole(userId, newRole);
-            if (userId == user.id){
+            if (userId == user()?.id){
                 await refreshToken();
             }
             trigger();
-            toast({title: `User role updated to ${newRole}`, variant: "default"});
+            showToast({title: `User role updated to ${newRole}`, variant: "default"});
         } catch (error) {
-            toast({title: "Failed to update user role", variant: "destructive"});
+            showToast({title: "Failed to update user role", variant: "destructive"});
         }
     };
     const [track, trigger] = createTrigger();
-    const handleAction = async (action: 'block' | 'unblock' | 'delete', userId: string) => {
+    const handleAction = async (action: 'block' | 'unblock' | 'delete', userId: number) => {
         try {
             switch (action) {
                 case 'block':
                     await blockUser(userId);
-                    toast({title: "Selected users blocked successfully", variant: "default"});
+                    showToast({title: "Selected users blocked successfully", variant: "default"});
                     break;
                 case 'unblock':
                     await unblockUsers(userId);
-                    toast({title: "Selected users unblocked successfully", variant: "default"});
+                    showToast({title: "Selected users unblocked successfully", variant: "default"});
                     break;
                 case 'delete':
                     if (confirm("Are you sure you want to delete the selected users? This action cannot be undone.")) {
                         await deleteUsers(userId);
-                        toast({title: "Selected users deleted successfully", variant: "default"});
+                        showToast({title: "Selected users deleted successfully", variant: "default"});
                     }
                     break;
             }
-            if (userId == user.id){
+            if (userId == user()?.id){
                 await refreshToken();
             }
             trigger();
             // Refresh the data after bulk action
             // You might need to adjust this based on how your DataTable component handles refreshing
         } catch (error) {
-            toast({title: `Failed to ${action} selected users`, variant: "destructive"});
+            showToast({title: `Failed to ${action} selected users`, variant: "destructive"});
         }
         if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
             try {
                 await deleteUser(userId);
-                toast({title: "User deleted successfully", variant: "default"});
+                showToast({title: "User deleted successfully", variant: "default"});
             } catch (error) {
-                toast({title: "Failed to delete user", variant: "destructive"});
+                showToast({title: "Failed to delete user", variant: "destructive"});
             }
         }
     };
@@ -119,7 +119,7 @@ export default function UserManagement() {
     const handleBulkAction = async (action: 'block' | 'unblock' | 'delete') => {
         const selectedIds = selection();
         if (selectedIds.length === 0) {
-            toast({title: "No users selected", variant: "destructive"});
+            showToast({title: "No users selected", variant: "destructive"});
             return;
         }
 
@@ -127,27 +127,27 @@ export default function UserManagement() {
             switch (action) {
                 case 'block':
                     await bulkBlockUsers(selectedIds);
-                    toast({title: "Selected users blocked successfully", variant: "default"});
+                    showToast({title: "Selected users blocked successfully", variant: "default"});
                     break;
                 case 'unblock':
                     await bulkUnblockUsers(selectedIds);
-                    toast({title: "Selected users unblocked successfully", variant: "default"});
+                    showToast({title: "Selected users unblocked successfully", variant: "default"});
                     break;
                 case 'delete':
                     if (confirm("Are you sure you want to delete the selected users? This action cannot be undone.")) {
                         await bulkDeleteUsers(selectedIds);
-                        toast({title: "Selected users deleted successfully", variant: "default"});
+                        showToast({title: "Selected users deleted successfully", variant: "default"});
                     }
                     break;
             }
-            if (selectedIds.includes(user.id)){
+            if (user() && selectedIds.includes(user()!.id)){
                 await refreshToken();
             }
             trigger();
             // Refresh the data after bulk action
             // You might need to adjust this based on how your DataTable component handles refreshing
         } catch (error) {
-            toast({title: `Failed to ${action} selected users`, variant: "destructive"});
+            showToast({title: `Failed to ${action} selected users`, variant: "destructive"});
         }
     };
 
@@ -185,9 +185,10 @@ export default function UserManagement() {
                 columns={columns}
                 fetchData={fetchUsers}
                 isSelectable={true}
-                selection={selection()}
+                rowId="id"
+                initialSelection={selection()}
                 onSelectionChange={setSelection}
-                onFetchData={setUsers}
+                onFetchData={setFetchedUsers}
                 refetchTrigger={track}
             />
         </div>

@@ -2,14 +2,13 @@
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table.tsx";
-import {createResource, For, untrack, createEffect, on} from "solid-js";
+import {createResource, For, createEffect, on} from "solid-js";
 import {
     ColumnDef,
     createSolidTable,
     flexRender,
     getCoreRowModel,
-    getSortedRowModel, RowSelectionState,
-    Updater
+    RowSelectionState,
 } from "@tanstack/solid-table";
 import {
     Pagination,
@@ -20,11 +19,11 @@ import {
 } from "~/components/ui/pagination.tsx";
 import {Skeleton} from "~/components/ui/skeleton.tsx";
 import {TableOption} from "~/types/template.ts";
-import {createStore} from "solid-js/store";
+import {createStore, unwrap} from "solid-js/store";
 import {Checkbox} from "./ui/checkbox";
 import {createWritableMemo} from "@solid-primitives/memo"
 
-const selectionColumn = {
+const selectionColumn: ColumnDef<any> = {
     id: 'select',
     header: ({table}) => (
         <Checkbox
@@ -42,26 +41,26 @@ const selectionColumn = {
     ),
 };
 
-interface DataTableProps<TData, Key extends string> {
-    columns: ColumnDef<TData> [];
+interface DataTableProps<TData> {
+    columns: ColumnDef<TData, TData[keyof TData]> [];
     isSelectable?: boolean;
-    onSelectionChange?: (selection: TData[Key][]) => void;
-    initialSelection?: TData[Key][];
+    onSelectionChange?: (selection: number[]) => void;
+    initialSelection?: number[];
     onRowClick?: (row: TData) => void;
     fetchData: (options: TableOption) => Promise<{ data: TData[]; totalPages: number }>;
     onFetchData?: (data: TData[], options: TableOption) => void;
-    rowId: Key;
-    refetchTrigger: () => void;
+    rowId?: keyof TData;
+    refetchTrigger?: () => any;
 }
 
-const DataTable = <TData,Key extends string>(props: DataTableProps<TData, Key>) => {
-        const [selection, setSelection] = createWritableMemo(() =>
-            props.initialSelectedUsers?.reduce((acc, row, index) => ({
+const DataTable = <TData, >(props: DataTableProps<TData>) => {
+        const [selection, setSelection] = createWritableMemo(() => (
+            props.initialSelection ?? []).reduce((acc, row, index) => ({
                 ...acc,
-                [props.rowId ? row[props.rowId] : index]: true
-            }), {}) ?? []
+                [props.rowId ? row : index]: true
+            }), {} as Record<string, boolean>)
         );
-        
+
         const [options, setOptions] = createStore<TableOption>({
             sort: [],
             filter: '',
@@ -75,15 +74,16 @@ const DataTable = <TData,Key extends string>(props: DataTableProps<TData, Key>) 
             setSelection(updater);
             props.onSelectionChange?.(Object.keys(selection()).filter(id => selection()[id]).map(Number));
         };
-        
-        createEffect(()=> {
-            if (response()){
-                const args = untrack(options)
-                props.onFetchData(response().data, args);
+
+        createEffect(() => {
+            let fetchData = response()?.data;
+            if (fetchData) {
+                const args = unwrap(options)
+                props.onFetchData?.(fetchData, args);
             }
         })
 
-        createEffect(on(props.refetchTrigger(),refetch));
+        createEffect(on(() => props.refetchTrigger?.(), refetch));
 
         const table = createSolidTable({
                 get data() {
@@ -106,7 +106,7 @@ const DataTable = <TData,Key extends string>(props: DataTableProps<TData, Key>) 
                 get enableMultiRowSelection() {
                     return props.isSelectable
                 },
-                getRowId: (row, index) => props.rowId ? row[props.rowId] : index,
+                getRowId: (row, index) => String(props.rowId ? row?.[props.rowId] : index),
                 get pageCount() {
                     return response()?.totalPages
                 },

@@ -1,6 +1,6 @@
 ﻿import {For, Match, Switch} from 'solid-js';
 import {Card} from "~/components/ui/card";
-import {Answer,  QuestionTypes, Template} from '~/types/template';
+import {Answer, QuestionTypes, Template, TemplateConfiguration} from '~/types/template';
 import {TextField, TextFieldInput,  TextFieldTextArea} from "~/components/ui/text-field";
 import { SetStoreFunction, Store} from "solid-js/store";
 import {Checkbox} from "~/components/ui/checkbox";
@@ -15,7 +15,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/c
 import {SolidMarkdown} from "solid-markdown";
 
 interface TemplateViewProps {
-    template: Template;
+    template: TemplateConfiguration;
     answers?: Store<Record<number, Answer>>;
     setAnswers?: SetStoreFunction<Record<number, Answer>>;
     isReadonly?: boolean;

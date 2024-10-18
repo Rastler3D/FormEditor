@@ -1,5 +1,5 @@
 ﻿// src/services/api.ts
-import {Template, Form, User, TemplateInfo, TagInfo, LikesInfo} from '~/types/template.ts';
+import {Template, Form, User, TemplateInfo, TagInfo, LikesInfo, TemplateConfiguration} from '~/types/template.ts';
 
 
 export const fetchLatestTemplates = async (): Promise<TemplateInfo[]> => {
@@ -32,17 +32,7 @@ export const fetchTopics = async (): Promise<string[]> => {
     return ["Hello", "World"];
 };
 
-export const createTemplate = async (template: Template): Promise<Template> => {
-    await delay(500);
-    // Simulated API call
-    return template;
-};
 
-export const updateTemplate = async (template: Template): Promise<Template> => {
-    await delay(500);
-    // Simulated API call
-    return template;
-};
 
 export const searchTemplate = async (params: {
     query: string,
@@ -69,6 +59,8 @@ export const searchTemplate = async (params: {
         totalPages: Math.ceil(results.nbHits / pageSize),
     };
 }
+export const createTemplate = async (template: TemplateConfiguration): Promise<TemplateInfo> => {}
+export const updateTemplate = async ({templateId, template}: {templateId: number, template: TemplateConfiguration}): Promise<TemplateInfo> => {}
 
 export const fetchTemplate = async (id: number): Promise<Template> => {
     await delay(500); // Simulate network delay
@@ -110,7 +102,7 @@ export const fetchFilledForms = async (): Promise<{ data: Form[], totalPages: nu
         data: [
             {
                 id: 1,
-                userName: 'John Doe',
+                submittedBy: 'John Doe',
                 position: 'Software Engineer',
                 experience: 5,
                 contact: 'john@example.com',
@@ -118,7 +110,7 @@ export const fetchFilledForms = async (): Promise<{ data: Form[], totalPages: nu
             },
             {
                 id: 2,
-                userName: 'Jane Smith',
+                submittedBy: 'Jane Smith',
                 position: 'Product Manager',
                 experience: 7,
                 contact: 'jane@example.com',
