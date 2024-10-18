@@ -29,11 +29,16 @@ export interface Answer {
 
 export interface FilledForm {
     templateId: number;
+    fillingDate: string;
+    submitterId: number;
     answers: Record<number, Answer>
 }
 
 export type TemplateInfo = Omit<Template, "questions">
-export type TemplateConfiguration = Omit<Template, "id" | "creatorId" | "createdBy" | "createdAt" | "image" | "likes" | "filledCount"> & {image?: string | File}
+export type TemplateConfiguration = Omit<Template, "id" | "creatorId" | "createdBy" | "createdAt" | "image" | "likes" | "filledCount" | "questions"> & {
+    image?: string | File,
+    questions: QuestionConfiguration[]
+}
 export interface Template {
     id: number;
     name: string;
@@ -47,7 +52,7 @@ export interface Template {
     accessSetting: AccessSetting;
     allowList?: number[];
     filledCount: number;
-    questions: QuestionConfiguration[];
+    questions: Question[];
     likes: number;
 }
 
@@ -63,6 +68,7 @@ export interface Form {
     submitterId: number;
     submittedBy: string;
     submittedAt: string;
+    fillingDate: string;
     answers: Record<number, Answer>;
 }
 
@@ -100,6 +106,8 @@ export interface Aggregation {
     maxNumber?: number;
     mostCommonText?: string;
     uniqueCountText?: number;
+    trueCountBoolean: number;
+    falseCountBoolean: number;
     optionCountsSelect?: Record<number, number>
 }
 
@@ -113,5 +121,5 @@ export interface Comment {
 
 export interface LikesInfo{
     likes: number;
-    isLiked: boolean;
+    isLiked?: boolean;
 }

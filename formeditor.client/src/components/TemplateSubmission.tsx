@@ -3,7 +3,7 @@ import {fetchTemplateSubmission, submitForm} from "../services/formService";
 import {Card} from "./ui/card";
 import TemplateView from "~/components/TemplateView.tsx";
 import {createStore, reconcile, unwrap} from "solid-js/store";
-import {createEffect, createResource, createSignal, Match, Show} from "solid-js";
+import {createEffect, createResource, createSignal, Match, Show, createMemo, on} from "solid-js";
 import {Button} from "~/components/ui/button.tsx";
 import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 import {createAction} from "~/lib/action.ts";
@@ -27,6 +27,8 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
     const [form, {mutate: mutateForm}] = createResource(() => ({templateId: props.template.id, user: user()}), fetchSubmission);
     const [answers, setAnswers] = createStore({} as Record<number, Answer>);
     const [isEdit, setIsEdit] = createSignal(false);
+    const filledBy = createMemo(() => user()?.name ?? "Anonymous");
+    const fillingDate= createMemo(on(isEdit, () => new Date()));
     
     const hasPermission = () => !!user() && (props.template.accessSetting == AccessSetting.All || props.template.allowList!.includes(user()!.id));
 
@@ -68,7 +70,9 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
     const handleSubmit = () => {
         setIsEdit(false);
         formSubmission({
+            submitterId: user()!.id,
             templateId: props.template.id,
+            fillingDate: fillingDate().toLocaleString(),
             answers: unwrap(answers),
         })
     }
@@ -78,8 +82,12 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
             <form onSubmit={handleSubmit} class="space-y-6 p-6">
                 <div class="p-4">
                     <h2 class="text-2xl font-bold mb-4">Form</h2>
-                    <TemplateView template={props.template} answers={answers} setAnswers={setAnswers}
-                                  isReadonly={!hasPermission() || !isEdit()}/>
+                    <TemplateView template={props.template} 
+                                  answers={answers} 
+                                  setAnswers={setAnswers}
+                                  isReadonly={!hasPermission() || !isEdit()} 
+                                  fillingDate={form()?.fillingDate ?? fillingDate()} 
+                                  filledBy={form()?.submittedBy ?? filledBy()}  />
                     <Show when={!form.loading && !formSubmission.data.loading} fallback={
                         <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                             Loading <ProgressCircle showAnimation={true}></ProgressCircle>

@@ -1,0 +1,84 @@
+﻿version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d myapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+
+  meilisearch:
+    image: getmeili/meilisearch:v0.27
+    container_name: meilisearch
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKey}
+    volumes:
+      - meilisearch_data:/meili_data
+    ports:
+      - "7700:7700"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  meilisync:
+    image: long2ice/meilisync:latest
+    container_name: meilisync
+    depends_on:
+      postgres:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    volumes:
+      - ./meilisync-config.toml:/app/config.toml
+    command: ["meilisync", "-c", "/app/config.toml"]
+    restart: unless-stopped
+    
+    
+  formeditor.server:
+    image: formeditor.server
+    build:
+      context: .
+      dockerfile: FormEditor.Server/Dockerfile
+  
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=myapp;Username=myuser;Password=mypassword
+      - MeiliSearch__Url=http://meilisearch:7700
+      - MeiliSearch__MasterKey=ThQ7sTbvQKX4JwLsBRwJcZSn24gk3Ju6
+      - MeiliSearch__SearchApiKey=c86da00c26c3645cd9ddde6881befbdb92bd680f0a82ccf0ff2d5599be5ce327
+      - MeiliSearch__SearchApiKeyUid=0330c498-5fa0-4c30-94c3-e46433df44a6
+    ports:
+      - "8080:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      meilisync:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  meilisearch_data:

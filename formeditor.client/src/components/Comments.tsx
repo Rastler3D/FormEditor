@@ -1,4 +1,4 @@
-﻿import {createSignal, createEffect, For} from 'solid-js';
+﻿import {createSignal, createEffect, For, onCleanup} from 'solid-js';
 import {HubConnectionBuilder, HubConnection} from '@microsoft/signalr';
 import {Card, CardContent, CardFooter, CardHeader} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';

@@ -39,7 +39,7 @@ function UserProfile(props: UserProfileProps) {
     };
     
     createEffect(()=> {
-        if (!isEdit() &&)
+        if (!isEdit() && props.user.avatar)
         setAvatarPreview(props.user.avatar);
     })
 

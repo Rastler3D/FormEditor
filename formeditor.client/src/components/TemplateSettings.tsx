@@ -19,6 +19,8 @@ interface TemplateSettingsProps {
 
 export default function TemplateSettings(props: TemplateSettingsProps) {
     const [template, setTemplate] = createStore(props.template);
+    const filledBy = createMemo(() => user()?.name ?? "Anonymous");
+    const fillingDate= createMemo(on(()=> props.template,() => new Date()));
     const updateTemplate = <T extends keyof TemplateConfiguration>(field: T, value: TemplateConfiguration[T]) => {
         setTemplate(field, reconcile(value));
     };
@@ -82,7 +84,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                         />
                     </TabsContent>
                     <TabsContent value="preview" class="p-6">
-                        <TemplateView template={template}/>
+                        <TemplateView template={template} fillingDate={fillingDate()} filledBy={filledBy()}/>
                     </TabsContent>
                 </Tabs>
                 <Show when={props.isSavingChanges} fallback={

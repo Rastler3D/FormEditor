@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FormEditor.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c53a35fd2d3371b3752caf219b2a7a085f1dbb30")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0deff4f50c9fd07c4158df4085787ae57210022c")]
 [assembly: System.Reflection.AssemblyProductAttribute("FormEditor.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FormEditor.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

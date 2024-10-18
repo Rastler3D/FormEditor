@@ -9,16 +9,20 @@ const UserPage = () => {
     const params = useParams();
     const {user: currentUser, updateUser} = useAuth();
     const [user, {mutate}] = createResource(() => Number(params.userId), fetchUser);
-    
+
     return (
-        <Show when={user()} fallback={
-            <div class="m-auto"> Loading <ProgressCircle showAnimation={true}></ProgressCircle></div>
+        <Show when={!user.error} fallback={
+            <div class="m-auto">User not found.</div>
         }>
-            <UserProfile 
-                user={user()!} 
-                isReadonly={user()?.id != currentUser()?.id}
-                onUserUpdate={user => updateUser(user).then(user=> mutate(currentUser => currentUser?.id == user.id ? user : currentUser))}
-            />
+            <Show when={user()} fallback={
+                <div class="m-auto"> Loading <ProgressCircle showAnimation={true}></ProgressCircle></div>
+            }>
+                <UserProfile
+                    user={user()!}
+                    isReadonly={user()?.id != currentUser()?.id}
+                    onUserUpdate={user => updateUser(user).then(user => mutate(currentUser => currentUser?.id == user.id ? user : currentUser))}
+                />
+            </Show>
         </Show>
 
     )

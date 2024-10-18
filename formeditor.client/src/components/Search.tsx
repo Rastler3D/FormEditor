@@ -26,75 +26,70 @@ function Search(props: SearchProps) {
             pageSize: props.pageSize ?? 12,
             filters: props.filters ?? {},
             sorting: props.sorting ?? "createdAt:desc",
-        }),
+        }), searchTemplate);
 
-}
-
-)
-;
-
-return (
-    <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-4">Search Templates</h1>
-        <div class="flex flex-col md:flex-row gap-4 mb-4">
-            <div class="w-full md:w-3/4">
-                <SearchInput value={props.query} onInput={props.onQueryChange}/>
-            </div>
-            <div class="w-full md:w-1/4">
-                <ViewToggle view={view()} onToggle={setView}/>
-            </div>
-        </div>
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="w-full md:w-1/4">
-                <FilterPanel
-                    filters={props.filters}
-                    onFilterChange={props.onFiltersChange}
-                    tags={tags()}
-                    isTagsLoading={tags.loading}
-                    topics={topics()}
-                    isTopicsLoading={tags.loading}/>
-            </div>
-            <div class="w-full md:w-3/4">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="mb-4">
-                        <SortingDropdown value={props.sorting} onChange={props.onSortingChange}/>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <PageSizeSelector pageSize={props.pageSize} onPageSizeChange={props.onPageSizeChange}/>
-                    </div>
-                    <Show when={searchResults()}>
-                        {(result) => (
-                            <p class="text-sm text-gray-500">
-                                Showing {((result.page() - 1) * props.hitsPerPage()) + 1} - {Math.min((result.page() * props.hitsPerPage()), searchResults()?.totalHits || 0)} of {searchResults()?.totalHits} results
-                            </p>
-                        )}
-                    </Show>
+    return (
+        <div class="container mx-auto p-4">
+            <h1 class="text-3xl font-bold mb-4">Search Templates</h1>
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <div class="w-full md:w-3/4">
+                    <SearchInput value={props.query} onInput={props.onQueryChange}/>
                 </div>
-                <Switch>
-                    <Match when={view() === 'table'}>
-                        <TemplateTable templates={searchResults()?.hits} isLoading={searchResults.loading}}/>
-                    </Match>
-                    <Match when={view() === 'gallery'}>
-                        <TemplateGallery templates={searchResults()?.hits} isLoading={searchResults.loading}}/>
-                    </Match>
-                </Switch>
-                <Pagination
-                    count={searchResults()?.totalPages || 1}
-                    page={props.page}
-                    onPageChange={(page) => props.onPageChange?.(page)}
-                    itemComponent={(props) => <PaginationItem page={props.page}>{props.page}</PaginationItem>}
-                    ellipsisComponent={() => <PaginationEllipsis/>}
-                    class="flex items-center space-x-2"
-                >
-                    <PaginationPrevious/>
-                    <PaginationItems/>
-                    <PaginationNext/>
-                </Pagination>
+                <div class="w-full md:w-1/4">
+                    <ViewToggle view={view()} onToggle={setView}/>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="w-full md:w-1/4">
+                    <FilterPanel
+                        filters={props.filters}
+                        onFilterChange={props.onFiltersChange}
+                        tags={tags()}
+                        isTagsLoading={tags.loading}
+                        topics={topics()}
+                        isTopicsLoading={tags.loading}/>
+                </div>
+                <div class="w-full md:w-3/4">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="mb-4">
+                            <SortingDropdown value={props.sorting} onChange={props.onSortingChange}/>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <PageSizeSelector pageSize={props.pageSize} onPageSizeChange={props.onPageSizeChange}/>
+                        </div>
+                        <Show when={searchResults()}>
+                            {(result) => (
+                                <p class="text-sm text-gray-500">
+                                    Showing {((result().page - 1) * result().hitsPerPage) + 1} - {Math.min((result().page * result().hitsPerPage), searchResults()?.totalHits || 0)} of {searchResults()?.totalHits} results
+                                </p>
+                            )}
+                        </Show>
+                    </div>
+                    <Switch>
+                        <Match when={view() === 'table'}>
+                            <TemplateTable templates={searchResults()?.hits} isLoading={searchResults.loading}/>
+                        </Match>
+                        <Match when={view() === 'gallery'}>
+                            <TemplateGallery templates={searchResults()?.hits} isLoading={searchResults.loading}/>
+                        </Match>
+                    </Switch>
+                    <Pagination
+                        count={searchResults()?.totalPages || 1}
+                        page={props.page}
+                        onPageChange={(page) => props.onPageChange?.(page)}
+                        itemComponent={(props) => <PaginationItem page={props.page}>{props.page}</PaginationItem>}
+                        ellipsisComponent={() => <PaginationEllipsis/>}
+                        class="flex items-center space-x-2"
+                    >
+                        <PaginationPrevious/>
+                        <PaginationItems/>
+                        <PaginationNext/>
+                    </Pagination>
+                </div>
             </div>
         </div>
-    </div>
-)
-    ;
+    )
+        ;
 }
 
 export default Search;
@@ -106,7 +101,7 @@ import {
     DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu.tsx";
 import {Button} from "~/components/ui/button.tsx";
-import {ArrowDown, ArrowUp, Grid, LayoutGrid} from "lucide-solid";
+import { Grid, LayoutGrid} from "lucide-solid";
 
 export const ViewToggle = (props: {
     view: string;
@@ -155,6 +150,7 @@ import {
     PaginationNext,
     PaginationPrevious
 } from "./ui/pagination";
+import {searchTemplate} from "~/services/searchService.ts";
 
 export const SearchInput = (props: {
     value?: string;
@@ -177,7 +173,7 @@ export const SortingDropdown = (props: {
     value?: string;
     onChange?: (value: string) => void;
 }) => {
-   
+
 
     const options = {
         "createdAt:desc": "Newest First",
@@ -200,7 +196,7 @@ export const SortingDropdown = (props: {
             )}
         >
             <SelectTrigger>
-                <SelectValue<string>>{(state)=> options[state.selectedOption()]}</SelectValue>
+                <SelectValue<string>>{(state) => options[state.selectedOption()]}</SelectValue>
             </SelectTrigger>
             <SelectContent/>
         </Select>

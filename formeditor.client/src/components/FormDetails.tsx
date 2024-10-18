@@ -1,8 +1,8 @@
 ﻿import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';
 import {Separator} from '~/components/ui/separator';
-import { Form,  Template} from "~/types/template.ts";
-import {createEffect,  createSignal,  Show} from "solid-js";
+import {FilledForm, Form, Template} from "~/types/template.ts";
+import {createEffect, createMemo, createSignal, Show} from "solid-js";
 import {createStore, reconcile, unwrap} from "solid-js/store";
 import TemplateView from "./TemplateView";
 import {ProgressCircle} from "./ui/progress-circle";
@@ -12,13 +12,13 @@ interface FormDetailsProps {
     form: Form;
     isReadonly: boolean;
     isSubmitting: boolean;
-    onFormChange: (value: Form) => void;
+    onFormChange: (value: FilledForm) => void;
 }
 
 export default function FormDetails(props: FormDetailsProps) {
     const [answers, setAnswers] = createStore(props.form.answers);
     const [isEdit, setIsEdit] = createSignal(false);
-
+    const fillingDate = createMemo(() => isEdit() ? new Date() : new Date(props.form.fillingDate));
     createEffect((prevId) => {
         if (props.form.id !== prevId) {
             setIsEdit(false);
@@ -37,7 +37,12 @@ export default function FormDetails(props: FormDetailsProps) {
     }
 
     const handleSubmit = () => {
-        props.onFormChange({...props.form, answers: unwrap(answers)})
+        props.onFormChange({
+            fillingDate: fillingDate().toLocaleString(),
+            templateId: props.form.templateId,
+            submitterId: props.form.submitterId,
+            answers: unwrap(answers)
+        })
     }
     return (
         <div class="container mx-auto p-4">
@@ -57,7 +62,8 @@ export default function FormDetails(props: FormDetailsProps) {
                     <div class="p-4">
                         <h2 class="text-2xl font-bold mb-4">Form</h2>
                         <TemplateView template={props.template} answers={answers} setAnswers={setAnswers}
-                                      isReadonly={props.isReadonly || !isEdit() || props.isSubmitting}/>
+                                      isReadonly={props.isReadonly || !isEdit() || props.isSubmitting}
+                                      fillingDate={fillingDate()} filledBy={props.form.submittedBy}/>
                         <Show when={!props.isSubmitting} fallback={
                             <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                                 Loading <ProgressCircle showAnimation={true}></ProgressCircle>

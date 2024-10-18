@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 import { env } from 'process';
+import { createHmac } from 'crypto';
 
 const baseFolder =
     env.APPDATA !== undefined && env.APPDATA !== ''
@@ -28,6 +29,8 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
         throw new Error("Could not create certificate.");
     }
 }
+
+const meiliSearchApiKey = createHmac('sha256', env.MEILISEARCH_MASTER_KEY!).update(env.MEILISEARCH_API_KEY_UUID!).digest('hex');
 
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7090';
@@ -55,5 +58,8 @@ export default defineConfig({
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
         }
+    },
+    define: {
+        'import.meta.env.VITE_MEILISEARCH_API_KEY': JSON.stringify(meiliSearchApiKey),
     }
 })

@@ -42,8 +42,8 @@ const FormAggregation = (props: FormAggregationProps) => {
                                         </Match>
                                         <Match when={question.type === QuestionTypes.Checkbox}>
                                             <div>
-                                                <p>'True' count: {aggregation.trueCountBool}</p>
-                                                <p>'False' count: {aggregation.falseCountBool}</p>
+                                                <p>'True' count: {aggregation.trueCountBoolean}</p>
+                                                <p>'False' count: {aggregation.falseCountBoolean}</p>
                                             </div>
                                         </Match>
                                         <Match when={question.type === QuestionTypes.Select}>

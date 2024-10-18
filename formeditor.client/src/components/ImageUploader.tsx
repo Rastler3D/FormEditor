@@ -1,7 +1,8 @@
-﻿import {createSignal, Show} from 'solid-js';
+﻿import {createEffect, createSignal, on, Show} from 'solid-js';
 import {createDropzone} from "@solid-primitives/upload";
 import {FaSolidUpload} from 'solid-icons/fa';
 import {ImCross} from 'solid-icons/im';
+import {Label} from "~/components/ui/label.tsx";
 
 interface ImageUploaderProps {
     image?: string | File;
@@ -13,17 +14,23 @@ export default function ImageUploader(props: ImageUploaderProps) {
     const [dragActive, setDragActive] = createSignal(false);
     const [imagePreview, setImagePreview] = createSignal<string>();
 
-    const {setRef, files} = createDropzone({
-        accept: "image/*",
-        multiple: false,
+    const {setRef} = createDropzone({
         onDrop: (files) => {
             setDragActive(false);
             handleFiles(files.map(x => x.file));
         },
-        onDragEnter: () => setDragActive(true),
-        onDragOver: () => setDragActive(true),
-        onDragLeave: () => setDragActive(false),
-        onDragEnd: () => setDragActive(false),
+        onDragEnter: () => {
+            setDragActive(true)
+        },
+        onDragOver: () => {
+            setDragActive(true)
+        },
+        onDragLeave: () => {
+            setDragActive(false)
+        },
+        onDragEnd: () => {
+            setDragActive(false)
+        },
     });
 
     const handleFiles = (files: File[]) => {
@@ -39,10 +46,10 @@ export default function ImageUploader(props: ImageUploaderProps) {
             reader.onload = async (e) => {
                 setImagePreview(e.target?.result as string);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(image);
         } else if (typeof image === "string") {
             setImagePreview(image);
-        } else{
+        } else {
             setImagePreview();
         }
     };
@@ -54,11 +61,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         }
     };
 
-    const removeImage = () => {
-        
-    };
-    
-    createEffect(on(()=>props.image, handleImagePreview));
+    createEffect(on(() => props.image, handleImagePreview));
 
     return (
         <div
@@ -74,14 +77,14 @@ export default function ImageUploader(props: ImageUploaderProps) {
                         <>
                             <FaSolidUpload class="mx-auto h-12 w-12 text-gray-400"/>
                             <div class="flex text-sm text-gray-600">
-                                <label
-                                    htmlFor={props.id}
+                                <Label
+                                    for={props.id}
                                     class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500"
                                 >
                                     <span>Upload a file</span>
                                     <input id={props.id} name="file-upload" type="file" class="sr-only"
-                                           onChange={handleManualUpload} accept="image/*"/>
-                                </label>
+                                           onChange={handleManualUpload} accept="image/*" />
+                                </Label>
                                 <p class="pl-1">or drag and drop</p>
                             </div>
                             <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
@@ -106,6 +109,6 @@ export default function ImageUploader(props: ImageUploaderProps) {
                 </Show>
             </div>
         </div>
-        
+
     );
 }

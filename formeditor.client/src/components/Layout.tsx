@@ -1,10 +1,7 @@
-﻿import { useAuth } from '~/contexts/AuthContext';
-import Sidebar from "~/components/Sidebar.tsx";
+﻿import Sidebar from "~/components/Sidebar.tsx";
 import Header from "~/components/Header.tsx";
 import {JSX} from "solid-js";
 const Layout = (props: {children?: JSX.Element} ) => {
-    const { signIn } = useAuth()!;
-    signIn('admin','password');
     
     return (
         <div class="flex h-screen ">

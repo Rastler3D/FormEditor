@@ -17,7 +17,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [activeTab, setActiveTab] = createSignal('edit');
     const [selectedStyles, setSelectedStyles] = createSignal({});
 
-    const insertOrRemoveMarkdown = (prefix, suffix = '', blockStyle = false) => {
+    const insertOrRemoveMarkdown = (prefix: string, suffix = '', blockStyle = false) => {
         const textarea = document.getElementById('markdown-editor') as HTMLTextAreaElement;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;

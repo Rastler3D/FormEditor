@@ -23,7 +23,7 @@ import {createStore, unwrap} from "solid-js/store";
 import {Checkbox} from "./ui/checkbox";
 import {createWritableMemo} from "@solid-primitives/memo"
 
-const selectionColumn: ColumnDef<any> = {
+const selectionColumn: ColumnDef<any, any> = {
     id: 'select',
     header: ({table}) => (
         <Checkbox

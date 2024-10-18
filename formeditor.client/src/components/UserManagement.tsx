@@ -20,7 +20,7 @@ export default function UserManagement() {
     const [fetchedUsers, setFetchedUsers] = createSignal<User[]>([]);
     const [selectedUsers, setSelectedUsers] = createSignal<User[]>([]);
     const {user, refreshToken} = useAuth();
-    const columns: ColumnDef<User>[] = [
+    const columns: ColumnDef<User, any>[] = [
         {
             accessorKey: 'name',
             header: 'Name',
@@ -37,10 +37,9 @@ export default function UserManagement() {
             accessorKey: 'status',
             header: 'Status',
             cell: (info) => (
-                <span
-                    class={`px-2 py-1 rounded-full text-xs ${info.getValue() === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          {info.getValue()}
-        </span>
+                <span class={`px-2 py-1 rounded-full text-xs ${info.getValue() === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {info.getValue()}
+                </span>
             ),
         },
         {
@@ -49,27 +48,28 @@ export default function UserManagement() {
             cell: (info) => (
                 <div class="flex gap-2">
                     <Button size="sm" variant={info.row.original.status === 'Active' ? 'destructive' : 'default'}
-                            onClick={() => handleAction(info.row.original.status === 'Active' ? "block": "unblock" , info.row.original.id)}>
+                            onClick={() => handleAction(info.row.original.status === 'Active' ? "block" : "unblock", info.row.original.id)}>
                         {info.row.original.status === 'Active' ? 'Block' : 'Unblock'}
                     </Button>
                     <Button size="sm" variant={info.row.original.role === 'Admin' ? 'destructive' : 'default'}
                             onClick={() => handleToggleAdminRole(info.row.original.id, info.row.original.role)}>
                         {info.row.original.role === 'Admin' ? 'Remove Admin' : 'Make Admin'}
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleAction("delete", info.row.original.id)}>
+                    <Button size="sm" variant="destructive"
+                            onClick={() => handleAction("delete", info.row.original.id)}>
                         Delete
                     </Button>
                 </div>
             ),
         },
     ];
-    
+
 
     const handleToggleAdminRole = async (userId: number, currentRole: string) => {
         try {
             const newRole = currentRole === 'Admin' ? 'User' : 'Admin';
             await updateUserRole(userId, newRole);
-            if (userId == user()?.id){
+            if (userId == user()?.id) {
                 await refreshToken();
             }
             trigger();
@@ -97,7 +97,7 @@ export default function UserManagement() {
                     }
                     break;
             }
-            if (userId == user()?.id){
+            if (userId == user()?.id) {
                 await refreshToken();
             }
             trigger();
@@ -140,7 +140,7 @@ export default function UserManagement() {
                     }
                     break;
             }
-            if (user() && selectedIds.includes(user()!.id)){
+            if (user() && selectedIds.includes(user()!.id)) {
                 await refreshToken();
             }
             trigger();
@@ -175,9 +175,9 @@ export default function UserManagement() {
                     onClick={() => handleBulkAction('unblock')}
                     disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Active")}
                 >Unblock</Button>
-                <Button 
-                    variant="destructive" 
-                    onClick={() => handleBulkAction('delete')} 
+                <Button
+                    variant="destructive"
+                    onClick={() => handleBulkAction('delete')}
                     disabled={selection().length === 0}
                 >Delete</Button>
             </div>

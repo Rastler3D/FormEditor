@@ -1,4 +1,3 @@
-import {createSignal} from 'solid-js';
 import {ColumnDef} from "@tanstack/solid-table";
 import {A} from '@solidjs/router';
 import DataTable from '~/components/DataTable';
@@ -15,7 +14,7 @@ interface TemplateManagementProps {
 
 export default function TemplateManagement(props: TemplateManagementProps) {
 
-    const columns: ColumnDef<TemplateInfo>[] = [
+    const columns: ColumnDef<TemplateInfo, any>[] = [
         {
             accessorKey: 'name',
             header: 'Name',

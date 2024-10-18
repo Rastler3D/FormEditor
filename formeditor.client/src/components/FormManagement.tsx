@@ -15,7 +15,7 @@ interface FormManagementProps {
 
 export default function FormManagement(props: FormManagementProps) {
 
-    const columns: ColumnDef<FormInfo>[] = [
+    const columns: ColumnDef<FormInfo, any>[] = [
         {
             accessorKey: 'templateName',
             header: 'Template Name',

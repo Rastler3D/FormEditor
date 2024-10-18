@@ -1,6 +1,6 @@
 import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
 import TemplateSettings from '~/components/TemplateSettings';
-import {AccessSetting, Template, TemplateConfiguration} from '~/types/template';
+import {AccessSetting, TemplateConfiguration} from '~/types/template';
 interface TemplateCreationProps {
     isSavingChanges: boolean;
     onSavedChanges: (template: TemplateConfiguration) => void;

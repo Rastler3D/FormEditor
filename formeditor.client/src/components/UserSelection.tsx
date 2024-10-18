@@ -22,7 +22,7 @@ interface UserSelectionProps {
 const UserSelection = (props: UserSelectionProps) => {
     const [selectedUsers, setSelectedUsers] = createSignal(props.initialSelectedUsers);
 
-    const columns: ColumnDef<User, User[keyof User]>[] = [
+    const columns: ColumnDef<User, any>[] = [
         {
             accessorKey: 'name',
             header: 'Name',

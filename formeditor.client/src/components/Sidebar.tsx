@@ -110,13 +110,13 @@ const menuItems = [
 
 const NavItem = (props: NavItemProps) => {
     const match = useMatch(() => (props.href ?? ""));
-    const isActive = () => Boolean(match());
+    const isActive = () => !!props.href && Boolean(match());
     return (
         <Tooltip openDelay={0} closeDelay={0} placement="right">
             <TooltipTrigger
                 as={props.href ? A : Button}
                 href={props.href}
-                onClick={() => props.onClick(props.label)}
+                onClick={() => props.onClick?.(props.label)}
                 class={cn(
                     buttonVariants({
                         variant: isActive() ? "default" : "ghost",

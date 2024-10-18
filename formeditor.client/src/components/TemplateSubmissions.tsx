@@ -4,7 +4,7 @@ import DataTable from "./DataTable";
 import {fetchFilledForms} from "../services/api";
 import {useNavigate} from "@solidjs/router";
 
-const defaultColumns: C = [
+const defaultColumns: ColumnDef<FilledForm, any>[] = [
     {
         accessorKey: 'userName',
         header: 'User Name',
