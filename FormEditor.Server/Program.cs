@@ -1,17 +1,19 @@
-using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FormEditor.Server.Data;
+using FormEditor.Server.Hubs;
+using FormEditor.Server.Mapping;
 using FormEditor.Server.Models;
-using Microsoft.AspNetCore.Authentication;
-using NuGet.Protocol;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-var connectionString = builder.Configuration.GetConnectionString("DbConnection") ?? throw new InvalidOperationException("Connection string 'DbConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DbConnection") ??
+                       throw new InvalidOperationException("Connection string 'DbConnection' not found.");
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString).UseExceptionProcessor());
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -26,7 +28,7 @@ builder.Services
             // If the request is for our hub...
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) &&
-                (path.StartsWithSegments("/hub")))
+                (path.StartsWithSegments("/Hub")))
             {
                 // Read the token out of the query string
                 context.Token = accessToken;
@@ -35,10 +37,10 @@ builder.Services
             return Task.CompletedTask;
         };
     });
-
+builder.Services.AddSignalR();
 builder.Services.AddIdentityCore<User>(options =>
     {
-        options.User.RequireUniqueEmail = true; ;
+        options.User.RequireUniqueEmail = true;
         if (builder.Environment.IsProduction())
         {
             options.SignIn.RequireConfirmedAccount = false;
@@ -50,17 +52,15 @@ builder.Services.AddIdentityCore<User>(options =>
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddApiEndpoints();
-
-// Add services to the container.
+builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
-    // serialize enums as strings in api responses (e.g. Role)
     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-
-    // ignore omitted parameters on models to enable optional params (e.g. User update)
+    x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -68,9 +68,7 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    await DatabaseSeed.SeedAsync(services);
-    
+    await DataSeed.SeedAsync(scope.ServiceProvider);
 }
 
 app.UseDefaultFiles();
@@ -84,16 +82,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-var userScope = app.MapGroup("/user");
-{
-    userScope.MapIdentityApi<User>();
-    userScope.MapGet("/",(ClaimsPrincipal user, UserManager<User> userManager) => userManager.GetUserAsync(user));
-}
+app.MapGroup("/User")
+    .MapIdentityApi<User>();
+app.MapHub<CommentHub>("/Hub/Comment");
 
 app.MapFallbackToFile("/index.html");
 

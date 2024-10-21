@@ -21,7 +21,9 @@ public interface ITemplateRepository
     Task<Result<Template, Error>> GetTemplateWithQuestionsAsync(int id);
     Task<Result<Template, Error>> CreateTemplateAsync(Template template);
     Task<Result<Template, Error>> UpdateTemplateAsync(Template template);
-    Task DeleteTemplateAsync(int id);
+    Task<Result<Error>> DeleteTemplateAsync(int id);
+    Task<List<Comment>> GetComments(int templateId);
+    Task<Result<Comment, Error>> AddComment(int templateId, int authorId, string text);
 }
 
 // Repositories/TemplateRepository.cs
@@ -33,14 +35,14 @@ public class TemplateRepository : ITemplateRepository
     {
         _context = context;
     }
-    
+
     public async Task<List<Template>> ApplyTableOptions(IQueryable<Template> templates, TableOption options)
     {
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
-            templates = templates.Where(f => 
-                f.Name == options.Filter || 
-                f.Topic.Name == options.Filter || 
+            templates = templates.Where(f =>
+                f.Name == options.Filter ||
+                f.Topic.Name == options.Filter ||
                 f.Description == options.Filter
             );
         }
@@ -56,7 +58,7 @@ public class TemplateRepository : ITemplateRepository
                 "Usage Count" => x => x.FilledCount,
                 _ => x => x.Id
             };
-            
+
             if (sortOption.Desc)
             {
                 templates = templates.OrderByDescending(selector);
@@ -66,49 +68,45 @@ public class TemplateRepository : ITemplateRepository
                 templates = templates.OrderBy(selector);
             }
         }
-        
-        templates = templates.Skip(options.Pagination.PageSize * options.Pagination.PageIndex).Take(options.Pagination.PageSize);
-        
+
+        templates = templates.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
+            .Take(options.Pagination.PageSize);
+
         return await templates.ToListAsync();
     }
-    
-    public async Task<List<Template>> GetTemplatesAsync(TableOption option)
+
+    private IQueryable<Template> LoadProperties(IQueryable<Template> template)
     {
-        var template = _context.Templates
+        return template
             .Include(t => t.AllowList)
             .Include(t => t.Tags)
             .Include(t => t.Topic)
             .Include(t => t.Likes)
             .Include(t => t.Creator);
-            
+    }
 
+    public async Task<List<Template>> GetTemplatesAsync(TableOption option)
+    {
+        var template = LoadProperties(_context.Templates);
+            
         return await ApplyTableOptions(template, option);
     }
-    
+
     public async Task<List<Template>> GetUserTemplatesAsync(int userId, TableOption option)
     {
-        var template = _context.Templates
-            .Include(t => t.AllowList)
-            .Include(t => t.Tags)
-            .Include(t => t.Topic)
-            .Include(t => t.Likes)
-            .Include(t => t.Creator)
+        var template = LoadProperties(_context.Templates)
             .Where(t => t.CreatorId == userId);
-            
+
 
         return await ApplyTableOptions(template, option);
     }
-    
+
 
     public async Task<Result<Template, Error>> GetTemplateAsync(int id)
     {
-        var template = await _context.Templates
-            .Include(t => t.AllowList)
-            .Include(t => t.Tags)
-            .Include(t => t.Topic)
-            .Include(t => t.Likes)
-            .Include(t => t.Creator)
+        var template = await LoadProperties(_context.Templates)
             .FirstOrDefaultAsync(t => t.Id == id);
+        
         if (template == null)
         {
             return Error.NotFound("Template not found.");
@@ -223,14 +221,18 @@ public class TemplateRepository : ITemplateRepository
         return existingTemplate;
     }
 
-    public async Task DeleteTemplateAsync(int id)
+    public async Task<Result<Error>> DeleteTemplateAsync(int id)
     {
         var template = await _context.Templates.FindAsync(id);
-        if (template != null)
+        if (template == null)
         {
-            _context.Templates.Remove(template);
-            await _context.SaveChangesAsync();
+            return Error.NotFound("Template not found.");
         }
+
+        _context.Templates.Remove(template);
+        await _context.SaveChangesAsync();
+
+        return Result<Error>.Ok();
     }
 
 
@@ -371,5 +373,44 @@ public class TemplateRepository : ITemplateRepository
         {
             Questions = aggregations,
         };
+    }
+
+    public async Task<List<Comment>> GetComments(int templateId)
+    {
+        var comments = await _context.Comments
+            .Where(c => c.TemplateId == templateId)
+            .OrderBy(c => c.Date)
+            .ToListAsync();
+        return comments;
+    }
+
+    public async Task<Result<Comment, Error>> AddComment(int templateId, int authorId, string text)
+    {
+        var comment = new Comment
+        {
+            Text = text,
+            AuthorId = authorId,
+            Date = DateTime.UtcNow,
+            TemplateId = templateId
+        };
+        try
+        {
+            await _context.Comments.AddAsync(comment);
+            await _context.SaveChangesAsync();
+        }
+        catch (ReferenceConstraintException e) when (e.ConstraintName.Contains("Template",
+                                                         StringComparison.InvariantCultureIgnoreCase) ||
+                                                     e.ConstraintName.Contains("Author",
+                                                         StringComparison.InvariantCultureIgnoreCase))
+        {
+            if (e.ConstraintName.Contains("Template", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return Error.NotFound("Template not found");
+            }
+
+            return Error.NotFound("Author not found");
+        }
+
+        return comment;
     }
 }

@@ -28,6 +28,8 @@ public class Template
     public List<Question> Questions { get; set; }
     public List<Form> Forms { get; set; }
     public int FilledCount { get; set; }
+    
+    public List<Comment> Comments { get; set; }
 }
 public enum AccessSetting
 {

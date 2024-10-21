@@ -16,6 +16,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Topic> Topics { get; set; }
     public DbSet<Like> Likes { get; set; }
+    public DbSet<Comment> Comments { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -40,9 +41,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
         builder.Entity<Answer>()
             .HasIndex(a => a.BooleanValue);
-        builder.Entity<Template>()
-            .Property(u => u.AccessSetting)
-            .HasConversion<string>();
         builder.Entity<Template>()
             .Property(u => u.AccessSetting)
             .HasConversion<string>();
@@ -84,5 +82,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasMany<User>()
             .WithMany()
             .UsingEntity<Like>();
+        builder.Entity<Comment>()
+            .HasOne(c => c.Template)
+            .WithMany(t => t.Comments)
+            .HasForeignKey(c => c.TemplateId);
+
+        builder.Entity<Comment>()
+            .HasOne(c => c.Author)
+            .WithMany()
+            .HasForeignKey(c => c.AuthorId);
     }
 }

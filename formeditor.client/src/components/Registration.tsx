@@ -7,11 +7,11 @@ import {
     CardTitle,
 } from "~/components/ui/card"
 import {TextField, TextFieldInput, TextFieldLabel} from "./ui/text-field";
-import { FaBrandsGoogle, FaBrandsGithub } from 'solid-icons/fa';
-import { A, useNavigate } from '@solidjs/router';
+import {FaBrandsGoogle, FaBrandsGithub} from 'solid-icons/fa';
+import {A, useNavigate} from '@solidjs/router';
 import {useAuth} from "../contexts/AuthContext";
 import {createAction} from "../lib/action";
-import { AlertCircle } from "lucide-solid";
+import {AlertCircle} from "lucide-solid";
 import {createEffect, createSignal, on, Show} from "solid-js";
 
 const Registration = () => {
@@ -21,9 +21,14 @@ const Registration = () => {
     const [userName, setUserName] = createSignal("");
     const [email, setEmail] = createSignal("");
     const [password, setPassword] = createSignal("");
-    
-    createEffect(on(registration.data, (result)=> result && navigate("/home")));
-    
+
+    createEffect(on(registration.data, (result) => result && navigate("/home")));
+
+    const handleRegistration = (e: SubmitEvent) => {
+        e.preventDefault();
+        registration({name: userName(), email: email(), password: password()})
+    }
+
     return (
         <Card class="mx-auto max-w-sm">
             <CardHeader>
@@ -34,37 +39,41 @@ const Registration = () => {
             </CardHeader>
             <CardContent>
                 <div class="grid gap-4">
-                    <div class="grid gap-2">
-                        <TextField required value={userName()} onChange={(value) => setUserName(value)} >
-                            <TextFieldLabel>User name</TextFieldLabel>
-                            <TextFieldInput type="text" placeholder="example"/>
-                        </TextField>
-                    </div>
-                    <div class="grid gap-2">
-                        <TextField required value={email()} onChange={(value) => setEmail(value)} >
-                            <TextFieldLabel>Email</TextFieldLabel>
-                            <TextFieldInput type="email" placeholder="m@example.com"/>
-                        </TextField>
-                    </div>
-                    <div class="grid gap-2">
-                        <TextField required value={password()} onChange={(value) => setPassword(value)} >
-                            <TextFieldLabel>Password</TextFieldLabel>
-                            <TextFieldInput type="password"/>
-                        </TextField>
-                    </div>
-                <Show when={registration.data.error}>
-                    <div class="grid gap-2">
-                        <div class="text-red-500 flex items-center">
-                            <AlertCircle class="w-4 h-4 mr-2"/>
-                            {registration.data.error}
+                    <form onSubmit={handleRegistration}>
+                        <div class="grid gap-2">
+                            <TextField required value={userName()} onChange={(value) => setUserName(value)}>
+                                <TextFieldLabel>User name</TextFieldLabel>
+                                <TextFieldInput type="text" placeholder="example"/>
+                            </TextField>
                         </div>
-                    </div>
-                </Show>
-                <div class="grid gap-2">
-                    <Button onClick={() => registration({name: userName(), email: email(), password: password()})} class="w-full">
-                        Create an account
-                    </Button>
-                </div>
+                        <div class="grid gap-2">
+                            <TextField required value={email()} onChange={(value) => setEmail(value)}>
+                                <TextFieldLabel>Email</TextFieldLabel>
+                                <TextFieldInput type="email" placeholder="m@example.com"/>
+                            </TextField>
+                        </div>
+                        <div class="grid gap-2">
+                            <TextField required value={password()} onChange={(value) => setPassword(value)}>
+                                <TextFieldLabel>Password</TextFieldLabel>
+                                <TextFieldInput type="password"/>
+                            </TextField>
+                        </div>
+                        <Show when={registration.data.error}>
+                            <div class="grid gap-2">
+                                <div class="text-red-500 flex items-center">
+                                    <AlertCircle class="w-4 h-4 mr-2"/>
+                                    {registration.data.error}
+                                </div>
+                            </div>
+                        </Show>
+                        <div class="grid gap-2">
+                            <Button
+                                type="submit"
+                                class="w-full">
+                                Create an account
+                            </Button>
+                        </div>
+                    </form>
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <span class="w-full border-t"/>

@@ -17,9 +17,8 @@ public interface IFormRepository
     Task<Result<Form, Error>> GetSubmittedFormAsync(int templateId, int userId);
     Task<Result<Form, Error>> GetFormAsync(int formId);
     Task<Result<Form, Error>> SubmitFormAsync(Form filledForm);
-    Task<Result<Form, Error>> GetFormWithTemplateAsync(int formId);
     Task<Result<Form, Error>> UpdateFormAsync(Form filledForm);
-    Task DeleteFormAsync(int formId);
+    Task<Result<Error>> DeleteFormAsync(int formId);
 }
 
 public class FormRepository : IFormRepository
@@ -62,23 +61,25 @@ public class FormRepository : IFormRepository
         
         return await forms.ToListAsync();
     }
-    
-    public async Task<List<Form>> GetFormsAsync(TableOption options)
+
+    private IQueryable<Form> LoadProperties(IQueryable<Form> forms)
     {
-        var forms = _context.Forms
+        return forms
             .Include(x => x.Answers)
             .Include(x => x.Template)
             .Include(x => x.Submitter);
+    }
+    
+    public async Task<List<Form>> GetFormsAsync(TableOption options)
+    {
+        var forms = LoadProperties(_context.Forms);
         
         return await ApplyTableOptions(forms, options);
        
     }
     public async Task<List<Form>> GetUserFormsAsync(int userId, TableOption options)
     {
-        var forms = _context.Forms
-            .Include(x => x.Answers)
-            .Include(x => x.Template)
-            .Include(x => x.Submitter)
+        var forms = LoadProperties(_context.Forms)
             .Where(x => x.SubmitterId == userId);
         
         return await ApplyTableOptions(forms, options);
@@ -87,9 +88,7 @@ public class FormRepository : IFormRepository
 
     public async Task<List<Form>> GetSubmittedFormsAsync(int templateId, TableOption options)
     {
-        var forms = _context.Forms
-            .Include(x => x.Answers)
-            .Include(x => x.Submitter)
+        var forms = LoadProperties(_context.Forms)
             .Where(f => f.TemplateId == templateId);
         
         return await ApplyTableOptions(forms, options);
@@ -98,9 +97,7 @@ public class FormRepository : IFormRepository
 
     public async Task<Result<Form, Error>> GetSubmittedFormAsync(int templateId, int userId)
     {
-        var form = await _context.Forms
-            .Include(x => x.Answers)
-            .Include(x => x.Submitter)
+        var form = await LoadProperties(_context.Forms)
             .FirstOrDefaultAsync(f => f.TemplateId == templateId || f.SubmitterId == userId);
 
         if (form == null)
@@ -128,6 +125,9 @@ public class FormRepository : IFormRepository
         {
             return Error.NotFound($"Referenced template not found.");
         }
+        
+        await _context.Entry(filledForm).Reference(x => x.Template).LoadAsync();
+        await _context.Entry(filledForm).Reference(x => x.Submitter).LoadAsync();
         
         return filledForm;
     }
@@ -162,40 +162,32 @@ public class FormRepository : IFormRepository
 
     public async Task<Result<Form, Error>> GetFormAsync(int formId)
     {
-        var forms = await _context.Forms
-            .Include(x => x.Answers)
-            .Include(x => x.Submitter)
+        var form = await LoadProperties(_context.Forms)
             .FirstOrDefaultAsync(f => f.Id == formId);
-        if (forms == null)
+        
+        if (form == null)
         {
             return Error.NotFound($"Form not found");
         }
         
-        return forms;
-    }
-    public async Task<Result<Form, Error>> GetFormWithTemplateAsync(int formId)
-    {
-        var forms = await GetFormAsync(formId);
-        if (forms.IsErr)
-        {
-            return forms;
-        }
-        await _context.Entry(forms.Value).Reference(x => x.Template).LoadAsync();
-        
-        return forms;
+        return form;
     }
     
-    public async Task DeleteFormAsync(int formId)
+    public async Task<Result<Error>> DeleteFormAsync(int formId)
     {
         var form = await _context.Forms.FindAsync(formId);
-        if (form != null)
+        if (form == null)
         {
-            _context.Forms.Remove(form);
-            await _context.Templates
-                .Where(x => x.Id == form.TemplateId)
-                .ExecuteUpdateAsync(x =>
-                    x.SetProperty(t => t.FilledCount, t => t.FilledCount - 1));
-            await _context.SaveChangesAsync();
+            Error.NotFound("Form not found");
         }
+        
+        _context.Forms.Remove(form);
+        await _context.Templates
+            .Where(x => x.Id == form.TemplateId)
+            .ExecuteUpdateAsync(x =>
+                x.SetProperty(t => t.FilledCount, t => t.FilledCount - 1));
+        await _context.SaveChangesAsync();
+        
+        return Result<Error>.Ok();
     }
 }

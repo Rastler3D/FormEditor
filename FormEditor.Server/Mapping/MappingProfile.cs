@@ -1,4 +1,6 @@
 ﻿using AutoMapper.Internal;
+using FormEditor.Server.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace FormEditor.Server.Mapping;
@@ -7,9 +9,9 @@ using AutoMapper;
 using Models;
 using ViewModels;
 
-public class TemplateMappingProfile : Profile
+public class MappingProfile : Profile
 {
-    public TemplateMappingProfile()
+    public MappingProfile()
     {
         CreateMap<string, Tag>()
             .ConstructUsing(s => new Tag { Name = s })
@@ -80,8 +82,19 @@ public class TemplateMappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom((src, dest, destMember, context) =>
                 context.Items.TryGetValue("FormId", out var id) ? id : 0));
         CreateMap<Form, FormWithQuestionViewModel>()
-            .ForMember(x => x.Template, opt => opt.MapFrom(src => src.Template))
-            .ForMember(x => x.Form, opt => opt.MapFrom(src => src));
-        
+            .ForMember(dest => dest.Template, opt => opt.MapFrom(src => src.Template))
+            .ForMember(dest => dest.Form, opt => opt.MapFrom(src => src));
+        CreateMap<List<IdentityRole<int>>, RoleViewModel>()
+            .ConstructUsing(s =>
+                (s.FirstOrDefault(x => x.Name == Roles.Admin) == null) ? RoleViewModel.User : RoleViewModel.Admin);
+        CreateMap<User, UserViewModel>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UserName))
+            .ForMember(dest => dest.Role, opt =>
+                opt.MapFrom(src => src.Roles))
+            .ForMember(dest => dest.Status,
+                opt => opt.MapFrom(src => src.LockoutEnabled ? StatusViewModel.Blocked : StatusViewModel.Active));
+        CreateMap<Comment, CommentViewModel>()
+            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author.UserName))
+            .ReverseMap();
     }
 }

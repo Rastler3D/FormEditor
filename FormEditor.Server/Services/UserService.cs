@@ -3,29 +3,31 @@ using FormEditor.Server.Models;
 using FormEditor.Server.Repositories;
 using FormEditor.Server.Utils;
 using FormEditor.Server.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
-namespace YourNamespace.Services;
+namespace FormEditor.Server.Services;
 
 public interface IUserService
 {
     Task<List<UserViewModel>> GetAllUsersAsync(TableOption option);
     Task<Result<UserViewModel, Error>> GetUserAsync(int userId);
-    Task<Result<Error>> PerformBulkActionsAsync(ActionViewModel action, int[] userIds);
+    Task<Result<Error>> PerformBulkActionAsync(ActionViewModel action, int[] userIds);
     Task<Result<Error>> PerformActionAsync(ActionViewModel action, int userId);
-    Task<Result<Error>> AddAdminAsync(int userId);
-    Task<Result<Error>> RemoveAdminAsync(int userId);
-    Task<Result<UserViewModel, Error>> UpdateUserAsync(int userId, UpdateUserViewModel user);
+    Task<Result<Error>> ChangeRoleAsync(int userId, RoleViewModel role);
+    Task<Result<UserViewModel, Error>> UpdateUserAsync(int userId, UpdateUserViewModel user, int updatorId);
 }
 
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly UserManager<User> _userManager;
 
-    public UserService(IUserRepository userRepository, IMapper mapper)
+    public UserService(IUserRepository userRepository, IMapper mapper, UserManager<User> userManager)
     {
         _userRepository = userRepository;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     public async Task<List<UserViewModel>> GetAllUsersAsync(TableOption option)
@@ -41,7 +43,7 @@ public class UserService : IUserService
             .Map(_mapper.Map<UserViewModel>);
     }
 
-    public async Task<Result<Error>> PerformBulkActionsAsync(ActionViewModel action, int[] userIds)
+    public async Task<Result<Error>> PerformBulkActionAsync(ActionViewModel action, int[] userIds)
     {
         foreach (var userId in userIds)
         {
@@ -67,22 +69,27 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<Result<Error>> AddAdminAsync(int userId)
+    public async Task<Result<Error>> ChangeRoleAsync(int userId, RoleViewModel role)
     {
-        return await _userRepository.AddAdminAsync(userId);
-    }
-
-    public async Task<Result<Error>> RemoveAdminAsync(int userId)
-    {
+        if (role == RoleViewModel.Admin)
+        {
+            return await _userRepository.AddAdminAsync(userId);
+        }
         return await _userRepository.RemoveAdminAsync(userId);
     }
 
-    public async Task<Result<UserViewModel,Error>> UpdateUserAsync(int userId, UpdateUserViewModel updateUser)
+    public async Task<Result<UserViewModel,Error>> UpdateUserAsync(int userId, UpdateUserViewModel updateUser, int updatorId)
     {
+        
         var user = await _userRepository.GetUserAsync(userId);
         if (user.IsErr)
         {
             return user.Error;
+        }
+
+        if (updatorId != userId)
+        {
+            return Error.Unauthorized("You have no permission to edit this profile");
         }
         
         if (updateUser.Email != null)

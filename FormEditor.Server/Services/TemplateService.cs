@@ -12,7 +12,7 @@ using FormEditor.Server.Utils;
 using FormEditor.Server.ViewModels;
 using Microsoft.AspNetCore.Identity;
 
-namespace YourNamespace.Services
+namespace FormEditor.Server.Services
 {
     public interface ITemplateService
     {
@@ -31,11 +31,13 @@ namespace YourNamespace.Services
         Task<Result<TemplateViewModel, Error>> GetTemplateAsync(int id);
         Task<Result<LikesInfo, Error>> ToggleLikeAsync(int templateId, int userId);
         Task<LikesInfo> GetLikesAsync(int templateId, int? userId);
-        Task DeleteTemplateAsync(int id);
+        Task<Result<Error>> DeleteTemplateAsync(int id, int userId);
         Task<AggregatedResults> GetAggregatedResultsAsync(int templateId);
+        Task<List<CommentViewModel>> GetComments(int templateId);
+        Task<Result<CommentViewModel, Error>> AddComment(int templateId, int authorId, string text);
     }
 
-    public class TemplateService(TemplateRepository templateRepository, UserManager<User> userManager, IMapper mapper)
+    public class TemplateService(TemplateRepository templateRepository, UserManager<User> userManager, IMapper mapper, ISearchService searchService)
         : ITemplateService
     {
         // In a real application, you'd use a database context here
@@ -85,17 +87,21 @@ namespace YourNamespace.Services
             var template = mapper.Map<Template>(templateConfig, opt => opt.Items["CreatorId"] = creatorId);
             var templateCreation = await templateRepository.CreateTemplateAsync(template);
 
-            return templateCreation.Map(mapper.Map<TemplateInfoViewModel>);
+            if (templateCreation.IsErr)
+            {
+                return templateCreation.Error;
+            }
+            var createdTemplate = templateCreation.Value;
+            
+            await searchService.UpsertTemplateAsync(mapper.Map<TemplateViewModel>(createdTemplate));
+
+            return mapper.Map<TemplateInfoViewModel>(createdTemplate);
         }
 
         public async Task<Result<TemplateInfoViewModel, Error>> UpdateTemplateAsync(int templateId,
             TemplateConfigurationViewModel templateConfig, int updatorId)
         {
             var user = await userManager.FindByIdAsync(updatorId.ToString());
-            if (user == null)
-            {
-                return Error.NotFound("User not found");
-            }
 
             var template = await templateRepository.GetTemplateAsync(templateId);
             if (template.IsErr)
@@ -109,8 +115,16 @@ namespace YourNamespace.Services
             }
 
             var newTemplate = mapper.Map<Template>(templateConfig, opt => opt.Items["TemplateId"] = templateId);
+            var templateUpdate = await templateRepository.UpdateTemplateAsync(newTemplate);
+            if (templateUpdate.IsErr)
+            {
+                return templateUpdate.Error;
+            }
+            var updatedTemplate = templateUpdate.Value;
+            
+            await searchService.UpsertTemplateAsync(mapper.Map<TemplateViewModel>(updatedTemplate));
 
-            return (await templateRepository.UpdateTemplateAsync(newTemplate)).Map(mapper.Map<TemplateInfoViewModel>);
+            return mapper.Map<TemplateInfoViewModel>(updatedTemplate);
         }
 
         public async Task<Result<TemplateViewModel, Error>> GetTemplateAsync(int id)
@@ -146,14 +160,48 @@ namespace YourNamespace.Services
             };
         }
 
-        public async Task DeleteTemplateAsync(int id)
+        public async Task<Result<Error>> DeleteTemplateAsync(int id, int userId)
         {
-            await templateRepository.DeleteTemplateAsync(id);
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            var template = await templateRepository.GetTemplateAsync(id);
+            if (template.IsErr)
+            {
+                return template.Error;
+            }
+
+            if (template.Value.CreatorId != user.Id && !await userManager.IsInRoleAsync(user, Roles.Admin))
+            {
+                return Error.Unauthorized("You have no permission to edit this template");
+            }
+            
+            var templateDeletion = await templateRepository.DeleteTemplateAsync(id);
+            if (templateDeletion.IsErr)
+            {
+                return templateDeletion;
+            }
+
+            await searchService.DeleteTemplateAsync(id);
+
+            return Result<Error>.Ok();
         }
         
         public async Task<AggregatedResults> GetAggregatedResultsAsync(int templateId)
         {
             return await templateRepository.GetAggregatedResultsAsync(templateId);
+        }
+
+        public async Task<List<CommentViewModel>> GetComments(int templateId)
+        {
+            return (await templateRepository.GetComments(templateId))
+                .Select(mapper.Map<CommentViewModel>)
+                .ToList();
+        }
+
+        public async Task<Result<CommentViewModel, Error>> AddComment(int templateId, int authorId, string text)
+        {
+            return (await templateRepository.AddComment(templateId, authorId, text))
+                .Map(mapper.Map<CommentViewModel>);
         }
     }
 }

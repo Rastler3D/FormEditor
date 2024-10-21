@@ -18,7 +18,7 @@ public interface IUserRepository
     Task<Result<Error>> UnblockUserAsync(int userId);
     Task<Result<Error>> AddAdminAsync(int userId);
     Task<Result<Error>> RemoveAdminAsync(int userId);
-    Task<Result<User,Error>> UpdateUserAsync(User user);
+    Task<Result<User, Error>> UpdateUserAsync(User user);
 }
 
 public class UserRepository : IUserRepository
@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
         _userManager = userManager;
         _roleManager = roleManager;
     }
-    
+
     public async Task<List<User>> ApplyTableOptions(IQueryable<User> users, TableOption options)
     {
         if (!String.IsNullOrWhiteSpace(options.Filter))
@@ -49,7 +49,7 @@ public class UserRepository : IUserRepository
                 "Status" => x => x.LockoutEnabled,
                 _ => x => x.Id
             };
-            
+
             if (sortOption.Desc)
             {
                 users = users.OrderByDescending(selector);
@@ -59,9 +59,10 @@ public class UserRepository : IUserRepository
                 users = users.OrderBy(selector);
             }
         }
-        
-        users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex).Take(options.Pagination.PageSize);
-        
+
+        users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
+            .Take(options.Pagination.PageSize);
+
         return await users.ToListAsync();
     }
 
@@ -73,7 +74,9 @@ public class UserRepository : IUserRepository
 
     public async Task<Result<User, Error>> GetUserAsync(int userId)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var user = await _userManager.Users
+            .Include(x => x.Roles)
+            .FirstOrDefaultAsync(x => x.Id == userId);
         if (user == null)
         {
             return Error.NotFound("User not found");
@@ -89,6 +92,7 @@ public class UserRepository : IUserRepository
         {
             return Error.NotFound("User not found");
         }
+
         var result = await _userManager.DeleteAsync(user);
         if (result.Succeeded)
         {
@@ -105,12 +109,12 @@ public class UserRepository : IUserRepository
         {
             return Error.NotFound("User not found");
         }
-        
+
         var result = await _userManager.SetLockoutEnabledAsync(user, true);
         if (result.Succeeded)
         {
             result = await _userManager.SetLockoutEndDateAsync(user,
-                new DateTimeOffset(DateTime.UtcNow + DefaultIdentity.BlockDuration));
+                new DateTimeOffset(DateTime.UtcNow + Identity.BlockDuration));
         }
 
         if (result.Succeeded)
@@ -180,7 +184,7 @@ public class UserRepository : IUserRepository
         return Error.InternalError(result.Errors.First().Description);
     }
 
-    public async Task<Result<User,Error>> UpdateUserAsync(User user)
+    public async Task<Result<User, Error>> UpdateUserAsync(User user)
     {
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)

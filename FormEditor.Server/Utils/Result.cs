@@ -73,6 +73,7 @@
         }
         public static implicit operator Result<E>(E e) => new(e, false);
         
+        
     }
 }
 
