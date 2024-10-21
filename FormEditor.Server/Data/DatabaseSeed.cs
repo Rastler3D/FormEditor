@@ -1,33 +1,33 @@
-﻿namespace FormEditor.Server.Data;
+﻿using FormEditor.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
-public class 
+
+namespace FormEditor.Server.Data;
+
+public class DatabaseSeed
 {
-    /// <summary>
-    ///     Seed users and roles in the Identity database.
-    /// </summary>
-    /// <param name="userManager">ASP.NET Core Identity User Manager</param>
-    /// <param name="roleManager">ASP.NET Core Identity Role Manager</param>
-    /// <returns></returns>
-    public static async Task SeedAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public static async Task SeedAsync(IServiceProvider serviceProvider)
     {
-        // Add roles supported
-        await roleManager.CreateAsync(new IdentityRole(ApplicationIdentityConstants.Roles.Administrator));
-        await roleManager.CreateAsync(new IdentityRole(ApplicationIdentityConstants.Roles.Member));
+        AppDbContext dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+        if (await dbContext.Database.EnsureCreatedAsync())
+        {
+            UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+            RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-        // New admin user
-        string adminUserName = "shawn@test.com";
-        var adminUser = new ApplicationUser { 
-            UserName = adminUserName,
-            Email = adminUserName,
-            IsEnabled = true,
-            EmailConfirmed = true,
-            FirstName = "Shawn",
-            LastName = "Administrator"
-        };
-            
-        // Add new user and their role
-        await userManager.CreateAsync(adminUser, ApplicationIdentityConstants.DefaultPassword);
-        adminUser = await userManager.FindByNameAsync(adminUserName);
-        await userManager.AddToRoleAsync(adminUser, ApplicationIdentityConstants.Roles.Administrator);
+            await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
+            await roleManager.CreateAsync(new IdentityRole(Roles.User));
+
+            var adminUser = new User
+            {
+                UserName = DefaultIdentity.DefaultUserName,
+                Email = DefaultIdentity.DefaultEmail,
+                EmailConfirmed = true,
+            };
+
+            // Add new user and their role
+            await userManager.CreateAsync(adminUser, DefaultIdentity.DefaultPassword);
+            adminUser = await userManager.FindByEmailAsync(DefaultIdentity.DefaultEmail);
+            await userManager.AddToRoleAsync(adminUser, Roles.Admin);
+        }
     }
 }

@@ -27,13 +27,9 @@ export default function FormManagement(props: FormManagementProps) {
             header: 'Submitted By',
         },
         {
-            accessorKey: 'submittedAt',
-            header: 'Submitted At',
+            accessorKey: 'fillingDate',
+            header: 'Filling Date',
             cell: (info) => new Date(info.getValue() as string).toLocaleDateString(),
-        },
-        {
-            accessorKey: '',
-            header: 'Usage Count',
         },
         {
             id: 'actions',

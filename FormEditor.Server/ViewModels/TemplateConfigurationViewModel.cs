@@ -2,9 +2,8 @@
 
 namespace FormEditor.Server.ViewModels;
 
-public class TemplateConfiguration
+public class TemplateConfigurationViewModel
 {
-    public int? Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public string Topic { get; set; }
@@ -12,5 +11,5 @@ public class TemplateConfiguration
     public List<string> Tags { get; set; }
     public AccessSetting AccessSetting { get; set; }
     public List<int> AllowList { get; set; }
-    public List<Question> Questions { get; set; }
+    public List<QuestionViewModel> Questions { get; set; }
 }

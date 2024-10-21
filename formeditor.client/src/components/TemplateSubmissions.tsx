@@ -1,18 +1,19 @@
 ﻿import {Card} from "~/components/ui/card.tsx";
-import {FilledForm, Template} from "~/types/template.ts";
+import {FilledForm, FormInfo, Template} from "~/types/template.ts";
 import DataTable from "./DataTable";
 import {fetchFilledForms} from "../services/api";
 import {useNavigate} from "@solidjs/router";
+import { ColumnDef } from "@tanstack/solid-table";
 
-const defaultColumns: ColumnDef<FilledForm, any>[] = [
+const defaultColumns: ColumnDef<FormInfo, any>[] = [
     {
-        accessorKey: 'userName',
+        accessorKey: 'submittedBy',
         header: 'User Name',
         cell: (info) => info.getValue(),
     },
     {
-        accessorKey: 'submittedAt',
-        header: 'Submitted At',
+        accessorKey: 'fillingDate',
+        header: 'Filling Date',
         cell: (info) => info.getValue(),
     },
 ];
@@ -23,7 +24,7 @@ interface TemplateSubmissionsProps {
 
 const TemplateSubmissions = (props: TemplateSubmissionsProps) => {
     const navigate = useNavigate();
-    const columns = [
+    const columns: ColumnDef<FilledForm, any>[] = [
         ...defaultColumns,
         ...props.template.questions
             .filter(q => q.displayInTable)

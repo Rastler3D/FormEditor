@@ -30,7 +30,6 @@ export interface Answer {
 export interface FilledForm {
     templateId: number;
     fillingDate: string;
-    submitterId: number;
     answers: Record<number, Answer>
 }
 

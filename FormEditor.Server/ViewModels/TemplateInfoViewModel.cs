@@ -1,6 +1,6 @@
 ﻿namespace FormEditor.Server.ViewModels;
 
-public class TemplateInfo
+public class TemplateInfoViewModel
 {
     public int Id { get; set; }
     public string Name { get; set; }
