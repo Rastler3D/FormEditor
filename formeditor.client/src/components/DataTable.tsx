@@ -18,7 +18,7 @@ import {
     PaginationPrevious
 } from "~/components/ui/pagination.tsx";
 import {Skeleton} from "~/components/ui/skeleton.tsx";
-import {TableOption} from "~/types/template.ts";
+import {TableData, TableOption} from "~/types/template.ts";
 import {createStore, unwrap} from "solid-js/store";
 import {Checkbox} from "./ui/checkbox";
 import {createWritableMemo} from "@solid-primitives/memo"
@@ -47,7 +47,7 @@ interface DataTableProps<TData> {
     onSelectionChange?: (selection: number[]) => void;
     initialSelection?: number[];
     onRowClick?: (row: TData) => void;
-    fetchData: (options: TableOption) => Promise<{ data: TData[]; totalPages: number }>;
+    fetchData: (options: TableOption) => Promise<TableData<TData[]>>;
     onFetchData?: (data: TData[], options: TableOption) => void;
     rowId?: keyof TData;
     refetchTrigger?: () => any;

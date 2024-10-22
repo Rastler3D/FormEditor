@@ -1,6 +1,8 @@
 ﻿import { createContext, useContext, createSignal, createEffect } from 'solid-js';
 import {api} from "~/lib/api.ts";
 import * as userServices from "~/services/userService"
+import {login} from "~/services/userService";
+import {UpdateUser} from "~/types/template.ts";
 
 export interface User {
     id: number;
@@ -18,7 +20,7 @@ interface AuthContextType {
     signUp: (args: {name: string, email: string, password: string }) => Promise<void>;
     refreshToken: () => Promise<string>;
     signOut: () => void;
-    updateUser: (data: Partial<User>) => Promise<User>;
+    updateUser: (data: UpdateUser) => Promise<User>;
     isAuthenticated: () => boolean;
     hasRole: (roles?: string[]) => boolean;
 }
@@ -74,21 +76,10 @@ export function AuthProvider(props) {
         return accessToken;
     };
 
-    const updateUser = async (data: Partial<User>) => {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            if (value !== undefined) {
-                formData.append(key, value);
-            }
-        });
-
-        const response = await api.put('/users/profile', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        setUser(response.data);
-        localStorage.setItem('user', JSON.stringify(response.data));
-        return response.data;
+    const updateUser = async (data: UpdateUser): Promise<User> => {
+        const updatedUser = await userServices.updateUser(user()!.id, data);
+        setUser(updatedUser);
+        return updatedUser;
     };
 
     return (

@@ -10,7 +10,7 @@ import {
     bulkBlockUsers,
     bulkDeleteUsers,
     bulkUnblockUsers
-} from '~/services/api';
+} from '~/services/templateService.ts';
 import {useAuth, User} from "~/contexts/AuthContext";
 import {createTrigger} from "@solid-primitives/trigger"
 import {showToast} from "./ui/toast";

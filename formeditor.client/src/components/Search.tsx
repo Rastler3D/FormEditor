@@ -139,7 +139,7 @@ import {
     ComboboxItem, ComboboxItemIndicator, ComboboxItemLabel,
     ComboboxTrigger
 } from "~/components/ui/combobox.tsx";
-import {fetchTags, fetchTopics} from "~/services/api.ts";
+import {fetchTags, fetchTopics} from "~/services/templateService.ts";
 import TemplateTable from "~/components/TemplateTable.tsx";
 import TemplateGallery from "~/components/TemplateGallery.tsx";
 import {

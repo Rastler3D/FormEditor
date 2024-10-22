@@ -28,6 +28,7 @@
     "d3-cloud": "^1.2.7",
     "lucide-solid": "^0.447.0",
     "marked": "^14.1.2",
+    "meilisearch": "^0.44.1",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.9.1",
     "solid-markdown": "^2.0.13",

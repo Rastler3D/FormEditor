@@ -4,7 +4,7 @@ import {createWritableMemo} from "@solid-primitives/memo";
 import {createResource, createEffect, Show} from "solid-js";
 import {createAction} from "~/lib/action";
 import {FaSolidHeart} from "solid-icons/fa";
-import {fetchLikes, toggleLike} from "~/services/api";
+import {fetchLikes, toggleLike} from "~/services/templateService.ts";
 import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 import {useAuth} from "~/contexts/AuthContext.tsx";
 import { Heart } from "lucide-solid";

@@ -1,9 +1,12 @@
 import TemplateManagement from "~/components/TemplateManagement.tsx";
-import {fetchUserTemplates} from "~/services/api.ts";
+import {fetchUserTemplates} from "~/services/templateService.ts";
+import {useAuth} from "~/contexts/AuthContext.tsx";
 
 
 const UserTemplatesPage = () => {
-    return <TemplateManagement templateFetcher={fetchUserTemplates} name="User Templates" />
+    const { user } = useAuth();
+    
+    return <TemplateManagement templateFetcher={(opt) => fetchUserTemplates(user()!.id, opt)} name="User Templates" />
 }
 
 export default UserTemplatesPage;

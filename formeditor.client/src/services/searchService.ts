@@ -1,4 +1,4 @@
-import {TemplateInfo} from "../types/template";
+import {searchClient} from "~/lib/meilisearch.ts";
 
 export const searchTemplate = async (params: {
     query: string,
@@ -12,19 +12,12 @@ export const searchTemplate = async (params: {
         .map(([key, value]) => `${key} IN [${value.join(', ')}]`)
         .join(' AND ');
 
-    const results = await meiliSearchClient.index('templates').search(query, {
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
+    const results = await searchClient.index('templates').search(query, {
+        page: page,
+        hitsPerPage: pageSize,
         filter: filterString,
-        sort: [`${sorting.field}:${sorting.direction}`],
+        sort: [sorting],
     });
 
-    return {
-        hits: results.hits as TemplateInfo[],
-        totalHits: results.nbHits,
-        totalPages: Math.ceil(results.nbHits / pageSize),
-        page: results.page,
-        hitsPerPage: results.hitsPerPage,
-        
-    };
+    return results;
 }

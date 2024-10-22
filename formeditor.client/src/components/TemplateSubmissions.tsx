@@ -1,7 +1,7 @@
 ﻿import {Card} from "~/components/ui/card.tsx";
 import {FilledForm, FormInfo, Template} from "~/types/template.ts";
 import DataTable from "./DataTable";
-import {fetchFilledForms} from "../services/api";
+import {fetchFilledForms} from "../services/templateService.ts";
 import {useNavigate} from "@solidjs/router";
 import { ColumnDef } from "@tanstack/solid-table";
 

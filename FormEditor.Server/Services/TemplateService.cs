@@ -21,11 +21,13 @@ namespace FormEditor.Server.Services
         Task<List<TagInfo>> GetTagsInfoAsync();
         Task<List<string>> GetTagsAsync();
         Task<List<string>> GetTopicsAsync();
+        Task<TableData<List<TemplateInfoViewModel>>> GetTemplatesAsync(TableOption option);
+        Task<TableData<List<TemplateInfoViewModel>>> GetUserTemplatesAsync(int userId, TableOption option);
 
         Task<Result<TemplateInfoViewModel, Error>> CreateTemplateAsync(TemplateConfigurationViewModel template,
             int creatorId);
 
-        Task<Result<TemplateInfoViewModel, Error>> UpdateTemplateAsync(int templateId,
+        Task<Result<TemplateViewModel, Error>> UpdateTemplateAsync(int templateId,
             TemplateConfigurationViewModel template, int updatorId);
 
         Task<Result<TemplateViewModel, Error>> GetTemplateAsync(int id);
@@ -33,11 +35,15 @@ namespace FormEditor.Server.Services
         Task<LikesInfo> GetLikesAsync(int templateId, int? userId);
         Task<Result<Error>> DeleteTemplateAsync(int id, int userId);
         Task<AggregatedResults> GetAggregatedResultsAsync(int templateId);
-        Task<List<CommentViewModel>> GetComments(int templateId);
-        Task<Result<CommentViewModel, Error>> AddComment(int templateId, int authorId, string text);
+        Task<List<CommentViewModel>> GetCommentsAsync(int templateId);
+        Task<Result<CommentViewModel, Error>> AddCommentAsync(int templateId, int authorId, string text);
     }
 
-    public class TemplateService(TemplateRepository templateRepository, UserManager<User> userManager, IMapper mapper, ISearchService searchService)
+    public class TemplateService(
+        TemplateRepository templateRepository,
+        UserManager<User> userManager,
+        IMapper mapper,
+        ISearchService searchService)
         : ITemplateService
     {
         // In a real application, you'd use a database context here
@@ -55,6 +61,7 @@ namespace FormEditor.Server.Services
                 .Select(mapper.Map<TemplateInfoViewModel>)
                 .ToList();
         }
+
 
         public async Task<List<TagInfo>> GetTagsInfoAsync()
         {
@@ -75,6 +82,24 @@ namespace FormEditor.Server.Services
                 .ToList();
         }
 
+        public async Task<TableData<List<TemplateInfoViewModel>>> GetTemplatesAsync(TableOption option)
+        {
+            return (await templateRepository.GetTemplatesAsync(option))
+                .MapData(x => x
+                    .Select(mapper.Map<TemplateInfoViewModel>)
+                    .ToList()
+                );
+        }
+
+        public async Task<TableData<List<TemplateInfoViewModel>>> GetUserTemplatesAsync(int userId, TableOption option)
+        {
+            return (await templateRepository.GetUserTemplatesAsync(userId, option))
+                .MapData(x => x
+                    .Select(mapper.Map<TemplateInfoViewModel>)
+                    .ToList()
+                );
+        }
+
         public async Task<Result<TemplateInfoViewModel, Error>> CreateTemplateAsync(
             TemplateConfigurationViewModel templateConfig, int creatorId)
         {
@@ -83,7 +108,7 @@ namespace FormEditor.Server.Services
             {
                 return Error.NotFound("User not found");
             }
-            
+
             var template = mapper.Map<Template>(templateConfig, opt => opt.Items["CreatorId"] = creatorId);
             var templateCreation = await templateRepository.CreateTemplateAsync(template);
 
@@ -91,14 +116,15 @@ namespace FormEditor.Server.Services
             {
                 return templateCreation.Error;
             }
+
             var createdTemplate = templateCreation.Value;
-            
+
             await searchService.UpsertTemplateAsync(mapper.Map<TemplateViewModel>(createdTemplate));
 
             return mapper.Map<TemplateInfoViewModel>(createdTemplate);
         }
 
-        public async Task<Result<TemplateInfoViewModel, Error>> UpdateTemplateAsync(int templateId,
+        public async Task<Result<TemplateViewModel, Error>> UpdateTemplateAsync(int templateId,
             TemplateConfigurationViewModel templateConfig, int updatorId)
         {
             var user = await userManager.FindByIdAsync(updatorId.ToString());
@@ -120,11 +146,12 @@ namespace FormEditor.Server.Services
             {
                 return templateUpdate.Error;
             }
+
             var updatedTemplate = templateUpdate.Value;
-            
+
             await searchService.UpsertTemplateAsync(mapper.Map<TemplateViewModel>(updatedTemplate));
 
-            return mapper.Map<TemplateInfoViewModel>(updatedTemplate);
+            return mapper.Map<TemplateViewModel>(updatedTemplate);
         }
 
         public async Task<Result<TemplateViewModel, Error>> GetTemplateAsync(int id)
@@ -174,7 +201,7 @@ namespace FormEditor.Server.Services
             {
                 return Error.Unauthorized("You have no permission to edit this template");
             }
-            
+
             var templateDeletion = await templateRepository.DeleteTemplateAsync(id);
             if (templateDeletion.IsErr)
             {
@@ -185,22 +212,22 @@ namespace FormEditor.Server.Services
 
             return Result<Error>.Ok();
         }
-        
+
         public async Task<AggregatedResults> GetAggregatedResultsAsync(int templateId)
         {
             return await templateRepository.GetAggregatedResultsAsync(templateId);
         }
 
-        public async Task<List<CommentViewModel>> GetComments(int templateId)
+        public async Task<List<CommentViewModel>> GetCommentsAsync(int templateId)
         {
-            return (await templateRepository.GetComments(templateId))
+            return (await templateRepository.GetCommentsAsync(templateId))
                 .Select(mapper.Map<CommentViewModel>)
                 .ToList();
         }
 
-        public async Task<Result<CommentViewModel, Error>> AddComment(int templateId, int authorId, string text)
+        public async Task<Result<CommentViewModel, Error>> AddCommentAsync(int templateId, int authorId, string text)
         {
-            return (await templateRepository.AddComment(templateId, authorId, text))
+            return (await templateRepository.AddCommentAsync(templateId, authorId, text))
                 .Map(mapper.Map<CommentViewModel>);
         }
     }

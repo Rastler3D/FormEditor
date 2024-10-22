@@ -7,15 +7,17 @@ using FormEditor.Server.Data;
 using FormEditor.Server.Hubs;
 using FormEditor.Server.Mapping;
 using FormEditor.Server.Models;
+using FormEditor.Server.Repositories;
+using FormEditor.Server.Services;
+using FormEditor.Server.Utils;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Configuration.AddEnvironmentVariables();
-
-var connectionString = builder.Configuration.GetConnectionString("DbConnection") ??
-                       throw new InvalidOperationException("Connection string 'DbConnection' not found.");
-
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString).UseExceptionProcessor());
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration["DbConnection"]).UseExceptionProcessor());
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services
     .AddAuthentication(IdentityConstants.BearerScheme)
@@ -28,7 +30,7 @@ builder.Services
             // If the request is for our hub...
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) &&
-                (path.StartsWithSegments("/Hub")))
+                (path.StartsWithSegments("/hub")))
             {
                 // Read the token out of the query string
                 context.Token = accessToken;
@@ -37,6 +39,14 @@ builder.Services
             return Task.CompletedTask;
         };
     });
+    // .AddGoogle(options =>
+    // {
+    //     options.ClientId = builder.Configuration["Google:ClientId"];
+    //     options.ClientSecret = builder.Configuration["Google:ClientSecret"];
+    //     options.Scope.Add("profile");
+    //     options.SignInScheme = IdentityConstants.ExternalScheme;
+    // })
+    // .AddGitHub();
 builder.Services.AddSignalR();
 builder.Services.AddIdentityCore<User>(options =>
     {
@@ -59,7 +69,14 @@ builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
-
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
+builder.Services.AddScoped<IFormService, FormService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFormRepository, FormRepository>();
+builder.Services.AddScoped<ITemplateRepository, TemplateRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -86,9 +103,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGroup("/User")
-    .MapIdentityApi<User>();
-app.MapHub<CommentHub>("/Hub/Comment");
+// app.MapGroup("/User")
+//     .MapIdentityApi<User>();
+app.MapHub<CommentHub>("/hub/comment");
 
 app.MapFallbackToFile("/index.html");
 

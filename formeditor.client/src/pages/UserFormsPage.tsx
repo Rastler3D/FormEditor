@@ -1,9 +1,10 @@
 import FormManagement from "~/components/FormManagement.tsx";
-import {fetchUserForms} from "~/services/api.ts";
-
-
+import {fetchUserForms, fetchUserTemplates} from "~/services/templateService.ts";
+import {useAuth} from "~/contexts/AuthContext.tsx";
 const UserFormsPage = () => {
-    return <FormManagement templateFetcher={fetchUserForms} name="User Forms" />
+    const { user } = useAuth();
+    
+    return <FormManagement templateFetcher={(opt) => fetchUserForms(user()!.id, opt)} name="User Forms" />
 }
 
 export default UserFormsPage;

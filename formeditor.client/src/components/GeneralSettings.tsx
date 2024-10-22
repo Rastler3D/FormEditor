@@ -8,7 +8,7 @@ import ImageUploader from '~/components/ImageUploader';
 import TagSelector from '~/components/TagSelector';
 import {Label} from "~/components/ui/label.tsx";
 import UserTableList from "~/components/UserSelection.tsx";
-import {fetchTags, fetchTopics} from "~/services/api.ts";
+import {fetchTags, fetchTopics} from "~/services/templateService.ts";
 
 interface GeneralSettingsProps {
     template: TemplateConfiguration;

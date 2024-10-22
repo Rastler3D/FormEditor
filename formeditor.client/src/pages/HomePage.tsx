@@ -1,7 +1,7 @@
 ﻿import { createResource } from 'solid-js';
 import TemplateGallery from '../components/TemplateGallery';
 import TagCloud from '../components/TagCloud';
-import {fetchLatestTemplates, fetchPopularTemplates, fetchTagsInfo} from "~/services/api.ts";
+import {fetchLatestTemplates, fetchPopularTemplates, fetchTagsInfo} from "~/services/templateService.ts";
 import {useNavigate} from "@solidjs/router";
 import TemplateTable from "~/components/TemplateTable.tsx";
 

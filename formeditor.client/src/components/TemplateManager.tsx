@@ -24,7 +24,7 @@ import {
 } from './ui/pagination';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select";
 import {FaSolidComment, FaSolidHeart} from 'solid-icons/fa';
-import {fetchFilledForms, submitForm, addComment, toggleLike} from '~/services/api';
+import {fetchFilledForms, submitForm, addComment, toggleLike} from '~/services/templateService.ts';
 import {useAuth} from '~/contexts/AuthContext';
 import TemplateSettings from "~/components/TemplateSettings";
 import {Template, TemplateConfiguration} from "~/types/template.ts";

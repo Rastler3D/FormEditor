@@ -1,8 +1,8 @@
 ﻿import axios from 'axios';
 import { showToast } from '~/components/ui/toast';
 
-const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+export const api = axios.create({
+    baseURL: "/api",
     withCredentials: true,
 });
 api.interceptors.request.use(request => {
@@ -50,14 +50,9 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response) {
-            showToast({ title: error.response.data.message || 'An error occurred', variant: 'destructive' });
-        } else if (error.request) {
-            showToast({ title: 'No response from server', variant: 'destructive' });
-        } else {
-            showToast({ title: 'Error setting up request', variant: 'destructive' });
+            return Promise.reject(error.response.data.error);
         }
-        return Promise.reject(error);
+        showToast({ title: 'An unexpected error occurred', variant: 'destructive' });
+        return Promise.reject('An unexpected error occurred');
     }
 );
-
-export { api };

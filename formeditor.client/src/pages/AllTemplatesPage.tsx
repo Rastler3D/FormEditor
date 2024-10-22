@@ -1,5 +1,5 @@
 import TemplateManagement from "~/components/TemplateManagement.tsx";
-import {fetchAllTemplates} from "~/services/api.ts";
+import {fetchAllTemplates} from "~/services/templateService.ts";
 
 
 const AllTemplatesPage = () => {

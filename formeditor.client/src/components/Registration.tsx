@@ -13,6 +13,7 @@ import {useAuth} from "../contexts/AuthContext";
 import {createAction} from "../lib/action";
 import {AlertCircle} from "lucide-solid";
 import {createEffect, createSignal, on, Show} from "solid-js";
+import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 
 const Registration = () => {
     const {signUp} = useAuth();
@@ -22,7 +23,7 @@ const Registration = () => {
     const [email, setEmail] = createSignal("");
     const [password, setPassword] = createSignal("");
 
-    createEffect(on(registration.data, (result) => result && navigate("/home")));
+    createEffect(on(registration.data, (result) => result && navigate(`/password/confirm-email/${email()}`)));
 
     const handleRegistration = (e: SubmitEvent) => {
         e.preventDefault();
@@ -67,11 +68,18 @@ const Registration = () => {
                             </div>
                         </Show>
                         <div class="grid gap-2">
+                            <Show when={!registration.data.loading} fallback={
+                                <Button
+                                    class="w-full">
+                                    <ProgressCircle showAnimation />
+                                </Button>
+                            }>
                             <Button
                                 type="submit"
                                 class="w-full">
                                 Create an account
                             </Button>
+                            </Show>
                         </div>
                     </form>
                     <div class="relative">

@@ -3,7 +3,7 @@ import {A} from '@solidjs/router';
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
 import {TableOption,  TemplateInfo} from '~/types/template';
-import {deleteTemplate} from '~/services/api';
+import {deleteTemplate} from '~/services/templateService.ts';
 import {showToast} from "../components/ui/toast";
 import {createTrigger} from '@solid-primitives/trigger';
 

@@ -19,6 +19,8 @@ const HomePage = lazy(() => import("~/pages/HomePage.tsx"));
 const AllUsersPage = lazy(() => import("~/pages/AllUsersPage.tsx"));
 const LoginPage = lazy(() => import("~/pages/LoginPage.tsx"));
 const RegistrationPage = lazy(() => import("~/pages/RegistrationPage.tsx"));
+const ConfirmEmailPage = lazy(() => import("~/pages/ConfirmEmailPage.tsx"));
+const ForgotPasswordPage = lazy(() => import("~/pages/ForgotPasswordPage.tsx"));
 
 function App() {
     return (
@@ -28,8 +30,14 @@ function App() {
                     <Router root={Layout}>
                         <Route path="/home" component={HomePage}/>
                         <Route path="/search" component={SearchPage}/>
-                        <Route path="/login" component={LoginPage}/>
-                        <Route path="/registration" component={RegistrationPage}/>
+                        <Route path="/login">
+                            <Route path="/" component={LoginPage}/>
+                            <Route path="/forgot-password" component={ForgotPasswordPage}/>
+                        </Route>
+                        <Route path="/registration">
+                            <Route path="/" component={RegistrationPage}/>
+                            <Route path="/confirm-email/:email" component={ConfirmEmailPage}/>
+                        </Route>
 
                         <Route path="/templates">
                             <Route path=":id" component={TemplatePage}/>
@@ -62,7 +70,8 @@ function App() {
                 </AuthProvider>
             </ThemeProvider>
         </LanguageProvider>
-    );
+    )
+        ;
 }
 
 export default App

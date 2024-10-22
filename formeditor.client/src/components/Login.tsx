@@ -13,6 +13,7 @@ import {useAuth} from "../contexts/AuthContext";
 import {createAction} from "../lib/action";
 import {AlertCircle} from "lucide-solid";
 import {createEffect, createSignal, on, Show} from "solid-js";
+import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 
 const Login = () => {
     const {signIn} = useAuth();
@@ -60,9 +61,22 @@ const Login = () => {
                             </div>
                         </Show>
                         <div class="grid gap-2">
-                            <Button type="submit" class="w-full">
-                                Create an account
-                            </Button>
+                            <Show when={!login.data.loading} fallback={
+                                <Button
+                                    class="w-full">
+                                    <ProgressCircle showAnimation />
+                                </Button>
+                            }>
+                                <Button type="submit" class="w-full">
+                                    Create an account
+                                </Button>
+                            </Show>
+                            
+                        </div>
+                        <div class="text-center mt-2">
+                            <A href="/login/forgot-password" class="text-sm text-primary hover:underline">
+                                Forgot password?
+                            </A>
                         </div>
                     </form>
                     <div class="relative">

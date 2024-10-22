@@ -1,4 +1,4 @@
-﻿import {createSignal, createEffect, Show} from 'solid-js';
+﻿import {createSignal, createEffect, Show, on} from 'solid-js';
 import {Button} from '~/components/ui/button';
 import { User} from '~/contexts/AuthContext';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/card';
@@ -6,42 +6,33 @@ import {Avatar, AvatarImage, AvatarFallback} from '~/components/ui/avatar';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '~/components/ui/tabs';
 import {Label} from '~/components/ui/label';
 import {TextField, TextFieldInput, TextFieldLabel} from './ui/text-field';
-import {uploadImage} from "~/services/imageUploadService.ts";
+import {createWritableMemo} from "@solid-primitives/memo";
+import {UpdateUser} from "~/types/template.ts";
 
 interface UserProfileProps {
     isReadonly: boolean;
     user: User;
-    onUserUpdate: (user: Partial<User>) => void;
+    onUserUpdate: (user: UpdateUser) => void;
 }
 
 function UserProfile(props: UserProfileProps) {
-    const [name, setName] = createSignal(props.user.name);
-    const [email, setEmail] = createSignal(props.user.name);
-    const [avatar, setAvatar] = createSignal<File | null>(null);
-    const [avatarPreview, setAvatarPreview] = createSignal(props.user.avatar);
+    const [name, setName] = createWritableMemo(() => props.user.name);
+    const [email, setEmail] = createWritableMemo(() => props.user.name);
+    const [avatar, setAvatar] = createWritableMemo(() => props.user.avatar);
     const [isEdit, setIsEdit] = createSignal(false);
 
-    createEffect(() => {
-        if (avatar()) {
-            const reader = new FileReader();
-            reader.onload = (e) => setAvatarPreview(e.target?.result as string);
-            reader.readAsDataURL(avatar()!);
-        }
-    });
+    const previewAvatar = (avatar: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => setAvatar(e.target?.result as string);
+        reader.readAsDataURL(avatar);
+    };
 
     const handleChangeAvatar = async (avatar: File | null) => {
-        setAvatar(avatar);
-        let avatarUrl;
-        if (avatar) {
-            avatarUrl = await uploadImage(avatar);
+        if (avatar){
+            previewAvatar(avatar)
+            props.onUserUpdate({avatar: avatar})
         }
-        props.onUserUpdate({avatar: avatarUrl})
     };
-    
-    createEffect(()=> {
-        if (!isEdit() && props.user.avatar)
-        setAvatarPreview(props.user.avatar);
-    })
 
     const handleEditProfile= () => {
         setIsEdit(true);
@@ -60,6 +51,8 @@ function UserProfile(props: UserProfileProps) {
         })
     }
 
+    createEffect(on(()=> props.user), () => setIsEdit(false));
+
     return (
         <div class="container mx-auto p-4 max-w-4xl">
             <Card>
@@ -70,9 +63,9 @@ function UserProfile(props: UserProfileProps) {
                     <div class="flex flex-col md:flex-row gap-8">
                         <div class="flex-shrink-0 flex flex-col items-center space-y-4">
                             <Avatar class="w-32 h-32">
-                                <Show when={avatarPreview()}
-                                      fallback={<AvatarFallback>{props.user.name}</AvatarFallback>}>
-                                    <AvatarImage src={avatarPreview()} alt={props.user.name}/>
+                                <Show when={avatar()}
+                                      fallback={<AvatarFallback>{name()}</AvatarFallback>}>
+                                    <AvatarImage src={avatar()} alt={name()}/>
                                 </Show>
                             </Avatar>
                             <Show when={!props.isReadonly}>

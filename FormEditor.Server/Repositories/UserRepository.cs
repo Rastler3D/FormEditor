@@ -11,7 +11,7 @@ namespace FormEditor.Server.Repositories;
 
 public interface IUserRepository
 {
-    Task<List<User>> GetAllUsersAsync(TableOption option);
+    Task<TableData<List<User>>> GetAllUsersAsync(TableOption option);
     Task<Result<User, Error>> GetUserAsync(int userId);
     Task<Result<Error>> DeleteUserAsync(int userId);
     Task<Result<Error>> BlockUserAsync(int userId);
@@ -32,11 +32,13 @@ public class UserRepository : IUserRepository
         _roleManager = roleManager;
     }
 
-    public async Task<List<User>> ApplyTableOptions(IQueryable<User> users, TableOption options)
+    public async Task<TableData<List<User>>> ApplyTableOptions(IQueryable<User> users, TableOption options)
     {
+        var totalPages = 0;
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             users = users.Where(f => f.UserName == options.Filter || f.Email == options.Filter);
+            totalPages = await users.CountAsync() / options.Pagination.PageSize + 1;
         }
 
         foreach (var sortOption in options.Sort)
@@ -63,10 +65,14 @@ public class UserRepository : IUserRepository
         users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
             .Take(options.Pagination.PageSize);
 
-        return await users.ToListAsync();
+        return new()
+        {
+            Data = await users.ToListAsync(),
+            TotalPages = totalPages
+        };
     }
 
-    public async Task<List<User>> GetAllUsersAsync(TableOption option)
+    public async Task<TableData<List<User>>> GetAllUsersAsync(TableOption option)
     {
         var users = _userManager.Users.Include(x => x.Roles);
         return await ApplyTableOptions(users, option);

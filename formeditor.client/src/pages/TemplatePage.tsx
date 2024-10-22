@@ -1,6 +1,6 @@
 ﻿import {useParams} from "@solidjs/router";
 import {createEffect, createResource, on, Show} from "solid-js";
-import {fetchTemplate, updateTemplate} from "~/services/api.ts";
+import {fetchTemplate, updateTemplate} from "~/services/templateService.ts";
 import {useAuth} from "~/contexts/AuthContext.tsx";
 import {ProgressCircle} from "~/components/ui/progress-circle";
 import TemplateSubmission from "~/components/TemplateSubmission.tsx";
@@ -14,7 +14,7 @@ const TemplatePage = () => {
     const templateUpdating = createAction(updateTemplate, () => params.id);
 
     createEffect(on(templateUpdating.data,
-        template => template && mutate({...template, questions: templateUpdating.args()!.template.questions})));
+        template => template && mutate({...template, questions: templateUpdating.args()!.template.questions })));
     
     return (
         <Show when={!template.error} fallback={

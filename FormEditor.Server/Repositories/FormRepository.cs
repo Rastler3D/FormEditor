@@ -11,9 +11,9 @@ namespace FormEditor.Server.Repositories;
 
 public interface IFormRepository
 {
-    Task<List<Form>> GetSubmittedFormsAsync(int templateId, TableOption options);
-    Task<List<Form>> GetUserFormsAsync(int userId, TableOption options);
-    Task<List<Form>> GetFormsAsync(TableOption options);
+    Task<TableData<List<Form>>> GetSubmittedFormsAsync(int templateId, TableOption options);
+    Task<TableData<List<Form>>>  GetUserFormsAsync(int userId, TableOption options);
+    Task<TableData<List<Form>>>  GetFormsAsync(TableOption options);
     Task<Result<Form, Error>> GetSubmittedFormAsync(int templateId, int userId);
     Task<Result<Form, Error>> GetFormAsync(int formId);
     Task<Result<Form, Error>> SubmitFormAsync(Form filledForm);
@@ -30,11 +30,13 @@ public class FormRepository : IFormRepository
         _context = context;
     }
 
-    public async Task<List<Form>> ApplyTableOptions(IQueryable<Form> forms, TableOption options)
+    async Task<TableData<List<Form>>> ApplyTableOptions(IQueryable<Form> forms, TableOption options)
     {
+        var totalPages = 0;
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             forms = forms.Where(f => f.Submitter.UserName == options.Filter);
+            totalPages = await forms.CountAsync() / options.Pagination.PageSize + 1;
         }
 
         foreach (var sortOption in options.Sort)
@@ -58,8 +60,12 @@ public class FormRepository : IFormRepository
         }
         
         forms = forms.Skip(options.Pagination.PageSize * options.Pagination.PageIndex).Take(options.Pagination.PageSize);
-        
-        return await forms.ToListAsync();
+
+        return new()
+        {
+            Data = await forms.ToListAsync(),
+            TotalPages = totalPages
+        };
     }
 
     private IQueryable<Form> LoadProperties(IQueryable<Form> forms)
@@ -70,14 +76,14 @@ public class FormRepository : IFormRepository
             .Include(x => x.Submitter);
     }
     
-    public async Task<List<Form>> GetFormsAsync(TableOption options)
+    public async Task<TableData<List<Form>>> GetFormsAsync(TableOption options)
     {
         var forms = LoadProperties(_context.Forms);
         
         return await ApplyTableOptions(forms, options);
        
     }
-    public async Task<List<Form>> GetUserFormsAsync(int userId, TableOption options)
+    public async Task<TableData<List<Form>>> GetUserFormsAsync(int userId, TableOption options)
     {
         var forms = LoadProperties(_context.Forms)
             .Where(x => x.SubmitterId == userId);
@@ -86,7 +92,7 @@ public class FormRepository : IFormRepository
        
     }
 
-    public async Task<List<Form>> GetSubmittedFormsAsync(int templateId, TableOption options)
+    public async Task<TableData<List<Form>>> GetSubmittedFormsAsync(int templateId, TableOption options)
     {
         var forms = LoadProperties(_context.Forms)
             .Where(f => f.TemplateId == templateId);

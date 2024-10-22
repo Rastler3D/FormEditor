@@ -15,15 +15,15 @@ public interface ITemplateRepository
 {
     Task<List<Template>> GetLatestTemplatesAsync();
     Task<List<Template>> GetPopularTemplatesAsync();
-    Task<List<Template>> GetTemplatesAsync(TableOption option);
-    Task<List<Template>> GetUserTemplatesAsync(int userId, TableOption option);
+    Task<TableData<List<Template>>> GetTemplatesAsync(TableOption option);
+    Task<TableData<List<Template>>> GetUserTemplatesAsync(int userId, TableOption option);
     Task<Result<Template, Error>> GetTemplateAsync(int id);
     Task<Result<Template, Error>> GetTemplateWithQuestionsAsync(int id);
     Task<Result<Template, Error>> CreateTemplateAsync(Template template);
     Task<Result<Template, Error>> UpdateTemplateAsync(Template template);
     Task<Result<Error>> DeleteTemplateAsync(int id);
-    Task<List<Comment>> GetComments(int templateId);
-    Task<Result<Comment, Error>> AddComment(int templateId, int authorId, string text);
+    Task<List<Comment>> GetCommentsAsync(int templateId);
+    Task<Result<Comment, Error>> AddCommentAsync(int templateId, int authorId, string text);
 }
 
 // Repositories/TemplateRepository.cs
@@ -36,8 +36,9 @@ public class TemplateRepository : ITemplateRepository
         _context = context;
     }
 
-    public async Task<List<Template>> ApplyTableOptions(IQueryable<Template> templates, TableOption options)
+    public async Task<TableData<List<Template>>> ApplyTableOptions(IQueryable<Template> templates, TableOption options)
     {
+        var totalPages = 0;
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             templates = templates.Where(f =>
@@ -45,6 +46,7 @@ public class TemplateRepository : ITemplateRepository
                 f.Topic.Name == options.Filter ||
                 f.Description == options.Filter
             );
+            totalPages = await templates.CountAsync() / options.Pagination.PageSize + 1;
         }
 
         foreach (var sortOption in options.Sort)
@@ -72,7 +74,11 @@ public class TemplateRepository : ITemplateRepository
         templates = templates.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
             .Take(options.Pagination.PageSize);
 
-        return await templates.ToListAsync();
+        return new()
+        {
+            Data = await templates.ToListAsync(),
+            TotalPages = totalPages
+        };
     }
 
     private IQueryable<Template> LoadProperties(IQueryable<Template> template)
@@ -85,14 +91,14 @@ public class TemplateRepository : ITemplateRepository
             .Include(t => t.Creator);
     }
 
-    public async Task<List<Template>> GetTemplatesAsync(TableOption option)
+    public async Task<TableData<List<Template>>> GetTemplatesAsync(TableOption option)
     {
         var template = LoadProperties(_context.Templates);
             
         return await ApplyTableOptions(template, option);
     }
 
-    public async Task<List<Template>> GetUserTemplatesAsync(int userId, TableOption option)
+    public async Task<TableData<List<Template>>> GetUserTemplatesAsync(int userId, TableOption option)
     {
         var template = LoadProperties(_context.Templates)
             .Where(t => t.CreatorId == userId);
@@ -375,7 +381,7 @@ public class TemplateRepository : ITemplateRepository
         };
     }
 
-    public async Task<List<Comment>> GetComments(int templateId)
+    public async Task<List<Comment>> GetCommentsAsync(int templateId)
     {
         var comments = await _context.Comments
             .Where(c => c.TemplateId == templateId)
@@ -384,7 +390,7 @@ public class TemplateRepository : ITemplateRepository
         return comments;
     }
 
-    public async Task<Result<Comment, Error>> AddComment(int templateId, int authorId, string text)
+    public async Task<Result<Comment, Error>> AddCommentAsync(int templateId, int authorId, string text)
     {
         var comment = new Comment
         {

@@ -14,9 +14,9 @@ using FormEditor.Server.Models;
 
 public interface IFormService
 {
-    Task<List<FormViewModel>> GetSubmittedFormsAsync(int templateId, TableOption options);
-    Task<List<FormInfoViewModel>> GetUserFormsAsync(int userId, TableOption options);
-    Task<List<FormInfoViewModel>> GetFormsAsync(TableOption options);
+    Task<TableData<List<FormViewModel>>> GetSubmittedFormsAsync(int templateId, TableOption options);
+    Task<TableData<List<FormInfoViewModel>>> GetUserFormsAsync(int userId, TableOption options);
+    Task<TableData<List<FormInfoViewModel>>> GetFormsAsync(TableOption options);
     Task<Result<FormViewModel, Error>> GetSubmittedFormAsync(int templateId, int userId);
     Task<Result<FormViewModel, Error>> GetFormAsync(int formId);
     Task<Result<FormWithQuestionViewModel, Error>> GetFormWithTemplateAsync(int formId);
@@ -43,25 +43,31 @@ public class FormService : IFormService
         _templateRepository = templateRepository;
     }
 
-    public async Task<List<FormViewModel>> GetSubmittedFormsAsync(int templateId, TableOption options)
+    public async Task<TableData<List<FormViewModel>>> GetSubmittedFormsAsync(int templateId, TableOption options)
     {
         return (await _formRepository.GetSubmittedFormsAsync(templateId, options))
-            .Select(_mapper.Map<FormViewModel>)
-            .ToList();
+            .MapData(x => x
+                .Select(_mapper.Map<FormViewModel>)
+                .ToList()
+            );
     }
 
-    public async Task<List<FormInfoViewModel>> GetUserFormsAsync(int userId, TableOption options)
+    public async Task<TableData<List<FormInfoViewModel>>> GetUserFormsAsync(int userId, TableOption options)
     {
         return (await _formRepository.GetUserFormsAsync(userId, options))
-            .Select(_mapper.Map<FormInfoViewModel>)
-            .ToList();
+            .MapData(x => x
+                .Select(_mapper.Map<FormInfoViewModel>)
+                .ToList()
+            );
     }
 
-    public async Task<List<FormInfoViewModel>> GetFormsAsync(TableOption options)
+    public async Task<TableData<List<FormInfoViewModel>>> GetFormsAsync(TableOption options)
     {
         return (await _formRepository.GetFormsAsync(options))
-            .Select(_mapper.Map<FormInfoViewModel>)
-            .ToList();
+            .MapData(x => x
+                .Select(_mapper.Map<FormInfoViewModel>)
+                .ToList()
+            );
     }
 
     public async Task<Result<FormViewModel, Error>> GetSubmittedFormAsync(int templateId, int userId)
@@ -83,9 +89,10 @@ public class FormService : IFormService
         {
             return form.Error;
         }
+
         var template = await _templateRepository.GetTemplateAsync(form.Value.TemplateId);
         form.Value.Template = template.Value;
-        
+
         return _mapper.Map<FormWithQuestionViewModel>(form.Value);
     }
 

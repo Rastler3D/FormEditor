@@ -9,7 +9,7 @@ namespace FormEditor.Server.Services;
 
 public interface IUserService
 {
-    Task<List<UserViewModel>> GetAllUsersAsync(TableOption option);
+    Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOption option);
     Task<Result<UserViewModel, Error>> GetUserAsync(int userId);
     Task<Result<Error>> PerformBulkActionAsync(ActionViewModel action, int[] userIds);
     Task<Result<Error>> PerformActionAsync(ActionViewModel action, int userId);
@@ -30,14 +30,16 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    public async Task<List<UserViewModel>> GetAllUsersAsync(TableOption option)
+    public async Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOption option)
     {
         return (await _userRepository.GetAllUsersAsync(option))
-            .Select(_mapper.Map<UserViewModel>)
-            .ToList();
+            .MapData(x => x
+                .Select(_mapper.Map<UserViewModel>)
+                .ToList()
+            );
     }
 
-    public async Task<Result<UserViewModel,Error>> GetUserAsync(int userId)
+    public async Task<Result<UserViewModel, Error>> GetUserAsync(int userId)
     {
         return (await _userRepository.GetUserAsync(userId))
             .Map(_mapper.Map<UserViewModel>);
@@ -65,7 +67,7 @@ public class UserService : IUserService
             ActionViewModel.Unblock => await _userRepository.UnblockUserAsync(userId),
             ActionViewModel.Delete => await _userRepository.DeleteUserAsync(userId),
         };
-        
+
         return result;
     }
 
@@ -75,12 +77,13 @@ public class UserService : IUserService
         {
             return await _userRepository.AddAdminAsync(userId);
         }
+
         return await _userRepository.RemoveAdminAsync(userId);
     }
 
-    public async Task<Result<UserViewModel,Error>> UpdateUserAsync(int userId, UpdateUserViewModel updateUser, int updatorId)
+    public async Task<Result<UserViewModel, Error>> UpdateUserAsync(int userId, UpdateUserViewModel updateUser,
+        int updatorId)
     {
-        
         var user = await _userRepository.GetUserAsync(userId);
         if (user.IsErr)
         {
@@ -91,7 +94,7 @@ public class UserService : IUserService
         {
             return Error.Unauthorized("You have no permission to edit this profile");
         }
-        
+
         if (updateUser.Email != null)
         {
             user.Value.Email = updateUser.Email;
@@ -101,12 +104,12 @@ public class UserService : IUserService
         {
             user.Value.UserName = updateUser.Email;
         }
-        
+
         if (updateUser.Avatar != null)
         {
             user.Value.Avatar = updateUser.Email;
         }
-        
+
         return (await _userRepository.UpdateUserAsync(user.Value))
             .Map(_mapper.Map<UserViewModel>);
     }

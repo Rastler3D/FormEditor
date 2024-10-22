@@ -4,7 +4,7 @@ import {A} from '@solidjs/router';
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
 import {FormInfo, TableOption} from '~/types/template';
-import {deleteForm} from '~/services/api';
+import {deleteForm} from '~/services/templateService.ts';
 import {showToast} from "../components/ui/toast";
 import {createTrigger} from '@solid-primitives/trigger';
 

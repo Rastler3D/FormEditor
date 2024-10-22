@@ -6,7 +6,6 @@ using FormEditor.Server.Services;
 
 namespace FormEditor.Server.Controllers;
 
-
 [ApiController]
 [Route("api/[controller]")]
 public class TemplateController: ControllerBase
@@ -19,8 +18,24 @@ public class TemplateController: ControllerBase
         _templateService = templateService;
     }
     
+    [HttpGet("/user/{userId:int}")]
+    public async Task<ActionResult<TableData<List<TemplateInfoViewModel>>>> GetUserTemplates([FromRoute] int userId, [FromBody] TableOption options)
+    {
+        var result = await _templateService.GetUserTemplatesAsync(userId, options);
+        
+        return Ok(result);
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<TableData<List<TemplateInfoViewModel>>>> GetTemplates([FromBody] TableOption options)
+    {
+        var result = await _templateService.GetTemplatesAsync(options);
+        
+        return Ok(result);
+    }
+    
     [HttpGet("/latest")]
-    public async Task<ActionResult<List<TemplateInfoViewModel>>> GetLatestTemplatesAsync()
+    public async Task<ActionResult<List<TemplateInfoViewModel>>> GetLatestTemplates()
     {
         var result = await _templateService.GetLatestTemplatesAsync();
         
@@ -28,28 +43,28 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet("/popular")]
-    public async Task<ActionResult<List<TemplateInfoViewModel>>> GetPopularTemplatesAsync()
+    public async Task<ActionResult<List<TemplateInfoViewModel>>> GetPopularTemplates()
     {
         var result = await _templateService.GetPopularTemplatesAsync();
         
         return Ok(result);
     }
     [HttpGet("/tags/stat")]
-    public async Task<ActionResult<List<TagInfo>>> GetTagsInfoAsync()
+    public async Task<ActionResult<List<TagInfo>>> GetTagsInfo()
     {
         var result = await _templateService.GetTagsInfoAsync();
         
         return Ok(result);
     }
     [HttpGet("/tags")]
-    public async Task<ActionResult<List<string>>> GetTagsAsync()
+    public async Task<ActionResult<List<string>>> GetTags()
     {
         var result = await _templateService.GetTagsAsync();
         
         return Ok(result);
     }
     [HttpGet("/topics")]
-    public async Task<ActionResult<List<string>>> GetTopicsAsync()
+    public async Task<ActionResult<List<string>>> GetTopics()
     {
         var result = await _templateService.GetTopicsAsync();
         
@@ -57,7 +72,7 @@ public class TemplateController: ControllerBase
     }
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<TemplateInfoViewModel>> CreateTemplateAsync([FromBody] TemplateConfigurationViewModel template){
+    public async Task<ActionResult<TemplateInfoViewModel>> CreateTemplate([FromBody] TemplateConfigurationViewModel template){
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _templateService.CreateTemplateAsync(template, currentUserId);
         
@@ -71,7 +86,7 @@ public class TemplateController: ControllerBase
     
     [HttpPut("{templateId:int}")]
     [Authorize]
-    public async Task<ActionResult<TemplateInfoViewModel>> UpdateTemplateAsync([FromRoute] int templateId, [FromBody] TemplateConfigurationViewModel template){
+    public async Task<ActionResult<TemplateViewModel>> UpdateTemplate([FromRoute] int templateId, [FromBody] TemplateConfigurationViewModel template){
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _templateService.UpdateTemplateAsync(templateId, template, currentUserId);
         
@@ -84,7 +99,7 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet("{templateId:int}")]
-    public async Task<ActionResult<TemplateViewModel>> GetTemplateAsync([FromRoute] int templateId)
+    public async Task<ActionResult<TemplateViewModel>> GetTemplate([FromRoute] int templateId)
     {
         var result = await _templateService.GetTemplateAsync(templateId);
         
@@ -97,7 +112,7 @@ public class TemplateController: ControllerBase
     }
     [HttpPut("{templateId:int}/likes/toggle")]
     [Authorize]
-    public async Task<ActionResult<LikesInfo>> ToggleLikeAsync([FromRoute] int templateId)
+    public async Task<ActionResult<LikesInfo>> ToggleLike([FromRoute] int templateId)
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _templateService.ToggleLikeAsync(templateId, currentUserId);
@@ -111,7 +126,7 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet("{templateId:int}/likes")]
-    public async Task<ActionResult<LikesInfo>> GetLikesAsync([FromRoute] int templateId)
+    public async Task<ActionResult<LikesInfo>> GetLikes([FromRoute] int templateId)
     {
         var currentUserId = HttpContext.User.Identity.IsAuthenticated? HttpContext.User?.GetUserId() : null;
         var result = await _templateService.GetLikesAsync(templateId, currentUserId);
@@ -122,7 +137,7 @@ public class TemplateController: ControllerBase
     
     [HttpDelete("{templateId:int}")]
     [Authorize]
-    public async Task<ActionResult> DeleteTemplateAsync([FromRoute] int templateId)
+    public async Task<ActionResult> DeleteTemplate([FromRoute] int templateId)
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _templateService.DeleteTemplateAsync(templateId, currentUserId);
@@ -136,7 +151,7 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet("{templateId:int}/aggregation")]
-    public async Task<ActionResult<AggregatedResults>> GetAggregatedResultsAsync([FromRoute] int templateId)
+    public async Task<ActionResult<AggregatedResults>> GetAggregatedResults([FromRoute] int templateId)
     {
         var result = await _templateService.GetAggregatedResultsAsync(templateId);
         
@@ -146,7 +161,7 @@ public class TemplateController: ControllerBase
     [HttpGet("{templateId:int}/comments")]
     public async Task<ActionResult<List<CommentViewModel>>> GetComments([FromRoute] int templateId)
     {
-        var result = await _templateService.GetComments(templateId);
+        var result = await _templateService.GetCommentsAsync(templateId);
         
         return Ok(result);
     }
@@ -155,7 +170,7 @@ public class TemplateController: ControllerBase
     public async Task<ActionResult<CommentViewModel>> AddComment([FromRoute] int templateId, [FromBody] string text)
     {
         var currentUserId = HttpContext.User.GetUserId();
-        var result = await _templateService.AddComment(templateId, currentUserId, text);
+        var result = await _templateService.AddCommentAsync(templateId, currentUserId, text);
         
         return Ok(result);
     }

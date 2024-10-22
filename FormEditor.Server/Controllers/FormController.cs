@@ -1,10 +1,10 @@
-﻿
-
-using FormEditor.Server.Models;
+﻿using FormEditor.Server.Models;
 using FormEditor.Server.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FormEditor.Server.Services;
+
+namespace FormEditor.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -19,7 +19,7 @@ public class FormController : ControllerBase
     }
     
     [HttpGet("/template/{templateId:int}")]
-    public async Task<ActionResult<List<FormViewModel>>> GetSubmittedFormsAsync([FromRoute] int templateId, [FromBody] TableOption options)
+    public async Task<ActionResult<TableData<List<FormViewModel>>>> GetSubmittedForms([FromRoute] int templateId, [FromBody] TableOption options)
     {
         var result = await _formService.GetSubmittedFormsAsync(templateId, options);
         
@@ -27,7 +27,7 @@ public class FormController : ControllerBase
     }
     
     [HttpGet("/user/{userId:int}")]
-    public async Task<ActionResult<List<FormInfoViewModel>>> GetUserFormsAsync([FromRoute] int userId, [FromBody] TableOption options)
+    public async Task<ActionResult<TableData<List<FormInfoViewModel>>>> GetUserForms([FromRoute] int userId, [FromBody] TableOption options)
     {
         var result = await _formService.GetUserFormsAsync(userId, options);
         
@@ -35,7 +35,7 @@ public class FormController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<List<FormInfoViewModel>>> GetFormsAsync([FromBody] TableOption options)
+    public async Task<ActionResult<TableData<List<FormInfoViewModel>>>> GetForms([FromBody] TableOption options)
     {
         var result = await _formService.GetFormsAsync(options);
         
@@ -43,7 +43,7 @@ public class FormController : ControllerBase
     }
     
     [HttpGet("/user/{userId:int}/template/{templateId:int}")]
-    public async Task<ActionResult<FormViewModel>> GetSubmittedFormAsync([FromRoute] int templateId, [FromRoute] int userId)
+    public async Task<ActionResult<FormViewModel>> GetSubmittedForm([FromRoute] int templateId, [FromRoute] int userId)
     {
         var result = await _formService.GetSubmittedFormAsync(templateId, userId);
         
@@ -56,7 +56,7 @@ public class FormController : ControllerBase
     }
     
     [HttpGet("{formId:int}")]
-    public async Task<ActionResult<FormViewModel>> GetFormAsync([FromRoute] int formId)
+    public async Task<ActionResult<FormViewModel>> GetForm([FromRoute] int formId)
     {
         var result = await _formService.GetFormAsync(formId);
         
@@ -69,7 +69,7 @@ public class FormController : ControllerBase
     }
     
     [HttpGet("{formId:int}/full")]
-    public async Task<ActionResult<FormWithQuestionViewModel>> GetFormWithTemplateAsync([FromRoute] int formId)
+    public async Task<ActionResult<FormWithQuestionViewModel>> GetFormWithTemplate([FromRoute] int formId)
     {
         var result = await _formService.GetFormWithTemplateAsync(formId);
         
@@ -83,7 +83,7 @@ public class FormController : ControllerBase
     
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<FormInfoViewModel>> SubmitFormAsync([FromBody] FilledFormViewModel filledForm)
+    public async Task<ActionResult<FormInfoViewModel>> SubmitForm([FromBody] FilledFormViewModel filledForm)
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _formService.SubmitFormAsync(filledForm, currentUserId);
@@ -98,7 +98,7 @@ public class FormController : ControllerBase
     
     [HttpPut("{formId:int}")]
     [Authorize]
-    public async Task<ActionResult<FormInfoViewModel>> UpdateFormAsync([FromRoute] int formId, [FromBody] FilledFormViewModel filledForm)
+    public async Task<ActionResult<FormInfoViewModel>> UpdateForm([FromRoute] int formId, [FromBody] FilledFormViewModel filledForm)
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _formService.UpdateFormAsync(formId, filledForm, currentUserId);
@@ -113,7 +113,7 @@ public class FormController : ControllerBase
 
     [HttpDelete("{formId:int}")]
     [Authorize]
-    public async Task<ActionResult> DeleteFormAsync([FromRoute] int formId)
+    public async Task<ActionResult> DeleteForm([FromRoute] int formId)
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _formService.DeleteFormAsync(formId, currentUserId);

@@ -1,4 +1,5 @@
 ﻿import {PaginationState, SortingState} from "@tanstack/solid-table";
+import {User} from "~/contexts/AuthContext.tsx";
 
 export enum QuestionTypes {
     SingleLine = "Single Line",
@@ -121,4 +122,26 @@ export interface Comment {
 export interface LikesInfo{
     likes: number;
     isLiked?: boolean;
+}
+
+export enum Action{
+    Block = "Block",
+    Unblock = "Unblock",
+    Delete = "Delete"
+}
+export interface Bulk
+{
+    ids: number[];
+}
+
+export type UpdateUser = Pick<User, "name" | "email" > & { avatar?: string | File };
+
+export interface TokenResponse {
+    refreshToken: string;
+    accessToken: string;
+}
+
+export interface TableData<T> {
+    data: T;
+    totalPages: number;
 }

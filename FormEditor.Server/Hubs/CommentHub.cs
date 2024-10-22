@@ -18,14 +18,14 @@ public class CommentHub : Hub
     public async Task JoinFormGroup(int templateId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, templateId.ToString());
-        var comments = await _templateService.GetComments(templateId);
+        var comments = await _templateService.GetCommentsAsync(templateId);
         await Clients.Caller.SendAsync("InitialComments", comments);
     }
 
     public async Task SendComment(int templateId, string commentText)
     {
         var userId = Context.User.GetUserId();
-        var comment = await _templateService.AddComment(templateId, userId, commentText);
+        var comment = await _templateService.AddCommentAsync(templateId, userId, commentText);
         if (comment.IsErr)
         {
             await Clients.Caller.SendAsync("Error", comment.Error);

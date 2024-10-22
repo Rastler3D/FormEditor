@@ -22,7 +22,7 @@ public class EmailSenderService : IEmailSenderService
     public async Task SendFilledFormAsync(Form form)
     {
         var message = GenerateFormHtmlMessage(form);
-        
+
         await _emailSender.SendEmailAsync(form.Submitter.Email, $"Form {form.Template.Name}", message);
     }
 

@@ -20,7 +20,7 @@ public class UserController : ControllerBase
     }
     [HttpGet("/me")]
     [Authorize]
-    public async Task<IActionResult> CurrentUser()
+    public async Task<ActionResult<UserViewModel>> CurrentUser()
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _userService.GetUserAsync(currentUserId);
@@ -33,15 +33,15 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllUsers([FromBody] TableOption option)
+    public async Task<ActionResult<TableData<List<UserViewModel>>>> GetAllUsers([FromBody] TableOption option)
     {
         var result = await _userService.GetAllUsersAsync(option);
         
         return Ok(result);
     }
 
-    [HttpGet("{userId:int}")]
-    public async Task<IActionResult> GetUser([FromRoute] int userId)
+    [HttpGet("/{userId:int}")]
+    public async Task<ActionResult<UserViewModel>> GetUser([FromRoute] int userId)
     {
         var result = await _userService.GetUserAsync(userId);
         if (result.IsOk)
@@ -52,11 +52,11 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
     
-    [HttpPatch("{userId:int}/{action}")]
+    [HttpPatch("/{userId:int}/{typeAction}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PerformAction([FromRoute] ActionViewModel action, [FromRoute] int userId)
+    public async Task<ActionResult> PerformAction([FromRoute] ActionViewModel typeAction, [FromRoute] int userId)
     {
-        var result = await _userService.PerformActionAsync(action, userId);
+        var result = await _userService.PerformActionAsync(typeAction, userId);
         if (result.IsOk)
         {
             return NoContent();
@@ -65,11 +65,11 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
     
-    [HttpPatch("{action}")]
+    [HttpPatch("/{typeAction}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PerformBulkAction([FromRoute] ActionViewModel action, [FromBody] BulkViewModel bulk)
+    public async Task<ActionResult> PerformBulkAction([FromRoute] ActionViewModel typeAction, [FromBody] BulkViewModel bulk)
     {
-        var result = await _userService.PerformBulkActionAsync(action, bulk.Ids);
+        var result = await _userService.PerformBulkActionAsync(typeAction, bulk.Ids);
         if (result.IsOk)
         {
             return NoContent();
@@ -78,9 +78,9 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
 
-    [HttpPatch("{userId:int}/role/{role}")]
+    [HttpPatch("/{userId:int}/role/{role}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ChangeRole([FromRoute] int userId, [FromRoute] RoleViewModel role)
+    public async Task<ActionResult> ChangeRole([FromRoute] int userId, [FromRoute] RoleViewModel role)
     {
         var result = await _userService.ChangeRoleAsync(userId, role);
         if (result.IsOk)
@@ -91,9 +91,9 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
 
-    [HttpPatch("{userId:int}")]
+    [HttpPatch("/{userId:int}")]
     [Authorize]
-    public async Task<IActionResult> UpdateUser([FromRoute] int userId, [FromBody] UpdateUserViewModel user)
+    public async Task<ActionResult<UserViewModel>> UpdateUser([FromRoute] int userId, [FromBody] UpdateUserViewModel user)
     {
         var currentUserId = HttpContext.User.GetUserId();
         var result = await _userService.UpdateUserAsync(userId, user, currentUserId);
