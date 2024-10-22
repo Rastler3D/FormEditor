@@ -1,9 +1,9 @@
 import TemplateManagement from "~/components/TemplateManagement.tsx";
-import {fetchAllTemplates} from "~/services/templateService.ts";
+import {fetchTemplates} from "~/services/templateService.ts";
 
 
 const AllTemplatesPage = () => {
-    return <TemplateManagement templateFetcher={fetchAllTemplates} name="All Templates" />
+    return <TemplateManagement templateFetcher={fetchTemplates} name="All Templates" />
 }
 
 export default AllTemplatesPage;

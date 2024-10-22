@@ -1,19 +1,14 @@
-import {createSignal, createEffect} from 'solid-js';
+import {createEffect, createSignal} from 'solid-js';
 import {ColumnDef} from "@tanstack/solid-table";
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
-import {
-    fetchUsers,
-    blockUser,
-    deleteUser,
-    updateUserRole,
-    bulkBlockUsers,
-    bulkDeleteUsers,
-    bulkUnblockUsers
-} from '~/services/templateService.ts';
+import {getUsers} from '~/services/userService.ts';
 import {useAuth, User} from "~/contexts/AuthContext";
 import {createTrigger} from "@solid-primitives/trigger"
 import {showToast} from "./ui/toast";
+import {A} from '@solidjs/router';
+import {changeRole, performAction, performBulkAction} from "~/services/userService.ts";
+import {Action} from "~/types/template.ts";
 
 export default function UserManagement() {
     const [selection, setSelection] = createSignal<number[]>([]);
@@ -24,6 +19,8 @@ export default function UserManagement() {
         {
             accessorKey: 'name',
             header: 'Name',
+            cell: (info) => <A href={`/users/${info.row.original.id}`}
+                               class="text-primary hover:underline">{info.getValue()}</A>,
         },
         {
             accessorKey: 'email',
@@ -47,8 +44,11 @@ export default function UserManagement() {
             header: 'Actions',
             cell: (info) => (
                 <div class="flex gap-2">
+                    <Button as={A} href={`/users/${info.row.original.id}`} size="sm">
+                        View
+                    </Button>
                     <Button size="sm" variant={info.row.original.status === 'Active' ? 'destructive' : 'default'}
-                            onClick={() => handleAction(info.row.original.status === 'Active' ? "block" : "unblock", info.row.original.id)}>
+                            onClick={() => handleAction(info.row.original.status === 'Active' ? Action.Block : Action.Unblock, info.row.original.id)}>
                         {info.row.original.status === 'Active' ? 'Block' : 'Unblock'}
                     </Button>
                     <Button size="sm" variant={info.row.original.role === 'Admin' ? 'destructive' : 'default'}
@@ -56,7 +56,7 @@ export default function UserManagement() {
                         {info.row.original.role === 'Admin' ? 'Remove Admin' : 'Make Admin'}
                     </Button>
                     <Button size="sm" variant="destructive"
-                            onClick={() => handleAction("delete", info.row.original.id)}>
+                            onClick={() => handleAction(Action.Delete, info.row.original.id)}>
                         Delete
                     </Button>
                 </div>
@@ -68,7 +68,7 @@ export default function UserManagement() {
     const handleToggleAdminRole = async (userId: number, currentRole: string) => {
         try {
             const newRole = currentRole === 'Admin' ? 'User' : 'Admin';
-            await updateUserRole(userId, newRole);
+            await changeRole(userId, newRole);
             if (userId == user()?.id) {
                 await refreshToken();
             }
@@ -79,20 +79,20 @@ export default function UserManagement() {
         }
     };
     const [track, trigger] = createTrigger();
-    const handleAction = async (action: 'block' | 'unblock' | 'delete', userId: number) => {
+    const handleAction = async (action: Action, userId: number) => {
         try {
             switch (action) {
-                case 'block':
-                    await blockUser(userId);
+                case Action.Block:
+                    await performAction(action, userId);
                     showToast({title: "Selected users blocked successfully", variant: "default"});
                     break;
-                case 'unblock':
-                    await unblockUsers(userId);
+                case Action.Unblock:
+                    await performAction(action, userId);
                     showToast({title: "Selected users unblocked successfully", variant: "default"});
                     break;
-                case 'delete':
+                case Action.Delete:
                     if (confirm("Are you sure you want to delete the selected users? This action cannot be undone.")) {
-                        await deleteUsers(userId);
+                        await performAction(action, userId);
                         showToast({title: "Selected users deleted successfully", variant: "default"});
                     }
                     break;
@@ -106,17 +106,9 @@ export default function UserManagement() {
         } catch (error) {
             showToast({title: `Failed to ${action} selected users`, variant: "destructive"});
         }
-        if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-            try {
-                await deleteUser(userId);
-                showToast({title: "User deleted successfully", variant: "default"});
-            } catch (error) {
-                showToast({title: "Failed to delete user", variant: "destructive"});
-            }
-        }
     };
 
-    const handleBulkAction = async (action: 'block' | 'unblock' | 'delete') => {
+    const handleBulkAction = async (action: Action) => {
         const selectedIds = selection();
         if (selectedIds.length === 0) {
             showToast({title: "No users selected", variant: "destructive"});
@@ -125,17 +117,17 @@ export default function UserManagement() {
 
         try {
             switch (action) {
-                case 'block':
-                    await bulkBlockUsers(selectedIds);
+                case Action.Block:
+                    await performBulkAction(action, { ids: selectedIds });
                     showToast({title: "Selected users blocked successfully", variant: "default"});
                     break;
-                case 'unblock':
-                    await bulkUnblockUsers(selectedIds);
+                case Action.Unblock:
+                    await performBulkAction(action, { ids: selectedIds });
                     showToast({title: "Selected users unblocked successfully", variant: "default"});
                     break;
-                case 'delete':
+                case Action.Delete:
                     if (confirm("Are you sure you want to delete the selected users? This action cannot be undone.")) {
-                        await bulkDeleteUsers(selectedIds);
+                        await performBulkAction(action, { ids: selectedIds });
                         showToast({title: "Selected users deleted successfully", variant: "default"});
                     }
                     break;
@@ -168,22 +160,22 @@ export default function UserManagement() {
             <h1 class="text-3xl font-bold mb-4">User Management</h1>
             <div class="mb-4 flex gap-2">
                 <Button
-                    onClick={() => handleBulkAction('block')}
+                    onClick={() => handleBulkAction(Action.Block)}
                     disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Blocked")}
                 >Block</Button>
                 <Button
-                    onClick={() => handleBulkAction('unblock')}
+                    onClick={() => handleBulkAction(Action.Unblock)}
                     disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Active")}
                 >Unblock</Button>
                 <Button
                     variant="destructive"
-                    onClick={() => handleBulkAction('delete')}
+                    onClick={() => handleBulkAction(Action.Delete)}
                     disabled={selection().length === 0}
                 >Delete</Button>
             </div>
             <DataTable
                 columns={columns}
-                fetchData={fetchUsers}
+                fetchData={getUsers}
                 isSelectable={true}
                 rowId="id"
                 initialSelection={selection()}

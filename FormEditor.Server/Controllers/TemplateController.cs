@@ -18,8 +18,8 @@ public class TemplateController: ControllerBase
         _templateService = templateService;
     }
     
-    [HttpGet("/user/{userId:int}")]
-    public async Task<ActionResult<TableData<List<TemplateInfoViewModel>>>> GetUserTemplates([FromRoute] int userId, [FromBody] TableOption options)
+    [HttpGet("user/{userId:int}")]
+    public async Task<ActionResult<TableData<List<TemplateInfoViewModel>>>> GetUserTemplates([FromRoute] int userId, [FromQuery] TableOptionViewModel options)
     {
         var result = await _templateService.GetUserTemplatesAsync(userId, options);
         
@@ -27,14 +27,14 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<TableData<List<TemplateInfoViewModel>>>> GetTemplates([FromBody] TableOption options)
+    public async Task<ActionResult<TableData<List<TemplateInfoViewModel>>>> GetTemplates([FromQuery] TableOptionViewModel options)
     {
         var result = await _templateService.GetTemplatesAsync(options);
         
         return Ok(result);
     }
     
-    [HttpGet("/latest")]
+    [HttpGet("latest")]
     public async Task<ActionResult<List<TemplateInfoViewModel>>> GetLatestTemplates()
     {
         var result = await _templateService.GetLatestTemplatesAsync();
@@ -42,28 +42,28 @@ public class TemplateController: ControllerBase
         return Ok(result);
     }
     
-    [HttpGet("/popular")]
+    [HttpGet("popular")]
     public async Task<ActionResult<List<TemplateInfoViewModel>>> GetPopularTemplates()
     {
         var result = await _templateService.GetPopularTemplatesAsync();
         
         return Ok(result);
     }
-    [HttpGet("/tags/stat")]
+    [HttpGet("tags/stat")]
     public async Task<ActionResult<List<TagInfo>>> GetTagsInfo()
     {
         var result = await _templateService.GetTagsInfoAsync();
         
         return Ok(result);
     }
-    [HttpGet("/tags")]
+    [HttpGet("tags")]
     public async Task<ActionResult<List<string>>> GetTags()
     {
         var result = await _templateService.GetTagsAsync();
         
         return Ok(result);
     }
-    [HttpGet("/topics")]
+    [HttpGet("topics")]
     public async Task<ActionResult<List<string>>> GetTopics()
     {
         var result = await _templateService.GetTopicsAsync();

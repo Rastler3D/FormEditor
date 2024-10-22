@@ -1,31 +1,4 @@
-﻿import {createSignal, createResource, For, Show} from 'solid-js';
-import {Tabs, TabsList, TabsTrigger, TabsContent} from "~/components/ui/tabs";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table";
-import {Button} from "~/components/ui/button";
-import {Card} from "~/components/ui/card";
-import {TextField, TextFieldInput, TextFieldTextArea} from "~/components/ui/text-field";
-import {A,} from '@solidjs/router';
-import {ArrowUpDown, ArrowUp, ArrowDown, Search} from 'lucide-solid';
-import {
-    createSolidTable,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel
-} from "@tanstack/solid-table";
-import {
-    Pagination,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationItems,
-    PaginationNext,
-    PaginationPrevious
-} from './ui/pagination';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select";
-import {FaSolidComment, FaSolidHeart} from 'solid-icons/fa';
-import {fetchFilledForms, submitForm, addComment, toggleLike} from '~/services/templateService.ts';
-import {useAuth} from '~/contexts/AuthContext';
+﻿import {Tabs, TabsList, TabsTrigger, TabsContent} from "~/components/ui/tabs";
 import TemplateSettings from "~/components/TemplateSettings";
 import {Template, TemplateConfiguration} from "~/types/template.ts";
 import TemplateSubmission from "~/components/TemplateSubmission.tsx";

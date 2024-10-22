@@ -32,6 +32,7 @@ export interface FilledForm {
     templateId: number;
     fillingDate: string;
     answers: Record<number, Answer>
+    sendEmail: boolean
 }
 
 export type TemplateInfo = Omit<Template, "questions">
@@ -113,10 +114,10 @@ export interface Aggregation {
 
 export interface Comment {
     id: string;
-    userId: string;
-    userName: string;
-    content: string;
-    createdAt: string;
+    text: string;
+    author: string;
+    date: string;
+    templateId: string;
 }
 
 export interface LikesInfo{

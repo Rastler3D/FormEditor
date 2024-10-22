@@ -9,7 +9,7 @@ import {
     DialogTitle
 } from "~/components/ui/dialog.tsx";
 import DataTable from "~/components/DataTable.tsx";
-import {fetchUsers} from "~/services/userService.ts";
+import {getUsers} from "~/services/userService.ts";
 import {createSignal} from "solid-js";
 import {Button} from "~/components/ui/button.tsx";
 
@@ -50,7 +50,7 @@ const UserSelection = (props: UserSelectionProps) => {
                 <DataTable
                     columns={columns}
                     initialSelection={selectedUsers()}
-                    fetchData={fetchUsers}
+                    fetchData={getUsers}
                     isSelectable
                     rowId="id"
                     onSelectionChange={setSelectedUsers}

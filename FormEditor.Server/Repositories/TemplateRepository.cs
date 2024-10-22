@@ -24,6 +24,14 @@ public interface ITemplateRepository
     Task<Result<Error>> DeleteTemplateAsync(int id);
     Task<List<Comment>> GetCommentsAsync(int templateId);
     Task<Result<Comment, Error>> AddCommentAsync(int templateId, int authorId, string text);
+    Task<List<TagInfo>> GetTagsInfoAsync();
+    Task<List<Tag>> GetTagsAsync();
+    Task<List<Topic>> GetTopicsAsync();
+    Task<int> GetLikesCountAsync(int templateId);
+    Task<bool> GetIsLikedAsync(int templateId, int userId);
+    Task<LikesInfo> ToggleLikeAsync(int templateId, int userId);
+    Task<AggregatedResults> GetAggregatedResultsAsync(int templateId);
+
 }
 
 // Repositories/TemplateRepository.cs

@@ -1,14 +1,20 @@
 ﻿import {createContext, createEffect, createSignal, useContext} from "solid-js";
+import {makePersisted, storageSync} from "@solid-primitives/storage";
 
-type Language = 'en' | 'es' | 'fr';
 type LanguageContextType = {
     language: () => Language;
-    setLanguage: (lang: Language) => boolean;
-    t: (string: string) => string;
+    setLanguage: (lang: Language) => void;
+    t: (key: string) => string;
 };
 
 
 const LanguageContext = createContext<LanguageContextType>();
+export enum Language{
+    En = "en",
+    Fr = "fr",
+    Es = "es"
+}
+
 
 const translations = {
     en: {
@@ -53,25 +59,22 @@ const translations = {
         'Sign out': 'Se déconnecter',
         // Add more translations as needed
     },
-};
+} as Record<Language, Record<string, string>>;
 
-export function LanguageProvider(props) {
-    const [language, setLanguage] = createSignal('en');
 
-    createEffect(() => {
-        const storedLanguage = localStorage.getItem('language');
-        if (storedLanguage) {
-            setLanguage(storedLanguage);
-        }
+export function LanguageProvider(props: { children: JSX.Element }) {
+    const [language, setLanguage] = makePersisted(createSignal<Language>(Language.En), {
+        name: "language",
+        sync: storageSync,
+        storage: localStorage
     });
 
-    const t = (key) => {
+    const t = (key: string) => {
         return translations[language()][key] || key;
     };
 
-    const changeLanguage = (newLanguage) => {
+    const changeLanguage = (newLanguage: Language) => {
         setLanguage(newLanguage);
-        localStorage.setItem('language', newLanguage);
     };
 
     return (

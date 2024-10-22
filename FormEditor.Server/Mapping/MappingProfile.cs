@@ -96,5 +96,7 @@ public class MappingProfile : Profile
         CreateMap<Comment, CommentViewModel>()
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author.UserName))
             .ReverseMap();
+        CreateMap<TableOptionViewModel, TableOption>()
+            .ConstructUsing(s => new TableOption(s.page, s.pageSize, s.filter, s.sort));
     }
 }

@@ -30,7 +30,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
-const meiliSearchApiKey = createHmac('sha256', env.MEILISEARCH_MASTER_KEY!).update(env.MEILISEARCH_API_KEY_UUID!).digest('hex');
+const meiliSearchApiKey = createHmac('sha256', env.MEILISEARCH_MASTER_KEY??'').update(env.MEILISEARCH_API_KEY_UUID??'').digest('hex');
 
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7090';
@@ -62,5 +62,6 @@ export default defineConfig({
     define: {
         'import.meta.env.VITE_MEILISEARCH_API_KEY': JSON.stringify(meiliSearchApiKey),
         'import.meta.env.VITE_API_URL': JSON.stringify("/api"),
+        'import.meta.env.VITE_HUB_URL': JSON.stringify("/hub"),
     }
 })

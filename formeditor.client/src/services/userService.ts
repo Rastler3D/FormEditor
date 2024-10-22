@@ -1,10 +1,11 @@
 ﻿import {User} from "~/contexts/AuthContext";
-import {Action, Bulk, TableOption, TokenResponse, UpdateUser} from "~/types/template.ts";
+import {Action, Bulk, TableData, TableOption, TokenResponse, UpdateUser} from "~/types/template.ts";
 import {api} from "~/lib/api.ts";
 import {uploadImage} from "~/services/imageUploadService.ts";
+import {optionToQueryParams} from "~/lib/utils.ts";
 
 
-export const login = async (credentials: { username: string, password: string }): Promise<TokenResponse> => {
+export const login = async (credentials: { email: string, password: string }): Promise<TokenResponse> => {
     return api.post('/Authentication/login', credentials)
         .then(response => response.data);
 };
@@ -25,8 +26,8 @@ export const getCurrentUser = (): Promise<User> => {
         .then(response => response.data);
 };
 
-export const getAllUsers = (option: TableOption): Promise<User[]> => {
-    return api.get<User[]>('/User', {params: option})
+export const getUsers = (option: TableOption): Promise<TableData<User[]>> => {
+    return api.get<TableData<User[]>>('/User', optionToQueryParams(options))
         .then(response => response.data);
 };
 

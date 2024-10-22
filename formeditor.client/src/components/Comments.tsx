@@ -7,6 +7,7 @@ import {Template} from "~/types/template.ts";
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
 import {FaSolidComment} from "solid-icons/fa";
+import {Comment} from "~/types/template.ts";
 
 interface CommentsProps {
     template: Template;
@@ -15,20 +16,25 @@ interface CommentsProps {
 export default function Comments(props: CommentsProps) {
     const [comments, setComments] = createSignal<Comment[]>([]);
     const [newComment, setNewComment] = createSignal('');
+    const [error, setError] = createSignal<string>();
     const [connection, setConnection] = createSignal<HubConnection>();
     const {user, refreshToken} = useAuth();
 
     createEffect(() => {
-        const newConnection = new HubConnectionBuilder()
-            .withUrl("/hub/comments", {accessTokenFactory: refreshToken})
+        const builder = new HubConnectionBuilder();
+        if (user()) {
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, {accessTokenFactory: async () => (await refreshToken())!})
+        } else {
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`)
+        }
+        const newConnection = builder
             .withAutomaticReconnect()
             .build();
-
+        
         setConnection(newConnection);
 
         newConnection.start()
             .then(() => {
-                console.log('SignalR Connected');
                 newConnection.invoke('JoinFormGroup', props.template.id);
             })
             .catch(err => console.error('SignalR Connection Error: ', err));
@@ -37,6 +43,9 @@ export default function Comments(props: CommentsProps) {
         });
         newConnection.on('ReceiveComment', (comment: Comment) => {
             setComments(prev => [...prev, comment]);
+        });
+        newConnection.on('Error', (comment: {message: string}) => {
+            setError(comment.message);
         });
 
         onCleanup(() => newConnection.stop())
@@ -80,13 +89,14 @@ export default function Comments(props: CommentsProps) {
                 </CardContent>
                 <CardFooter>
                     <div class="mt-4">
-                        <TextField value={newComment()} onInput={(value) => setNewComment(value)}>
+                        <TextField value={newComment()} onChange={(value) => setNewComment(value)}>
                             <TextFieldInput
                                 type="text"
                                 placeholder="Add a comment..."
                                 class="mb-2 w-full bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring"
                             />
                         </TextField>
+                        {error() && <span>{error()}</span>}
                         <Button onClick={sendComment}
                                 disabled={!connection() || !user()}
                                 class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center">

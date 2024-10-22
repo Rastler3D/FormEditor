@@ -14,7 +14,7 @@ interface TemplateCardProps {
 const TemplateCard = (props: TemplateCardProps) => {
 
     return (
-        <A href={`/template/${props.template.id}`} class="block">
+        <A href={`/templates/${props.template.id}`} class="block">
             <Card class="overflow-hidden w-[300px] h-[400px] transition-shadow hover:shadow-lg">
                 <div class="relative h-[180px]">
                     <img

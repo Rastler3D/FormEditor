@@ -6,7 +6,6 @@ import {useNavigate} from "@solidjs/router";
 import TemplateTable from "~/components/TemplateTable.tsx";
 
 const HomePage = () => {
-    
     const navigate = useNavigate();
     const [latestTemplates] = createResource(fetchLatestTemplates);
     const [popularTemplates] = createResource(fetchPopularTemplates);

@@ -1,8 +1,8 @@
-﻿import { createContext, useContext, createSignal, createEffect } from 'solid-js';
-import {api} from "~/lib/api.ts";
+﻿import {createContext, useContext, createSignal, createEffect, JSX} from 'solid-js';
 import * as userServices from "~/services/userService"
 import {login} from "~/services/userService";
 import {UpdateUser} from "~/types/template.ts";
+import {makePersisted, storageSync} from "@solid-primitives/storage";
 
 export interface User {
     id: number;
@@ -14,11 +14,11 @@ export interface User {
 }
 
 interface AuthContextType {
-    user: () => User | null;
-    signIn: (args: {email: string, password: string}) => Promise<void>;
+    user: () => User | undefined;
+    signIn: (args: { email: string, password: string }) => Promise<void>;
     signInWithProvider: (provider: 'google' | 'facebook') => Promise<void>;
-    signUp: (args: {name: string, email: string, password: string }) => Promise<void>;
-    refreshToken: () => Promise<string>;
+    signUp: (args: { name: string, email: string, password: string }) => Promise<void>;
+    refreshToken: () => Promise<string | undefined>;
     signOut: () => void;
     updateUser: (data: UpdateUser) => Promise<User>;
     isAuthenticated: () => boolean;
@@ -27,53 +27,63 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>();
 
-export function AuthProvider(props) {
-    const [user, setUser] = createSignal<User | null>(null);
+export function AuthProvider(props: { children: JSX.Element }) {
+    const [user, setUser] = createSignal<User>();
+    const [refreshToken, setRefreshToken] = makePersisted(createSignal<string>(), {
+        name: "refresh-token",
+        sync: storageSync,
+        storage: localStorage
+    });
+    const [accessToken, setAccessToken] = makePersisted(createSignal<string>(), {
+        name: "access-token",
+        sync: storageSync,
+        storage: localStorage
+    });
 
     createEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        if (accessToken()) {
+            if (!user()) {
+                userServices.getCurrentUser().then((user) => {
+                    setUser(user)
+                });
+            }
+        } else {
+            setUser()
         }
     });
-    
+
     const isAuthenticated = () => !!user();
 
-    const hasRole = (roles?: string[]) => user() ? (roles ? roles.includes(user()!.role): true) : false;
+    const hasRole = (roles?: string[]) => user() ? (roles ? roles.includes(user()!.role) : true) : false;
 
-    const signIn = async ({email, password}: {email: string, password: string}) => {
-        try {
-            const user = await login(email, password);
-            setUser(user);
-            localStorage.setItem('user', JSON.stringify(user));
-        } catch (error) {
-            console.error('Login failed:', error);
-            throw error;
-        }
+    const signIn = async (credentials: { email: string, password: string }) => {
+        const tokens = await login(credentials);
+        setAccessToken(tokens.accessToken);
+        setRefreshToken(tokens.refreshToken);
     };
 
     const signOut = () => {
-        setUser(null);
-        localStorage.removeItem('user');
+        setRefreshToken();
+        setAccessToken();
     };
 
-    const signUp = async ({name, email, password}: {name: string, email: string, password: string}) => {
-        const response = await api.post('/auth/register', { name, email, password });
-        setUser(response.data.user);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+    const signUp = async (data: { name: string, email: string, password: string }) => {
+        return await userServices.register(data);
     };
 
-    const signInWithProvider = async (provider: 'google' | 'facebook') => {
-        const response = await api.get(`/auth/${provider}`);
-        setUser(response.data.user);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+    const signInWithProvider = async () => {
+      
     };
-
-    const refreshToken = async () => {
-        let token = localStorage.getItem('refresh_token');
-        const accessToken= await userServices.refreshToken(token)
-        localStorage.setItem('access_token', accessToken);
-        return accessToken;
+    
+    const manuallyRefreshToken = async () => {
+        let token = refreshToken();
+        try {
+            const tokens = await userServices.refreshToken(token!);
+            return tokens.accessToken;
+        } catch (err) {
+            setRefreshToken();
+            setAccessToken();
+        }
     };
 
     const updateUser = async (data: UpdateUser): Promise<User> => {
@@ -83,7 +93,17 @@ export function AuthProvider(props) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut, signInWithProvider, signUp, updateUser, isAuthenticated, hasRole, refreshToken }}>
+        <AuthContext.Provider value={{
+            user,
+            signIn,
+            signOut,
+            signInWithProvider,
+            signUp,
+            updateUser,
+            isAuthenticated,
+            hasRole,
+            refreshToken: manuallyRefreshToken
+        }}>
             {props.children}
         </AuthContext.Provider>
     );

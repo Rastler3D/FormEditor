@@ -26,10 +26,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.Entity<User>().HasMany(e => e.Roles)
             .WithMany()
             .UsingEntity<IdentityUserRole<int>>();
-        builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
-        builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
-        builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
-        builder.Entity<IdentityRole>().ToTable("Roles");
+        builder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
+        builder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
+        builder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
+        builder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
+        builder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+        builder.Entity<IdentityRole<int>>().ToTable("Roles");
         builder.Entity<Question>()
             .HasIndex(q => new { q.TemplateId, q.Order });
 

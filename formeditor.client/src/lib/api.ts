@@ -2,11 +2,11 @@
 import { showToast } from '~/components/ui/toast';
 
 export const api = axios.create({
-    baseURL: "/api",
+    baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true,
 });
 api.interceptors.request.use(request => {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('access-token');
     if (accessToken) {
         request.headers['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -22,23 +22,23 @@ api.interceptors.response.use(
         if (error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
             try {
-                const refreshToken = localStorage.getItem('refreshToken'); // Retrieve the stored refresh token.
+                const refreshToken = localStorage.getItem('refresh-token'); // Retrieve the stored refresh token.
                 // Make a request to your auth server to refresh the token.
                 const response = await axios.post('user/refresh', {
                     refreshToken,
                 });
                 const { accessToken, refreshToken: newRefreshToken } = response.data;
                 // Store the new access and refresh tokens.
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', newRefreshToken);
+                localStorage.setItem('access-token', accessToken);
+                localStorage.setItem('refresh-token', newRefreshToken);
                 // Update the authorization header with the new access token.
                 api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
                 return api(originalRequest); // Retry the original request with the new access token.
             } catch (refreshError) {
                 // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
                 console.error('Token refresh failed:', refreshError);
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('access-token');
+                localStorage.removeItem('refresh-token');
                 return Promise.reject(refreshError);
             }
         }

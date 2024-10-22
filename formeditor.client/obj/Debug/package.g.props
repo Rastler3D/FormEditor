@@ -13,6 +13,7 @@
     <PackageJsonDependenciesMicrosoftSignalr Condition="$(PackageJsonDependenciesMicrosoftSignalr) == ''">^8.0.7</PackageJsonDependenciesMicrosoftSignalr>
     <PackageJsonDependenciesSolidPrimitivesDebounce Condition="$(PackageJsonDependenciesSolidPrimitivesDebounce) == ''">^1.3.0</PackageJsonDependenciesSolidPrimitivesDebounce>
     <PackageJsonDependenciesSolidPrimitivesMemo Condition="$(PackageJsonDependenciesSolidPrimitivesMemo) == ''">^1.3.9</PackageJsonDependenciesSolidPrimitivesMemo>
+    <PackageJsonDependenciesSolidPrimitivesStorage Condition="$(PackageJsonDependenciesSolidPrimitivesStorage) == ''">^4.2.1</PackageJsonDependenciesSolidPrimitivesStorage>
     <PackageJsonDependenciesSolidPrimitivesTrigger Condition="$(PackageJsonDependenciesSolidPrimitivesTrigger) == ''">^1.1.0</PackageJsonDependenciesSolidPrimitivesTrigger>
     <PackageJsonDependenciesSolidPrimitivesUpload Condition="$(PackageJsonDependenciesSolidPrimitivesUpload) == ''">^0.0.117</PackageJsonDependenciesSolidPrimitivesUpload>
     <PackageJsonDependenciesSolidjsRouter Condition="$(PackageJsonDependenciesSolidjsRouter) == ''">^0.14.7</PackageJsonDependenciesSolidjsRouter>
@@ -27,6 +28,7 @@
     <PackageJsonDependenciesD3Cloud Condition="$(PackageJsonDependenciesD3Cloud) == ''">^1.2.7</PackageJsonDependenciesD3Cloud>
     <PackageJsonDependenciesLucideSolid Condition="$(PackageJsonDependenciesLucideSolid) == ''">^0.447.0</PackageJsonDependenciesLucideSolid>
     <PackageJsonDependenciesMarked Condition="$(PackageJsonDependenciesMarked) == ''">^14.1.2</PackageJsonDependenciesMarked>
+    <PackageJsonDependenciesMeilisearch Condition="$(PackageJsonDependenciesMeilisearch) == ''">^0.44.1</PackageJsonDependenciesMeilisearch>
     <PackageJsonDependenciesSolidIcons Condition="$(PackageJsonDependenciesSolidIcons) == ''">^1.1.0</PackageJsonDependenciesSolidIcons>
     <PackageJsonDependenciesSolidJs Condition="$(PackageJsonDependenciesSolidJs) == ''">^1.9.1</PackageJsonDependenciesSolidJs>
     <PackageJsonDependenciesSolidMarkdown Condition="$(PackageJsonDependenciesSolidMarkdown) == ''">^2.0.13</PackageJsonDependenciesSolidMarkdown>

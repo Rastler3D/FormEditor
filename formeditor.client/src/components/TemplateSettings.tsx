@@ -1,4 +1,4 @@
-import {createEffect, on, Show} from 'solid-js';
+import {createEffect, createMemo, on, Show} from 'solid-js';
 import {BiSolidCog} from 'solid-icons/bi';
 import {FaSolidPencil, FaSolidEye} from 'solid-icons/fa';
 import {Card} from "~/components/ui/card";
@@ -10,6 +10,7 @@ import TemplateView from '~/components/TemplateView';
 import {Button} from "~/components/ui/button.tsx";
 import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 import { createStore, reconcile, unwrap } from 'solid-js/store';
+import {useAuth} from "~/contexts/AuthContext.tsx";
 
 interface TemplateSettingsProps {
     template: TemplateConfiguration;
@@ -19,6 +20,7 @@ interface TemplateSettingsProps {
 
 export default function TemplateSettings(props: TemplateSettingsProps) {
     const [template, setTemplate] = createStore(props.template);
+    const {user} = useAuth();
     const filledBy = createMemo(() => user()?.name ?? "Anonymous");
     const fillingDate= createMemo(on(()=> props.template,() => new Date()));
     const updateTemplate = <T extends keyof TemplateConfiguration>(field: T, value: TemplateConfiguration[T]) => {

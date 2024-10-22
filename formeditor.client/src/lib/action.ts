@@ -23,8 +23,8 @@ export function createAction<T, S>(action: ActionFetcher<T, S>, resetSignal?: Ac
     }), reset, {defer: true}));
     
 
-    Object.defineProperties(setArgs, {data, args, reset });
+    console.log(setArgs, data, args, reset);
     
-    return action as Resource<T>
+    return Object.assign(setArgs, {data, args, reset }) as Action<T, S>
 }
 

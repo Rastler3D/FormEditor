@@ -6,6 +6,8 @@ import {createEffect, createMemo, createSignal, Show} from "solid-js";
 import {createStore, reconcile, unwrap} from "solid-js/store";
 import TemplateView from "./TemplateView";
 import {ProgressCircle} from "./ui/progress-circle";
+import {Checkbox} from "~/components/ui/checkbox.tsx";
+import {Label} from "~/components/ui/label.tsx";
 
 interface FormDetailsProps {
     template: Template;
@@ -17,8 +19,10 @@ interface FormDetailsProps {
 
 export default function FormDetails(props: FormDetailsProps) {
     const [answers, setAnswers] = createStore(props.form.answers);
+    const [sendEmail, setSendEmail] = createSignal(false);
     const [isEdit, setIsEdit] = createSignal(false);
     const fillingDate = createMemo(() => isEdit() ? new Date() : new Date(props.form.fillingDate));
+    
     createEffect((prevId) => {
         if (props.form.id !== prevId) {
             setIsEdit(false);
@@ -40,8 +44,8 @@ export default function FormDetails(props: FormDetailsProps) {
         props.onFormChange({
             fillingDate: fillingDate().toLocaleString(),
             templateId: props.form.templateId,
-            submitterId: props.form.submitterId,
-            answers: unwrap(answers)
+            answers: unwrap(answers),
+            sendEmail: sendEmail()
         })
     }
     return (
@@ -74,6 +78,12 @@ export default function FormDetails(props: FormDetailsProps) {
                                     <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                                             onClick={handleEditForm}>Edit</Button>
                                 }>
+                                    <div className="items-top flex space-x-2">
+                                        <Checkbox id="terms1" onChange={setSendEmail} checked={sendEmail()}/>
+                                        <div className="grid gap-1.5 leading-none">
+                                            <Label for="terms1-input">Send form on email?</Label>
+                                        </div>
+                                    </div>
                                     <Button
                                         class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                                         onClick={handleSubmit}>Save</Button>

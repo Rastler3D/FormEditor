@@ -2,13 +2,13 @@ import {ColumnDef} from "@tanstack/solid-table";
 import {A} from '@solidjs/router';
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
-import {TableOption,  TemplateInfo} from '~/types/template';
-import {deleteTemplate} from '~/services/templateService.ts';
+import {TableData, TableOption, TemplateInfo} from '~/types/template';
+import {deleteTemplate, fetchUsers} from '~/services/templateService.ts';
 import {showToast} from "../components/ui/toast";
 import {createTrigger} from '@solid-primitives/trigger';
 
 interface TemplateManagementProps {
-    templateFetcher: (options: TableOption) => Promise<{ data: TemplateInfo[]; totalPages: number }>;
+    templateFetcher: (options: TableOption) => Promise<TableData<TemplateInfo[]>>;
     name?: string;
 }
 
@@ -18,7 +18,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
         {
             accessorKey: 'name',
             header: 'Name',
-            cell: (info) => <A href={`/template/${info.row.original.id}`}
+            cell: (info) => <A href={`/templates/${info.row.original.id}`}
                                class="text-primary hover:underline">{info.getValue()}</A>,
         },
         {
@@ -38,7 +38,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
             id: 'actions',
             cell: (info) => (
                 <div class="flex gap-2">
-                    <Button as={A} href={`/template/${info.row.original.id}`} size="sm">
+                    <Button as={A} href={`/templates/${info.row.original.id}`} size="sm">
                         Use Template
                     </Button>
                     <Button size="sm" onClick={() => handleDeleteTemplate(info.row.original.id)}>
@@ -69,6 +69,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
                 fetchData={props.templateFetcher}
                 isSelectable={false}
                 refetchTrigger={track}
+                rowId="id"
             />
         </div>
     );

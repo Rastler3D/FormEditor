@@ -14,7 +14,7 @@ const TemplatePage = () => {
     const templateUpdating = createAction(updateTemplate, () => params.id);
 
     createEffect(on(templateUpdating.data,
-        template => template && mutate({...template, questions: templateUpdating.args()!.template.questions })));
+        template => template && mutate(template)));
     
     return (
         <Show when={!template.error} fallback={

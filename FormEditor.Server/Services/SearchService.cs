@@ -25,7 +25,7 @@ public class MeiliSearchService : ISearchService
     public MeiliSearchService(IConfiguration configuration)
     {
         _configuration = configuration;
-        var host = _configuration["MEILISEARCH_HOST"];
+        var host = _configuration["VITE_MEILISEARCH_URL"];
         var masterKey = _configuration["MEILISEARCH_MASTER_KEY"];
         _client = new MeilisearchClient(host, masterKey);
     }
@@ -43,7 +43,7 @@ public class MeiliSearchService : ISearchService
             Actions = [KeyAction.Search],
             Indexes = ["*"],
             ExpiresAt = null,
-            Uid = _configuration["MEILISEARCH_UID"],
+            Uid = _configuration["MEILISEARCH_API_KEY_UID"],
         });
     }
     

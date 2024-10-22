@@ -3,6 +3,7 @@ using FormEditor.Server.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using FormEditor.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FormEditor.Server.Hubs;
 
@@ -22,6 +23,7 @@ public class CommentHub : Hub
         await Clients.Caller.SendAsync("InitialComments", comments);
     }
 
+    [Authorize]
     public async Task SendComment(int templateId, string commentText)
     {
         var userId = Context.User.GetUserId();

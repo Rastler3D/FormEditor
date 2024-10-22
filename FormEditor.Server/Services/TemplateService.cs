@@ -21,8 +21,8 @@ namespace FormEditor.Server.Services
         Task<List<TagInfo>> GetTagsInfoAsync();
         Task<List<string>> GetTagsAsync();
         Task<List<string>> GetTopicsAsync();
-        Task<TableData<List<TemplateInfoViewModel>>> GetTemplatesAsync(TableOption option);
-        Task<TableData<List<TemplateInfoViewModel>>> GetUserTemplatesAsync(int userId, TableOption option);
+        Task<TableData<List<TemplateInfoViewModel>>> GetTemplatesAsync(TableOptionViewModel option);
+        Task<TableData<List<TemplateInfoViewModel>>> GetUserTemplatesAsync(int userId, TableOptionViewModel option);
 
         Task<Result<TemplateInfoViewModel, Error>> CreateTemplateAsync(TemplateConfigurationViewModel template,
             int creatorId);
@@ -40,13 +40,12 @@ namespace FormEditor.Server.Services
     }
 
     public class TemplateService(
-        TemplateRepository templateRepository,
+        ITemplateRepository templateRepository,
         UserManager<User> userManager,
         IMapper mapper,
         ISearchService searchService)
         : ITemplateService
     {
-        // In a real application, you'd use a database context here
 
         public async Task<List<TemplateInfoViewModel>> GetLatestTemplatesAsync()
         {
@@ -82,18 +81,18 @@ namespace FormEditor.Server.Services
                 .ToList();
         }
 
-        public async Task<TableData<List<TemplateInfoViewModel>>> GetTemplatesAsync(TableOption option)
+        public async Task<TableData<List<TemplateInfoViewModel>>> GetTemplatesAsync(TableOptionViewModel options)
         {
-            return (await templateRepository.GetTemplatesAsync(option))
+            return (await templateRepository.GetTemplatesAsync(mapper.Map<TableOption>(options)))
                 .MapData(x => x
                     .Select(mapper.Map<TemplateInfoViewModel>)
                     .ToList()
                 );
         }
 
-        public async Task<TableData<List<TemplateInfoViewModel>>> GetUserTemplatesAsync(int userId, TableOption option)
+        public async Task<TableData<List<TemplateInfoViewModel>>> GetUserTemplatesAsync(int userId, TableOptionViewModel options)
         {
-            return (await templateRepository.GetUserTemplatesAsync(userId, option))
+            return (await templateRepository.GetUserTemplatesAsync(userId, mapper.Map<TableOption>(options)))
                 .MapData(x => x
                     .Select(mapper.Map<TemplateInfoViewModel>)
                     .ToList()

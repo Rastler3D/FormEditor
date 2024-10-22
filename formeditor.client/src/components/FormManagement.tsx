@@ -4,7 +4,7 @@ import {A} from '@solidjs/router';
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
 import {FormInfo, TableOption} from '~/types/template';
-import {deleteForm} from '~/services/templateService.ts';
+import {deleteForm} from '~/services/formService.ts';
 import {showToast} from "../components/ui/toast";
 import {createTrigger} from '@solid-primitives/trigger';
 
@@ -19,7 +19,7 @@ export default function FormManagement(props: FormManagementProps) {
         {
             accessorKey: 'templateName',
             header: 'Template Name',
-            cell: (info) => <A href={`/template/${info.row.original.id}`}
+            cell: (info) => <A href={`/forms/${info.row.original.id}`}
                                class="text-primary hover:underline">{info.getValue()}</A>,
         },
         {
@@ -35,7 +35,7 @@ export default function FormManagement(props: FormManagementProps) {
             id: 'actions',
             cell: (info) => (
                 <div class="flex gap-2">
-                    <Button as={A} href={`/form/${info.row.original.id}`} size="sm">
+                    <Button as={A} href={`/forms/${info.row.original.id}`} size="sm">
                         View
                     </Button>
                     <Button size="sm" onClick={() => handleDeleteForm(info.row.original.id)}>
@@ -50,7 +50,6 @@ export default function FormManagement(props: FormManagementProps) {
     const handleDeleteForm = async (formId: number) => {
         try {
             await deleteForm(formId);
-
             trigger();
             showToast({title: `Deleted form ${formId}`, variant: "default"});
         } catch (error) {
@@ -66,6 +65,7 @@ export default function FormManagement(props: FormManagementProps) {
                 fetchData={props.templateFetcher}
                 isSelectable={false}
                 refetchTrigger={track}
+                rowId="id"
             />
         </div>
     );

@@ -5,7 +5,7 @@ namespace FormEditor.Server.Utils;
 public abstract class Error
 {
     public abstract string ErrorType { get; }
-    public abstract string Reason { get; }
+    public abstract string Message { get; }
     
     protected Error() { }
     
@@ -20,14 +20,14 @@ public abstract class Error
 public class NotFound(string? message) : Error
 {
     public override string ErrorType => "Not Found";
-    public override string Reason => message ?? "";
+    public override string Message => message ?? "";
     public override ActionResult IntoRespose() => new NotFoundObjectResult(message);
 }
 
 public class Unauthorized(string? message) : Error
 {
     public override string ErrorType => "Unauthorized";
-    public override string Reason => message ?? "";
+    public override string Message => message ?? "";
     public override ActionResult IntoRespose() => new UnauthorizedObjectResult(message);
     
     public override string ToString()
@@ -39,6 +39,6 @@ public class Unauthorized(string? message) : Error
 public class InternalError(string? message) : Error
 {
     public override string ErrorType => "InternalError";
-    public override string Reason => message ?? "";
+    public override string Message => message ?? "";
     public override ActionResult IntoRespose() => new BadRequestObjectResult(message);
 }

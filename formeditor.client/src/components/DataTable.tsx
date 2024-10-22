@@ -2,6 +2,7 @@
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table.tsx";
+import {debounce} from '@solid-primitives/scheduled';
 import {createResource, For, createEffect, on} from "solid-js";
 import {
     ColumnDef,
@@ -70,6 +71,7 @@ const DataTable = <TData, >(props: DataTableProps<TData>) => {
             }
         });
         const [response, {refetch}] = createResource(options, props.fetchData);
+        const debouncedFilterInput = debounce((value: string) => table.setGlobalFilter(value), 300);
         const handleRowSelectionChange = (updater: RowSelectionState | ((prev: RowSelectionState) => RowSelectionState)) => {
             setSelection(updater);
             props.onSelectionChange?.(Object.keys(selection()).filter(id => selection()[id]).map(Number));
@@ -126,18 +128,18 @@ const DataTable = <TData, >(props: DataTableProps<TData>) => {
                 }
             }
         );
+        
 
         return (
             <div class="py-4">
                 <div class="mb-4 flex justify-between items-center">
                     <div class="flex items-center">
                         <Search class="mr-2 h-4 w-4 text-muted-foreground"/>
-                        <TextField>
+                        <TextField 
+                                   onChange={(value) => debouncedFilterInput(value)}>
                             <TextFieldInput
                                 type="text"
                                 placeholder="Search users..."
-                                value={table.getState().globalFilter}
-                                onInput={(e) => table.setGlobalFilter(e.currentTarget.value)}
                                 class="w-full p-2 bg-background border border-input rounded-md focus:ring-2 focus:ring-ring"
                             />
                         </TextField>

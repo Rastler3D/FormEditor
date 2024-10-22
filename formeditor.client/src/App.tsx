@@ -30,10 +30,12 @@ function App() {
                     <Router root={Layout}>
                         <Route path="/home" component={HomePage}/>
                         <Route path="/search" component={SearchPage}/>
+                        
                         <Route path="/login">
                             <Route path="/" component={LoginPage}/>
                             <Route path="/forgot-password" component={ForgotPasswordPage}/>
                         </Route>
+                        
                         <Route path="/registration">
                             <Route path="/" component={RegistrationPage}/>
                             <Route path="/confirm-email/:email" component={ConfirmEmailPage}/>

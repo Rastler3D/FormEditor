@@ -1,6 +1,6 @@
 ﻿import {createResource, For, Match, Show, Switch} from 'solid-js';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/card';
-import {fetchAggregatedResults} from "~/services/formService.ts";
+import {fetchAggregatedResults} from "~/services/templateService.ts";
 import {QuestionTypes, Template} from "~/types/template.ts";
 import {Skeleton} from "~/components/ui/skeleton.tsx";
 
@@ -10,7 +10,6 @@ interface FormAggregationProps {
 
 const FormAggregation = (props: FormAggregationProps) => {
     const [aggregatedResults] = createResource(() => props.template.id, fetchAggregatedResults);
-
     return (
         <div class="space-y-4">
             <For each={props.template.questions}>

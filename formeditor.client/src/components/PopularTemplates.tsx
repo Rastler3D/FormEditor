@@ -41,7 +41,7 @@ const PopularTemplates = (props: PopularTemplateProps) => {
                         {(template, index) => (
                             <TableRow
                                 class="hover:bg-accent transition-colors duration-200 cursor-pointer"
-                                onClick={() => navigate(`/template/${template.id}`)}
+                                onClick={() => navigate(`/templates/${template.id}`)}
                             >
                                 <TableCell>{index() + 1}</TableCell>
                                 <TableCell>{template.name}</TableCell>

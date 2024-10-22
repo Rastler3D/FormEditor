@@ -29,6 +29,8 @@ const Registration = () => {
         e.preventDefault();
         registration({name: userName(), email: email(), password: password()})
     }
+    
+    console.log(registration);
 
     return (
         <Card class="mx-auto max-w-sm">
@@ -59,7 +61,7 @@ const Registration = () => {
                                 <TextFieldInput type="password"/>
                             </TextField>
                         </div>
-                        <Show when={registration.data.error}>
+                        <Show when={registration.data?.error}>
                             <div class="grid gap-2">
                                 <div class="text-red-500 flex items-center">
                                     <AlertCircle class="w-4 h-4 mr-2"/>

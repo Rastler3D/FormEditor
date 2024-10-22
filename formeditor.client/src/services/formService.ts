@@ -4,22 +4,23 @@ import {
     FormWithQuestion,
     FormInfo,
     TableOption,
-    TableData
+    TableData, FilledForm
 } from "~/types/template.ts";
 import {api} from "~/lib/api.ts";
+import {optionToQueryParams} from "~/lib/utils.ts";
 
 export const getSubmittedForms = (templateId: number, options: TableOption): Promise<TableData<Form[]>> => {
-    return api.get<TableData<Form[]>>(`/Form/template/${templateId}`, { params: options })
+    return api.get<TableData<Form[]>>(`/Form/template/${templateId}`, optionToQueryParams(options))
         .then(response => response.data);
 };
 
 export const getUserForms = (userId: number, options: TableOption): Promise<TableData<FormInfo[]>> => {
-    return api.get<TableData<FormInfo[]>>(`/Form/user/${userId}`, { params: options })
+    return api.get<TableData<FormInfo[]>>(`/Form/user/${userId}`, optionToQueryParams(options))
         .then(response => response.data);
 };
 
 export const getForms = (options: TableOption): Promise<TableData<FormInfo[]>> => {
-    return api.get<TableData<FormInfo[]>>('/Form', { params: options })
+    return api.get<TableData<FormInfo[]>>('/Form', optionToQueryParams(options))
         .then(response => response.data);
 };
 
@@ -38,15 +39,22 @@ export const getFormWithTemplate = (formId: number): Promise<FormWithQuestion> =
         .then(response => response.data);
 };
 
-export const submitForm = (filledForm: Form): Promise<FormInfo> => {
+export const submitForm = (filledForm: FilledForm): Promise<FormInfo> => {
     return api.post<FormInfo>('/Form', filledForm)
         .then(response => response.data);
 };
 
-export const updateForm = (formId: number, filledForm: Form): Promise<FormInfo> => {
+export const updateForm = ({ formId, filledForm }: { formId: number; filledForm: FilledForm }): Promise<FormInfo> => {
     return api.put<FormInfo>(`/Form/${formId}`, filledForm)
         .then(response => response.data);
 };
+
+export const submitOrUpdateForm = ({ formId, filledForm }: { formId?: number; filledForm: FilledForm }): Promise<FormInfo> => {
+    if (formId){
+        return updateForm({formId, filledForm});
+    }
+    return submitForm(filledForm);
+}
 
 export const deleteForm = (formId: number): Promise<void> => {
     return api.delete(`/Form/${formId}`)

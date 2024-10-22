@@ -1,5 +1,6 @@
 ﻿// src/contexts/ThemeContext.tsx
 import {createContext, useContext, createSignal, JSX, createEffect} from 'solid-js';
+import {makePersisted, storageSync} from "@solid-primitives/storage";
 
 type ThemeContextType = {
     isDark: () => boolean;
@@ -10,7 +11,11 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType>();
 
 export function ThemeProvider(props: { children: JSX.Element }) {
-    const [isDark, setIsDark] = createSignal(false);
+    const [isDark, setIsDark] = makePersisted(createSignal<boolean>(false), {
+        name: "theme",
+        sync: storageSync,
+        storage: localStorage
+    });
     const isLight = () => !isDark();
     const toggleTheme = () => setIsDark(!isDark());
     

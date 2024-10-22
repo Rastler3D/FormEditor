@@ -45,7 +45,7 @@ public class AuthenticationController : ControllerBase
         this._linkGenerator = linkGenerator;
     }
 
-    [HttpPost("/register")]
+    [HttpPost("register")]
     public async Task<Results<Ok, ValidationProblem>> Registration([FromBody] RegistrationViewModel registration)
     {
         if (!_userManager.SupportsUserEmail)
@@ -75,7 +75,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Ok();
     }
 
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>> Login(
         [FromBody] LoginRequest login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies)
     {
@@ -109,7 +109,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Empty;
     }
 
-    [HttpPost("/refresh")]
+    [HttpPost("refresh")]
     public async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, SignInHttpResult, ChallengeHttpResult>>
         Refresh([FromBody] RefreshRequest refreshRequest)
     {
@@ -129,7 +129,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.SignIn(newPrincipal, authenticationScheme: IdentityConstants.BearerScheme);
     }
 
-    [HttpGet("/confirmEmail")]
+    [HttpGet("confirmEmail")]
     public async Task<Results<ContentHttpResult, UnauthorizedHttpResult>> ConfirmEmail([FromQuery] string userId,
         [FromQuery] string code, [FromQuery] string? changedEmail)
     {
@@ -174,7 +174,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Text("Thank you for confirming your email.");
     }
 
-    [HttpPost("/resendConfirmationEmail")]
+    [HttpPost("resendConfirmationEmail")]
     public async Task<Ok> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest resendRequest)
     {
         if (await _userManager.FindByEmailAsync(resendRequest.Email) is not { } user)
@@ -186,7 +186,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Ok();
     }
 
-    [HttpPost("/forgotPassword")]
+    [HttpPost("forgotPassword")]
     public async Task<Results<Ok, ValidationProblem>> ForgotPassword([FromBody] ForgotPasswordRequest resetRequest)
     {
         var user = await _userManager.FindByEmailAsync(resetRequest.Email);
@@ -204,7 +204,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Ok();
     }
 
-    [HttpPost("/resetPassword")]
+    [HttpPost("resetPassword")]
     public async Task<Results<Ok, ValidationProblem>> ResetPassword([FromBody] ResetPasswordRequest resetRequest)
     {
         var user = await _userManager.FindByEmailAsync(resetRequest.Email);
@@ -235,7 +235,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Ok();
     }
 
-    [HttpPost("/manage/2fa")]
+    [HttpPost("manage/2fa")]
     [Authorize]
     public async Task<Results<Ok<TwoFactorResponse>, ValidationProblem, NotFound>> Manage2Fa(
         [FromBody] TwoFactorRequest tfaRequest)
@@ -312,7 +312,7 @@ public class AuthenticationController : ControllerBase
         });
     }
 
-    [HttpGet("/manage/info")]
+    [HttpGet("manage/info")]
     [Authorize]
     public async Task<Results<Ok<InfoResponse>, ValidationProblem, NotFound>> Info()
     {
@@ -324,7 +324,7 @@ public class AuthenticationController : ControllerBase
         return TypedResults.Ok(await CreateInfoResponseAsync(user, _userManager));
     }
 
-    [HttpPost("/manage/info")]
+    [HttpPost("manage/info")]
     [Authorize]
     public async Task<Results<Ok<InfoResponse>, ValidationProblem, NotFound>> SetInfo(
         [FromBody] InfoRequest infoRequest)

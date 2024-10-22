@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu";
 import {Avatar, AvatarFallback, AvatarImage} from "~/components/ui/avatar";
-import {useLanguage} from "~/contexts/LanguageContext";
+import {Language, useLanguage} from "~/contexts/LanguageContext";
 import {useAuth} from "~/contexts/AuthContext";
 import {Separator} from "~/components/ui/separator";
 import {Sheet, SheetContent, SheetTrigger} from "~/components/ui/sheet";
@@ -77,13 +77,13 @@ const Header = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => setLanguage('en')}>
+                            <DropdownMenuItem onSelect={() => setLanguage(Language.En)}>
                                 English
                             </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => setLanguage('es')}>
+                            <DropdownMenuItem onSelect={() => setLanguage(Language.Es)}>
                                 Español
                             </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => setLanguage('fr')}>
+                            <DropdownMenuItem onSelect={() => setLanguage(Language.Fr)}>
                                 Français
                             </DropdownMenuItem>
                         </DropdownMenuContent>

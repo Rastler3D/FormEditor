@@ -1,6 +1,6 @@
 import {MeiliSearch} from 'meilisearch'
 
 export const searchClient = new MeiliSearch({
-    host: 'http://localhost:7700', 
+    host: import.meta.env.VITE_MEILISEARCH_URL, 
     apiKey: import.meta.env.VITE_MEILISEARCH_API_KEY
 })

@@ -16,7 +16,7 @@ public class EmailSender : IEmailSender
             Credentials = new NetworkCredential(config["SMTP_USERNAME"], config["SMTP_PASSWORD"]),
             EnableSsl = true,
         };
-        _mailAddress = new MailAddress(config["SMTP_DOMAIN"], config["SMTP_NAME"] ?? "Sender");
+        _mailAddress = new MailAddress(config["SMTP_SENDER_EMAIL"], config["SMTP_SENDER_NAME"] ?? "Sender");
     }
     
     

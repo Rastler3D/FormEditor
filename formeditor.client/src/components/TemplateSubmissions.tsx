@@ -1,7 +1,7 @@
 ﻿import {Card} from "~/components/ui/card.tsx";
-import {FilledForm, FormInfo, Template} from "~/types/template.ts";
+import { Form, FormInfo, Template} from "~/types/template.ts";
 import DataTable from "./DataTable";
-import {fetchFilledForms} from "../services/templateService.ts";
+import {getSubmittedForms} from "../services/formService.ts";
 import {useNavigate} from "@solidjs/router";
 import { ColumnDef } from "@tanstack/solid-table";
 
@@ -24,7 +24,7 @@ interface TemplateSubmissionsProps {
 
 const TemplateSubmissions = (props: TemplateSubmissionsProps) => {
     const navigate = useNavigate();
-    const columns: ColumnDef<FilledForm, any>[] = [
+    const columns: ColumnDef<Form, any>[] = [
         ...defaultColumns,
         ...props.template.questions
             .filter(q => q.displayInTable)
@@ -40,10 +40,11 @@ const TemplateSubmissions = (props: TemplateSubmissionsProps) => {
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
             <div class="p-4">
                 <h2 class="text-2xl font-bold mb-4">Submitted Applications</h2>
-                <DataTable<FilledForm>
+                <DataTable<Form>
                     columns={columns}
-                    fetchData={fetchFilledForms}
-                    onRowClick={(form) => navigate(`/form/${form.id}`)}
+                    fetchData={(opt) => getSubmittedForms(props.template.id, opt)}
+                    onRowClick={(form) => navigate(`/forms/${form.id}`)}
+                    rowId="id"
                 />
             </div>
         </Card>

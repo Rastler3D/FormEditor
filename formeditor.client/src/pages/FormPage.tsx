@@ -1,7 +1,7 @@
 ﻿import {useAuth} from "~/contexts/AuthContext";
 import {useParams} from "@solidjs/router";
 import {createResource, createEffect, Show, untrack} from "solid-js";
-import {fetchForm, submitForm} from "~/services/formService";
+import {fetchForm, getFormWithTemplate, submitForm, updateForm} from "~/services/formService";
 import {ProgressCircle} from "~/components/ui/progress-circle";
 import FormDetails from "~/components/FormDetails"
 import {createAction} from "~/lib/action.ts";
@@ -10,13 +10,13 @@ import {createAction} from "~/lib/action.ts";
 const FormPage = () => {
     const {user} = useAuth();
     const params = useParams();
-    const [formDetails, {mutate}] = createResource(() => Number(params.id), fetchForm);
-    const formSubmission = createAction(submitForm, () => params.id);
+    const [formDetails, {mutate}] = createResource(() => Number(params.id), getFormWithTemplate);
+    const formSubmission = createAction(updateForm, () => params.id);
     const isReadonly = () => !user() || (formDetails()?.form?.submitterId !== user()!.id && user()!.role !== 'Admin');
     
     createEffect(() => {
         if (formSubmission.data() && untrack(formDetails)) {
-            mutate(formDetails => ({...formDetails!, form: {...formSubmission.data(), answers: formSubmission.args()?.answers} }) );
+            mutate({...formDetails()!, form: {...formSubmission.data()!, answers: formSubmission.args()!.filledForm.answers} });
         }
     })
 
@@ -32,7 +32,7 @@ const FormPage = () => {
                     template={formDetails()?.template!}
                     isReadonly={isReadonly()}
                     isSubmitting={formSubmission.data.loading}
-                    onFormChange={value => formSubmission(value)}
+                    onFormChange={value => formSubmission({formId: Number(params.id), filledForm: value})}
                 />
             </Show>
         </Show>

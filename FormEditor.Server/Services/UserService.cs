@@ -9,7 +9,7 @@ namespace FormEditor.Server.Services;
 
 public interface IUserService
 {
-    Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOption option);
+    Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOptionViewModel option);
     Task<Result<UserViewModel, Error>> GetUserAsync(int userId);
     Task<Result<Error>> PerformBulkActionAsync(ActionViewModel action, int[] userIds);
     Task<Result<Error>> PerformActionAsync(ActionViewModel action, int userId);
@@ -30,9 +30,9 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    public async Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOption option)
+    public async Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOptionViewModel options)
     {
-        return (await _userRepository.GetAllUsersAsync(option))
+        return (await _userRepository.GetAllUsersAsync(_mapper.Map<TableOption>(options)))
             .MapData(x => x
                 .Select(_mapper.Map<UserViewModel>)
                 .ToList()

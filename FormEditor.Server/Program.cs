@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration["DbConnection"]).UseExceptionProcessor());
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql("Host=autorack.proxy.rlwy.net;Port=30121;Username=postgres;Password=kibFlVvxfVHuyROnryjSZYQEOtlJUEgC;Database=railway;SSL Mode=Prefer;").UseExceptionProcessor());
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services
     .AddAuthentication(IdentityConstants.BearerScheme)
@@ -60,8 +60,10 @@ builder.Services.AddIdentityCore<User>(options =>
             options.Password.RequiredLength = 6;
         }
     })
+    .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddApiEndpoints();
+builder.Services.AddScoped<RoleManager<IdentityRole<int>>>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
@@ -70,16 +72,18 @@ builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IFormRepository, FormRepository>();
+builder.Services.AddScoped<ITemplateRepository, TemplateRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISearchService, MeiliSearchService>();
 builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
 builder.Services.AddScoped<IFormService, FormService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IFormRepository, FormRepository>();
-builder.Services.AddScoped<ITemplateRepository, TemplateRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -102,6 +106,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 // app.MapGroup("/User")
 //     .MapIdentityApi<User>();
