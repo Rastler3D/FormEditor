@@ -1,9 +1,10 @@
 ﻿import {useParams} from "@solidjs/router";
 import {createResource, Show} from "solid-js";
+import { Oval } from "solid-spinner";
 import UserProfile from "~/components/UserProfile";
 import {useAuth} from "~/contexts/AuthContext";
 import {getUser} from "~/services/userService";
-import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
+
 
 const UserPage = () => {
     const params = useParams();
@@ -15,7 +16,7 @@ const UserPage = () => {
             <div class="m-auto">User not found.</div>
         }>
             <Show when={user()} fallback={
-                <div class="m-auto"> Loading <ProgressCircle showAnimation={true}></ProgressCircle></div>
+                <div class="m-auto"> Loading <Oval width="64" height="64" /></div>
             }>
                 <UserProfile
                     user={user()!}

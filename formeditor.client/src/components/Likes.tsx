@@ -6,6 +6,7 @@ import {fetchLikes, toggleLike} from "~/services/templateService.ts";
 import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 import {useAuth} from "~/contexts/AuthContext.tsx";
 import { Heart } from "lucide-solid";
+import { Oval } from "solid-spinner";
 
 interface LikesProps {
     template: Template;
@@ -44,7 +45,7 @@ export default function Likes(props: LikesProps) {
                 <Button variant="outline"
                         class="text-primary inline-flex items-center" disabled>
                     <Heart class={`h-4 w-4`} />
-                    <span><ProgressCircle showAnimation /></span>
+                    <span><Oval width="24" height="24" /></span>
                 </Button>
             } >
                 {(likesInfo) => (

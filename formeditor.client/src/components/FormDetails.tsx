@@ -70,7 +70,7 @@ export default function FormDetails(props: FormDetailsProps) {
                                       fillingDate={fillingDate()} filledBy={props.form.submittedBy}/>
                         <Show when={!props.isSubmitting} fallback={
                             <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                                Loading <ProgressCircle showAnimation={true}></ProgressCircle>
+                                Loading <Oval width="24" height="24" />
                             </Button>
                         }>
                             <Show when={!props.isReadonly}>
@@ -78,9 +78,9 @@ export default function FormDetails(props: FormDetailsProps) {
                                     <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                                             onClick={handleEditForm}>Edit</Button>
                                 }>
-                                    <div className="items-top flex space-x-2">
+                                    <div class="items-top flex space-x-2">
                                         <Checkbox id="terms1" onChange={setSendEmail} checked={sendEmail()}/>
-                                        <div className="grid gap-1.5 leading-none">
+                                        <div class="grid gap-1.5 leading-none">
                                             <Label for="terms1-input">Send form on email?</Label>
                                         </div>
                                     </div>

@@ -67,10 +67,10 @@ function Search(props: SearchProps) {
                     </div>
                     <Switch>
                         <Match when={view() === 'table'}>
-                            <TemplateTable templates={searchResults()?.hits} isLoading={searchResults.loading}/>
+                            <TemplateTable templates={searchResults()?.hits as TemplateInfo[] | undefined} isLoading={searchResults.loading}/>
                         </Match>
                         <Match when={view() === 'gallery'}>
-                            <TemplateGallery templates={searchResults()?.hits} isLoading={searchResults.loading}/>
+                            <TemplateGallery templates={searchResults()?.hits as TemplateInfo[] | undefined} isLoading={searchResults.loading}/>
                         </Match>
                     </Switch>
                     <Pagination
@@ -151,6 +151,7 @@ import {
     PaginationPrevious
 } from "./ui/pagination";
 import {searchTemplate} from "~/services/searchService.ts";
+import {TemplateInfo} from "~/types/template.ts";
 
 export const SearchInput = (props: {
     value?: string;
@@ -245,7 +246,7 @@ export const FilterPanel = (props: {
             <CardContent class="space-y-4">
                 <div>
                     <h4 class="font-bold mb-2">Tags</h4>
-                    <Show when={!props.isTagsLoading} fallback={<ProgressCircle showAnimation/>}>
+                    <Show when={!props.isTagsLoading} fallback={<Oval width="24" height="24" />}>
                         <Combobox<string>
                             options={props.tags ?? []}
                             value={props.filters?.tags || []}
@@ -288,7 +289,7 @@ export const FilterPanel = (props: {
                 </div>
                 <div>
                     <h4 class="font-bold mb-2">Topics</h4>
-                    <Show when={!props.isTopicsLoading} fallback={<ProgressCircle showAnimation/>}>
+                    <Show when={!props.isTopicsLoading} fallback={<Oval width="24" height="24" />}>
                         <Combobox<string>
                             options={props.topics ?? []}
                             value={props.filters?.topics || []}

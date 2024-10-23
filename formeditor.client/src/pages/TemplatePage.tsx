@@ -6,6 +6,7 @@ import {ProgressCircle} from "~/components/ui/progress-circle";
 import TemplateSubmission from "~/components/TemplateSubmission.tsx";
 import TemplateManager from "~/components/TemplateManager.tsx";
 import {createAction} from "~/lib/action.ts";
+import { Oval } from "solid-spinner";
 
 const TemplatePage = () => {
     const {user} = useAuth();
@@ -21,7 +22,7 @@ const TemplatePage = () => {
             <div class="m-auto">Template not found.</div>
         }>
             <Show when={template()} fallback={
-                <div class="m-auto"> Loading <ProgressCircle showAnimation={true}></ProgressCircle></div>
+                <div class="m-auto"> Loading <Oval width="24" height="24" /></div>
             }>
                 <Show when={user()?.id == template()?.creatorId || user()?.role == 'Admin'} fallback={
                     <TemplateSubmission template={template()!}/>

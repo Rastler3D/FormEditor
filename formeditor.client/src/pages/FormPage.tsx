@@ -25,7 +25,7 @@ const FormPage = () => {
             <div class="m-auto">Form not found.</div>
         }>
             <Show when={!formDetails.loading} fallback={
-                <div class="m-auto"> Loading <ProgressCircle showAnimation={true}></ProgressCircle></div>
+                <div class="m-auto"> Loading <Oval width="24" height="24" /></div>
             }>
                 <FormDetails
                     form={formDetails()?.form!}

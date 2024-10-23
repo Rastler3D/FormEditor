@@ -1,15 +1,15 @@
 ﻿import {
     ChevronLeft,
     ChevronRight,
-    ClipboardList,
-    FileSpreadsheet,
+    Folder,
+    Folders,
     FileText,
     Home,
     LogOut,
     LucideProps,
     Plus,
-    UserCog,
-    Users
+    Files,
+    UserCog
 } from "lucide-solid";
 import {Motion, Presence} from "solid-motionone";
 import {Button, buttonVariants} from "~/components/ui/button";
@@ -67,11 +67,6 @@ const Sidebar = (props: SidebarProps) => {
                                 {item => <NavItem {...item} isExpanded={isExpanded()}/>}
                             </For>
                         </Show>
-                        <For each={menuItems}>
-                            {item =>
-                                <NavItem {...item} isExpanded={isExpanded()}/>
-                            }
-                        </For>
                     </nav>
                 </div>
                 <Show when={user()}>
@@ -100,10 +95,10 @@ type NavItemProps = {
 const menuItems = [
     {icon: Plus, label: 'Create template', href: "/templates/create", role: 'User'},
     {icon: Home, label: 'Home', href: "/", role: 'All'},
-    {icon: FileSpreadsheet, label: 'My Templates', href: "/templates", role: 'User'},
-    {icon: ClipboardList, label: 'My Forms', href: "/forms", role: 'User'},
-    {icon: FileText, label: 'All Templates', href: "/templates/all", role: 'Admin'},
-    {icon: Users, label: 'All Forms', href: "/forms/all", role: 'Admin'},
+    {icon: Folder, label: 'My Templates', href: "/templates", role: 'User'},
+    {icon: FileText, label: 'My Forms', href: "/forms", role: 'User'},
+    {icon: Folders, label: 'All Templates', href: "/templates/all", role: 'Admin'},
+    {icon: Files, label: 'All Forms', href: "/forms/all", role: 'Admin'},
     {icon: UserCog, label: 'User Management', href: "/users/all", role: 'Admin'},
 ];
 
@@ -136,7 +131,7 @@ const NavItem = (props: NavItemProps) => {
                         <Motion.div
                             exit={{display: "none"}}
                             transition={{duration: 0.6}}
-                            class="ml-3 text-base overflow-hidden">{props.label}</Motion.div>
+                            class="ml-3 text-base overflow-hidden text-nowrap">{props.label}</Motion.div>
                     </Show>
                 </Presence>
             </TooltipTrigger>

@@ -10,13 +10,13 @@ public class EmailSender : IEmailSender
     private readonly MailAddress _mailAddress;
     public EmailSender(IConfiguration config)
     {
-        _smtpClient = new SmtpClient(config["SMTP_HOST"])
+        _smtpClient = new SmtpClient(config["SMTP_HOST"]??"smtp.mailersend.net")
         {
             Port = int.Parse(config["SMTP_PORT"] ?? "587"),
-            Credentials = new NetworkCredential(config["SMTP_USERNAME"], config["SMTP_PASSWORD"]),
+            Credentials = new NetworkCredential(config["SMTP_USERNAME"]??"MS_Qj61Cy@trial-yzkq340d636ld796.mlsender.net", config["SMTP_PASSWORD"]??"qlWAWXbVhKZE8Bgp"),
             EnableSsl = true,
         };
-        _mailAddress = new MailAddress(config["SMTP_SENDER_EMAIL"], config["SMTP_SENDER_NAME"] ?? "Sender");
+        _mailAddress = new MailAddress(config["SMTP_SENDER_EMAIL"]??"form-editor@trial-yzkq340d636ld796.mlsender.net", config["SMTP_SENDER_NAME"] ?? "Form Editor");
     }
     
     
@@ -26,6 +26,7 @@ public class EmailSender : IEmailSender
         {
             Subject = subject,
             Body = htmlMessage,
+            IsBodyHtml = true
         };
         
         return _smtpClient.SendMailAsync(message);

@@ -67,8 +67,9 @@ export function AuthProvider(props: { children: JSX.Element }) {
         setAccessToken();
     };
 
-    const signUp = async (data: { name: string, email: string, password: string }) => {
-        return await userServices.register(data);
+    const signUp = (data: { name: string, email: string, password: string }) => {
+        return userServices.register(data);
+       
     };
 
     const signInWithProvider = async () => {

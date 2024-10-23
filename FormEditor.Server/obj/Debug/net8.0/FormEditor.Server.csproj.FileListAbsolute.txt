@@ -262,3 +262,5 @@ C:\Users\aleks\RiderProjects\FormEditor\FormEditor.Server\bin\Debug\net8.0\Micro
 C:\Users\aleks\RiderProjects\FormEditor\FormEditor.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
 C:\Users\aleks\RiderProjects\FormEditor\FormEditor.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\aleks\RiderProjects\FormEditor\FormEditor.Server\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\aleks\RiderProjects\FormEditor\FormEditor.Server\bin\Debug\net8.0\AspNet.Security.OAuth.GitHub.dll
+C:\Users\aleks\RiderProjects\FormEditor\FormEditor.Server\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll

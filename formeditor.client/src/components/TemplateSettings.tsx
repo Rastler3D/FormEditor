@@ -91,7 +91,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                 </Tabs>
                 <Show when={props.isSavingChanges} fallback={
                     <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                        Loading <ProgressCircle showAnimation={true}></ProgressCircle>
+                        Loading <Oval width="24" height="24" />
                     </Button>
                 }>
                     <Button type="submit"

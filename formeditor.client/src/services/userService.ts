@@ -5,18 +5,17 @@ import {uploadImage} from "~/services/imageUploadService.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 
 
-export const login = async (credentials: { email: string, password: string }): Promise<TokenResponse> => {
+export const login = (credentials: { email: string, password: string }): Promise<TokenResponse> => {
     return api.post('/Authentication/login', credentials)
         .then(response => response.data);
 };
 
-export const register = async (data: { name: string, email: string, password: string }): Promise<void> => {
-    return api.post<User>('/Authentication/registration', data)
-        .then(() => {
-        });
+export const register = (data: { name: string, email: string, password: string }): Promise<void> => {
+        return api.post<void>('/Authentication/registration', data)
+            .then(response => response.data)
 }
 
-export const refreshToken = async (refreshToken: string): Promise<{ refreshToken: string, accessToken: string }> => {
+export const refreshToken = (refreshToken: string): Promise<{ refreshToken: string, accessToken: string }> => {
     return api.post<{ refreshToken: string, accessToken: string }>('/Authentication/refresh', {refreshToken})
         .then(response => response.data);
 }
@@ -26,8 +25,8 @@ export const getCurrentUser = (): Promise<User> => {
         .then(response => response.data);
 };
 
-export const getUsers = (option: TableOption): Promise<TableData<User[]>> => {
-    return api.get<TableData<User[]>>('/User', optionToQueryParams(options))
+export const getUsers = (options: TableOption): Promise<TableData<User[]>> => {
+    return api.get<TableData<User[]>>('/User', {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 

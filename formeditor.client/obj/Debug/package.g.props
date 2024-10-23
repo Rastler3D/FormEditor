@@ -33,6 +33,7 @@
     <PackageJsonDependenciesSolidJs Condition="$(PackageJsonDependenciesSolidJs) == ''">^1.9.1</PackageJsonDependenciesSolidJs>
     <PackageJsonDependenciesSolidMarkdown Condition="$(PackageJsonDependenciesSolidMarkdown) == ''">^2.0.13</PackageJsonDependenciesSolidMarkdown>
     <PackageJsonDependenciesSolidMotionone Condition="$(PackageJsonDependenciesSolidMotionone) == ''">^1.0.2</PackageJsonDependenciesSolidMotionone>
+    <PackageJsonDependenciesSolidSpinner Condition="$(PackageJsonDependenciesSolidSpinner) == ''">^0.2.0</PackageJsonDependenciesSolidSpinner>
     <PackageJsonDependenciesTailwindMerge Condition="$(PackageJsonDependenciesTailwindMerge) == ''">^2.5.2</PackageJsonDependenciesTailwindMerge>
     <PackageJsonDependenciesTailwindcssAnimate Condition="$(PackageJsonDependenciesTailwindcssAnimate) == ''">^1.0.7</PackageJsonDependenciesTailwindcssAnimate>
     <PackageJsonDevdependenciesTypesD3 Condition="$(PackageJsonDevdependenciesTypesD3) == ''">^7.4.3</PackageJsonDevdependenciesTypesD3>

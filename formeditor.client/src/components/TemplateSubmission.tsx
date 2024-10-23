@@ -99,7 +99,7 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
                                   filledBy={form()?.submittedBy ?? filledBy()}/>
                     <Show when={!form.loading && !formSubmission.data.loading} fallback={
                         <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                            Loading <ProgressCircle showAnimation={true}></ProgressCircle>
+                            Loading <Oval width="24" height="24" />
                         </Button>
                     }>
                         <Show when={form()} fallback={

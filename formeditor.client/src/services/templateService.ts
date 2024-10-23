@@ -13,14 +13,13 @@ import {uploadImage} from "~/services/imageUploadService.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 
 
-
 export const fetchUserTemplates = (userId: number, options: TableOption): Promise<TableData<TemplateInfo[]>> => {
-    return api.get<TableData<TemplateInfo[]>>(`/Form/user/${userId}`, optionToQueryParams(options))
+    return api.get<TableData<TemplateInfo[]>>(`/Form/user/${userId}`, {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 
 export const fetchTemplates = (options: TableOption): Promise<TableData<TemplateInfo[]>> => {
-    return api.get<TableData<TemplateInfo[]>>(`/Form`, optionToQueryParams(options))
+    return api.get<TableData<TemplateInfo[]>>(`/Form`, {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 
@@ -50,15 +49,18 @@ export const fetchTopics = (): Promise<string[]> => {
 };
 
 export const createTemplate = async (template: TemplateConfiguration): Promise<TemplateInfo> => {
-    if (template.image instanceof File){
+    if (template.image instanceof File) {
         template.image = await uploadImage(template.image);
     }
     return await api.post<TemplateInfo>('/Template', template)
         .then(response => response.data);
 };
 
-export const updateTemplate = async ({ templateId, template }: { templateId: number; template: TemplateConfiguration }): Promise<Template> => {
-    if (template.image instanceof File){
+export const updateTemplate = async ({templateId, template}: {
+    templateId: number;
+    template: TemplateConfiguration
+}): Promise<Template> => {
+    if (template.image instanceof File) {
         template.image = await uploadImage(template.image);
     }
     return await api.put<Template>(`/Template/${templateId}`, template)
@@ -72,7 +74,8 @@ export const fetchTemplate = (id: number): Promise<Template> => {
 
 export const deleteTemplate = (templateId: number): Promise<void> => {
     return api.delete(`/Template/${templateId}`)
-        .then(() => {});
+        .then(() => {
+        });
 };
 
 export const toggleLike = (templateId: number): Promise<LikesInfo> => {

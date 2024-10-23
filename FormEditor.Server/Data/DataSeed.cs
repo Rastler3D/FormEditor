@@ -26,10 +26,10 @@ public static class DataSeed
     private static async Task SeedDB(IServiceProvider serviceProvider)
     {
         UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();
-        RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        RoleManager<IdentityRole<int>> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-        await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
-        await roleManager.CreateAsync(new IdentityRole(Roles.User));
+        await roleManager.CreateAsync(new IdentityRole<int>(Roles.Admin));
+        await roleManager.CreateAsync(new IdentityRole<int>(Roles.User));
 
         var adminUser = new User
         {
@@ -39,8 +39,16 @@ public static class DataSeed
         };
 
         // Add new user and their role
-        await userManager.CreateAsync(adminUser, Identity.DefaultPassword);
-        adminUser = await userManager.FindByEmailAsync(Identity.DefaultEmail);
-        await userManager.AddToRoleAsync(adminUser, Roles.Admin);
+        var result = await userManager.CreateAsync(adminUser, Identity.DefaultPassword);
+        if (result.Succeeded)
+        {
+            adminUser = await userManager.FindByEmailAsync(Identity.DefaultEmail);
+            await userManager.AddToRoleAsync(adminUser, Roles.Admin);
+        }
+        else
+        {
+            throw new Exception(result.Errors.First().Description);
+        }
+        
     }
 }

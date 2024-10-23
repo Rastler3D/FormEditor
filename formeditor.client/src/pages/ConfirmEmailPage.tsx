@@ -5,8 +5,8 @@ import {A, useParams} from "@solidjs/router";
 import {createEffect, createMemo, on, Show} from "solid-js";
 import {createAction} from "../lib/action";
 import {resendConfirmationEmail} from "../services/userService";
-import {ProgressCircle} from "../components/ui/progress-circle";
 import {showToast} from "../components/ui/toast";
+import { Oval } from "solid-spinner";
 
 const ConfirmEmailPage = ()=> {
     const params = useParams();
@@ -18,7 +18,7 @@ const ConfirmEmailPage = ()=> {
     }))
     
     return (
-        <div class="min-h-screen bg-background flex items-center justify-center p-4">
+        <div class="min-h-screen bg-background flex justify-center items-baseline p-4">
             <Card class="w-full max-w-md">
                 <CardHeader>
                     <CardTitle class="text-2xl font-bold text-center">Confirm Your Email</CardTitle>
@@ -27,7 +27,7 @@ const ConfirmEmailPage = ()=> {
                     </CardDescription>
                 </CardHeader>
                 <CardContent class="text-center space-y-4">
-                    <FaSolidEnvelope class="h-16 w-16 mx-auto text-primary"/>
+                    <FaSolidEnvelope class="h-10 w-10 mx-auto text-primary"/>
                     <p>
                         We've sent a confirmation email to your registered email address.
                         Please check your inbox and click on the confirmation link to activate your account.
@@ -39,7 +39,7 @@ const ConfirmEmailPage = ()=> {
                 <CardFooter class="flex justify-center space-x-4">
                     <Show when={!resend.data.loading} fallback={
                         <Button variant="outline">
-                            <ProgressCircle showAnimation/>
+                            <Oval width="24" height="24" />
                         </Button>
                     }>
                         <Button onClick={() => resend(email()!)} variant="outline">

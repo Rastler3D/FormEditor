@@ -1,108 +1,91 @@
-﻿import {Button} from "~/components/ui/button"
+﻿import { Button } from "~/components/ui/button"
 import {
     Card,
     CardContent,
-    CardDescription, CardFooter,
+    CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "~/components/ui/card"
-import {TextField, TextFieldInput, TextFieldLabel} from "./ui/text-field";
-import {FaBrandsGoogle, FaBrandsGithub} from 'solid-icons/fa';
-import {A, useNavigate} from '@solidjs/router';
-import {useAuth} from "../contexts/AuthContext";
-import {createAction} from "../lib/action";
-import {AlertCircle} from "lucide-solid";
-import {createEffect, createSignal, on, Show} from "solid-js";
-import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
+import { TextField, TextFieldInput, TextFieldLabel } from "./ui/text-field";
+import { FaBrandsGoogle, FaBrandsGithub } from 'solid-icons/fa';
+import { A, useNavigate } from '@solidjs/router';
+import { useAuth } from "../contexts/AuthContext";
+import {createAction, resolve} from "../lib/action";
+import { AlertCircle } from "lucide-solid";
+import { createEffect, createSignal, on, Show } from "solid-js";
+import { Oval } from "solid-spinner";
 
 const Login = () => {
-    const {signIn} = useAuth();
+    const { signIn } = useAuth();
     const navigate = useNavigate();
     const login = createAction(signIn);
     const [email, setEmail] = createSignal("");
     const [password, setPassword] = createSignal("");
 
-    createEffect(on(login.data, (result) => result && navigate("/home")));
-    
+    createEffect(on(resolve(login.data), () => navigate("/home")));
+
     const handleLogin = (e: SubmitEvent) => {
         e.preventDefault();
         login({email: email(), password: password()})
     }
-    
+
     return (
-        <Card class="mx-auto max-w-sm">
+        <Card class="w-full max-w-md mx-auto">
             <CardHeader>
-                <CardTitle class="text-xl">Sign In</CardTitle>
+                <CardTitle class="text-2xl font-bold">Sign In</CardTitle>
                 <CardDescription>
-                    Enter your email and password below to login to your account
+                    Enter your email and password to access your account
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <div class="grid gap-4">
-                    <form onSubmit={handleLogin}>
-                        <div class="grid gap-2">
-                            <TextField required value={email()} onChange={(value) => setEmail(value)}>
-                                <TextFieldLabel>Email</TextFieldLabel>
-                                <TextFieldInput type="email" placeholder="m@example.com"/>
-                            </TextField>
+                <form onSubmit={handleLogin} class="space-y-4">
+                    <TextField required value={email()} onChange={(value) => setEmail(value)}>
+                        <TextFieldLabel>Email</TextFieldLabel>
+                        <TextFieldInput type="email" placeholder="m@example.com"/>
+                    </TextField>
+                    <TextField required value={password()} onChange={(value) => setPassword(value)}>
+                        <TextFieldLabel>Password</TextFieldLabel>
+                        <TextFieldInput type="password"/>
+                    </TextField>
+                    <Show when={login.data.error}>
+                        <div class="text-red-500 flex items-center">
+                            <AlertCircle class="w-4 h-4 mr-2"/>
+                            {login.data.error.detail}
                         </div>
-                        <div class="grid gap-2">
-                            <TextField required value={password()} onChange={(value) => setPassword(value)}>
-                                <TextFieldLabel>Password</TextFieldLabel>
-                                <TextFieldInput type="password"/>
-                            </TextField>
-                        </div>
-                        <Show when={login.data.error}>
-                            <div class="grid gap-2">
-                                <div class="text-red-500 flex items-center">
-                                    <AlertCircle class="w-4 h-4 mr-2"/>
-                                    {login.data.error}
-                                </div>
-                            </div>
-                        </Show>
-                        <div class="grid gap-2">
-                            <Show when={!login.data.loading} fallback={
-                                <Button
-                                    class="w-full">
-                                    <ProgressCircle showAnimation />
-                                </Button>
-                            }>
-                                <Button type="submit" class="w-full">
-                                    Create an account
-                                </Button>
-                            </Show>
-                            
-                        </div>
-                        <div class="text-center mt-2">
-                            <A href="/login/forgot-password" class="text-sm text-primary hover:underline">
-                                Forgot password?
-                            </A>
-                        </div>
-                    </form>
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <span class="w-full border-t"/>
-                        </div>
-                        <div class="relative flex justify-center text-xs uppercase">
-                            <span class="bg-background px-2 text-muted-foreground">Or continue with</span>
-                        </div>
+                    </Show>
+                    <Button type="submit" class="w-full" disabled={login.data.loading}>
+                        {login.data.loading ? <Oval width="24" height="24" /> : "Sign In"}
+                    </Button>
+                </form>
+                <div class="mt-4 text-center">
+                    <A href="/login/forgot-password" class="text-sm text-primary hover:underline">
+                        Forgot password?
+                    </A>
+                </div>
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <span class="w-full border-t"/>
                     </div>
-                    <div class="grid grid-cols-2 gap-6">
-                        <Button variant="outline">
-                            <FaBrandsGithub class="mr-2 size-4"/>
-                            Github
-                        </Button>
-                        <Button variant="outline">
-                            <FaBrandsGoogle class="mr-2 size-4"/>
-                            Google
-                        </Button>
+                    <div class="relative flex justify-center text-xs uppercase">
+                        <span class="bg-background px-2 text-muted-foreground">Or continue with</span>
                     </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <Button variant="outline" type="button" class="w-full">
+                        <FaBrandsGithub class="mr-2 h-4 w-4"/>
+                        Github
+                    </Button>
+                    <Button variant="outline" type="button" class="w-full">
+                        <FaBrandsGoogle class="mr-2 h-4 w-4"/>
+                        Google
+                    </Button>
                 </div>
             </CardContent>
             <CardFooter>
-                <div class="mt-4 text-center text-sm">
+                <div class="text-center text-sm w-full">
                     Don't have an account?{" "}
-                    <A href="/login" class="underline">
+                    <A href="/registration" class="text-primary underline">
                         Sign up
                     </A>
                 </div>

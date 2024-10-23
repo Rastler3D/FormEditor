@@ -31,13 +31,13 @@ public class AuthenticationController : ControllerBase
     private static readonly EmailAddressAttribute _emailAddressAttribute = new();
 
     public AuthenticationController(UserManager<User> userManager, IUserStore<User> userStore,
-        IUserEmailStore<User> emailStore, SignInManager<User> signInManager, TimeProvider timeProvider,
+        SignInManager<User> signInManager, TimeProvider timeProvider,
         IOptionsMonitor<BearerTokenOptions> bearerTokenOptions, IEmailSender<User> emailSender,
         LinkGenerator linkGenerator)
     {
         this._userManager = userManager;
         this._userStore = userStore;
-        this._emailStore = emailStore;
+        this._emailStore = (IUserEmailStore<User>)userStore;
         this._signInManager = signInManager;
         this._timeProvider = timeProvider;
         this._bearerTokenOptions = bearerTokenOptions;
@@ -45,7 +45,7 @@ public class AuthenticationController : ControllerBase
         this._linkGenerator = linkGenerator;
     }
 
-    [HttpPost("register")]
+    [HttpPost("registration")]
     public async Task<Results<Ok, ValidationProblem>> Registration([FromBody] RegistrationViewModel registration)
     {
         if (!_userManager.SupportsUserEmail)
@@ -77,22 +77,24 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost("login")]
     public async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>> Login(
-        [FromBody] LoginRequest login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies)
+        [FromBody] LoginRequest login)
     {
-        var useCookieScheme = (useCookies == true) || (useSessionCookies == true);
-        var isPersistent = (useCookies == true) && (useSessionCookies != true);
-        _signInManager.AuthenticationScheme =
-            useCookieScheme ? IdentityConstants.ApplicationScheme : IdentityConstants.BearerScheme;
+        _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
+        var user = await _userManager.FindByEmailAsync(login.Email);
+        if (user == null)
+        {
+            return TypedResults.Problem("User with provided Email not found",
+                statusCode: StatusCodes.Status401Unauthorized);
+        }
 
-        var result =
-            await _signInManager.PasswordSignInAsync(login.Email, login.Password, isPersistent, lockoutOnFailure: true);
+        var result = await _signInManager.PasswordSignInAsync(user, login.Password, false, lockoutOnFailure: false);
 
         if (result.RequiresTwoFactor)
         {
             if (!string.IsNullOrEmpty(login.TwoFactorCode))
             {
-                result = await _signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, isPersistent,
-                    rememberClient: isPersistent);
+                result = await _signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, false, 
+                    rememberClient: false);
             }
             else if (!string.IsNullOrEmpty(login.TwoFactorRecoveryCode))
             {
@@ -102,7 +104,17 @@ public class AuthenticationController : ControllerBase
 
         if (!result.Succeeded)
         {
-            return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
+            if (result.IsLockedOut)
+            {
+                return TypedResults.Problem("User is blocked", statusCode: StatusCodes.Status401Unauthorized);
+            }
+            if (result.IsNotAllowed)
+            {
+                if (!user.EmailConfirmed)
+                    return TypedResults.Problem("Email address is not verified", statusCode: StatusCodes.Status401Unauthorized);
+                return TypedResults.Problem("Login not allowed", statusCode: StatusCodes.Status401Unauthorized); 
+            }
+            return TypedResults.Problem("Incorrect password", statusCode: StatusCodes.Status401Unauthorized); 
         }
 
         // The signInManager already produced the needed response in the form of a cookie or bearer token.
@@ -427,7 +439,6 @@ public class AuthenticationController : ControllerBase
 
             errorDictionary[error.Code] = newDescriptions;
         }
-
         return TypedResults.ValidationProblem(errorDictionary);
     }
 
@@ -441,4 +452,5 @@ public class AuthenticationController : ControllerBase
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user),
         };
     }
+    
 }

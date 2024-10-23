@@ -10,17 +10,17 @@ import {api} from "~/lib/api.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 
 export const getSubmittedForms = (templateId: number, options: TableOption): Promise<TableData<Form[]>> => {
-    return api.get<TableData<Form[]>>(`/Form/template/${templateId}`, optionToQueryParams(options))
+    return api.get<TableData<Form[]>>(`/Form/template/${templateId}`, {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 
 export const getUserForms = (userId: number, options: TableOption): Promise<TableData<FormInfo[]>> => {
-    return api.get<TableData<FormInfo[]>>(`/Form/user/${userId}`, optionToQueryParams(options))
+    return api.get<TableData<FormInfo[]>>(`/Form/user/${userId}`, {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 
 export const getForms = (options: TableOption): Promise<TableData<FormInfo[]>> => {
-    return api.get<TableData<FormInfo[]>>('/Form', optionToQueryParams(options))
+    return api.get<TableData<FormInfo[]>>('/Form', {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 
