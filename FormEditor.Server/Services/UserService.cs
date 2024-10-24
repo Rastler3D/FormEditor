@@ -102,12 +102,12 @@ public class UserService : IUserService
 
         if (updateUser.Name != null)
         {
-            user.Value.UserName = updateUser.Email;
+            user.Value.UserName = updateUser.Name;
         }
 
         if (updateUser.Avatar != null)
         {
-            user.Value.Avatar = updateUser.Email;
+            user.Value.Avatar = updateUser.Avatar;
         }
 
         return (await _userRepository.UpdateUserAsync(user.Value))

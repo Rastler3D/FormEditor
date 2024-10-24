@@ -10,6 +10,7 @@ using FormEditor.Server.Models;
 using FormEditor.Server.Repositories;
 using FormEditor.Server.Services;
 using FormEditor.Server.Utils;
+using FormEditor.Server.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -19,11 +20,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddSignalR();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
             "Host=autorack.proxy.rlwy.net;Port=30121;Username=postgres;Password=kibFlVvxfVHuyROnryjSZYQEOtlJUEgC;Database=railway;SSL Mode=Prefer;")
         .UseExceptionProcessor());
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 builder.Services
     .AddAuthentication(AuthenticationHandler.Scheme)
     .AddScheme<AuthenticationSchemeOptions, AuthenticationHandler>(AuthenticationHandler.Scheme, null)
@@ -53,7 +57,18 @@ builder.Services
 //     options.SignInScheme = IdentityConstants.ExternalScheme;
 // })
 // .AddGitHub();
-builder.Services.AddSignalR();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddIdentityCore<User>(options =>
     {
         options.User.RequireUniqueEmail = true;
@@ -79,12 +94,7 @@ builder.Services.AddIdentityCore<User>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddApiEndpoints();
 builder.Services.AddAuthorization();
-builder.Services.AddControllers().AddJsonOptions(x =>
-{
-    x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-});
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IFormRepository, FormRepository>();
 builder.Services.AddScoped<ITemplateRepository, TemplateRepository>();
@@ -94,7 +104,6 @@ builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
 builder.Services.AddScoped<IFormService, FormService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();

@@ -1,12 +1,18 @@
 ﻿import {PaginationState, SortingState} from "@tanstack/solid-table";
 import {User} from "~/contexts/AuthContext.tsx";
-
+export const QuestionOptions = {
+    SingleLine: "Single Line",
+    MultiLine: "Multiple Lines",
+    Integer: "Integer",
+    Checkbox: "Checkbox",
+    Select: "Select One"
+}
 export enum QuestionTypes {
-    SingleLine = "Single Line",
-    MultiLine = "Multiple Lines",
+    SingleLine = "SingleLine",
+    MultiLine = "MultiLine",
     Integer = "Integer",
     Checkbox = "Checkbox",
-    Select = "Select One"
+    Select = "Select"
 }
 export type QuestionType = typeof QuestionTypes[keyof typeof QuestionTypes];
 
@@ -135,7 +141,7 @@ export interface Bulk
     ids: number[];
 }
 
-export type UpdateUser = Pick<User, "name" | "email" > & { avatar?: string | File };
+export type UpdateUser = Partial<Pick<User, "name" | "email" >> & { avatar?: string | File };
 
 export interface TokenResponse {
     refreshToken: string;

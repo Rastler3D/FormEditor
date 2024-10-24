@@ -28,7 +28,7 @@ function App() {
             <ThemeProvider>
                 <AuthProvider>
                     <Router root={Layout}>
-                        <Route path="/home" component={HomePage}/>
+                        <Route path={["/","/home"]} component={HomePage}/>
                         <Route path="/search" component={SearchPage}/>
                         
                         <Route path="/login">
@@ -72,8 +72,7 @@ function App() {
                 </AuthProvider>
             </ThemeProvider>
         </LanguageProvider>
-    )
-        ;
+    );
 }
 
 export default App

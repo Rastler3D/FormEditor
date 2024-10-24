@@ -22,6 +22,7 @@ import {useAuth} from "~/contexts/AuthContext.tsx";
 
 interface SidebarProps {
     isSheet?: boolean
+    class?: string
 }
 
 const Sidebar = (props: SidebarProps) => {
@@ -29,7 +30,7 @@ const Sidebar = (props: SidebarProps) => {
     const {user, signOut} = useAuth();
 
     return (
-        <aside>
+        <aside class={cn("bg-background sticky top-0 left-0 h-screen z-40 flex flex-col border-r overflow-y-auto", props.class)}>
             <Motion.div
                 class={'h-screen flex flex-col border-r group w-16 overflow-x-hidden'}
                 data-collapsed={!isExpanded()}
@@ -94,7 +95,7 @@ type NavItemProps = {
 
 const menuItems = [
     {icon: Plus, label: 'Create template', href: "/templates/create", role: 'User'},
-    {icon: Home, label: 'Home', href: "/", role: 'All'},
+    {icon: Home, label: 'Home', href: "/home", role: 'All'},
     {icon: Folder, label: 'My Templates', href: "/templates", role: 'User'},
     {icon: FileText, label: 'My Forms', href: "/forms", role: 'User'},
     {icon: Folders, label: 'All Templates', href: "/templates/all", role: 'Admin'},
@@ -111,6 +112,7 @@ const NavItem = (props: NavItemProps) => {
             <TooltipTrigger
                 as={props.href ? A : Button}
                 href={props.href}
+                variant={isActive() ? "default" : "ghost"}
                 onClick={() => props.onClick?.(props.label)}
                 class={cn(
                     buttonVariants({

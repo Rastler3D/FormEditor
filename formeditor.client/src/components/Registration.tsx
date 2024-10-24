@@ -13,7 +13,7 @@ import {A, useNavigate} from '@solidjs/router';
 import {useAuth} from "../contexts/AuthContext";
 import {createAction, resolve} from "../lib/action";
 import {AlertCircle} from "lucide-solid";
-import {createEffect, createSignal, For, on, Show} from "solid-js";
+import {createEffect, createSignal, For,  Show} from "solid-js";
 import {Oval} from "solid-spinner";
 
 const Registration = () => {
@@ -24,7 +24,7 @@ const Registration = () => {
     const [email, setEmail] = createSignal("");
     const [password, setPassword] = createSignal("");
 
-    createEffect(on(resolve(registration.data), () => navigate(`/registration/confirm-email/${email()}`)));
+    createEffect(resolve(registration.data, () => navigate(`/registration/confirm-email/${email()}`)));
 
     const handleRegistration = (e: SubmitEvent) => {
         e.preventDefault();

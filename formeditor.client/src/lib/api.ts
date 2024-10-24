@@ -1,5 +1,6 @@
 ﻿import axios from 'axios';
 import {showToast} from '~/components/ui/toast';
+import {refreshToken} from "~/services/userService.ts";
 
 export const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -20,15 +21,13 @@ api.interceptors.response.use(
     response => response, // Directly return successful responses.
     async error => {
         const originalRequest = error.config;
-        if (error.response.headers["Token-Expired"] === 'true') {
+        if (error.response.headers["token-expired"] === 'true') {
             try {
                 const token = localStorage.getItem('refresh-token');
-                const refreshToken = token && JSON.parse(token); // Retrieve the stored refresh token.
+                const refreshTokenValue = token && JSON.parse(token); // Retrieve the stored refresh token.
                 // Make a request to your auth server to refresh the token.
-                const response = await axios.post('user/refresh', {
-                    refreshToken,
-                });
-                const {accessToken, refreshToken: newRefreshToken} = response.data;
+                const tokens = await refreshToken(refreshTokenValue);
+                const {accessToken, refreshToken: newRefreshToken} = tokens;
                 // Store the new access and refresh tokens.
                 localStorage.setItem('access-token', JSON.stringify(accessToken));
                 localStorage.setItem('refresh-token', JSON.stringify(newRefreshToken));
@@ -42,7 +41,7 @@ api.interceptors.response.use(
                 }
             } catch (refreshError) {
                 // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
-                console.error('Token refresh failed:', refreshError);
+                console.error('Token refresh failed:');
                 localStorage.removeItem('access-token');
                 localStorage.removeItem('refresh-token');
                 return Promise.reject(refreshError);

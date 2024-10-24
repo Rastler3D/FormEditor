@@ -14,7 +14,7 @@
         }
 
         public bool IsOk => _success;
-        public bool IsErr => _success;
+        public bool IsErr => !_success;
 
         public static Result<T, E> Ok(T v)
         {

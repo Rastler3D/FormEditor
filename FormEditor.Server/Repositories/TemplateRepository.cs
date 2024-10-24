@@ -211,7 +211,7 @@ public class TemplateRepository : ITemplateRepository
                     _context.Entry(newQuestion).Collection(x => x.Answers).CurrentValue = null;
                 }
                 else if (existingQuestion.Type == QuestionType.Select &&
-                         !existingQuestion.Options.IsSubsetOf(newQuestion.Options))
+                         !existingQuestion.Options.ToHashSet().IsSubsetOf(newQuestion.Options))
                 {
                     await _context.Answers
                         .Where(a => a.QuestionId == existingQuestion.Id && !newQuestion.Options.Contains(a.StringValue))

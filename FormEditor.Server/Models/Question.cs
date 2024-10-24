@@ -9,7 +9,7 @@ public class Question
     public int Order { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
-    public HashSet<string> Options { get; set; }
+    public List<string>? Options { get; set; }
     public bool DisplayInTable { get; set; }
     public List<Answer> Answers { get; set; }
 }

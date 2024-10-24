@@ -1,10 +1,11 @@
-﻿import {createEffect, createSignal} from 'solid-js';
-import {Bold, Italic, List, ListOrdered, Link, Image, Code, Heading, Quote} from 'lucide-solid';
-import {Button} from "~/components/ui/button";
-import {TextField, TextFieldTextArea} from "~/components/ui/text-field";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "~/components/ui/tabs";
-import {Tooltip, TooltipContent, TooltipTrigger} from '~/components/ui/tooltip';
-import {SolidMarkdown} from 'solid-markdown';
+﻿import { createEffect, createSignal, For } from 'solid-js';
+import { Bold, Italic, List, ListOrdered, Link, Image, Code, Heading, Quote, MoreHorizontal } from 'lucide-solid';
+import { Button } from "~/components/ui/button";
+import { TextField, TextFieldTextArea } from "~/components/ui/text-field";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { SolidMarkdown } from 'solid-markdown';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 
 interface MarkdownEditorProps {
     value: string;
@@ -18,7 +19,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [selectedStyles, setSelectedStyles] = createSignal({});
 
     const insertOrRemoveMarkdown = (prefix: string, suffix = '', blockStyle = false) => {
-        const textarea = document.getElementById('markdown-editor') as HTMLTextAreaElement;
+        const textarea = document.getElementById(props.id ?? 'markdown-editor') as HTMLTextAreaElement;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
@@ -67,7 +68,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     };
 
     const updateSelectedStyles = () => {
-        const textarea = document.getElementById('markdown-editor') as HTMLTextAreaElement;
+        const textarea = document.getElementById(props.id ?? 'markdown-editor') as HTMLTextAreaElement;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
@@ -129,29 +130,19 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     };
 
     const actions = [
-        {icon: Bold, tooltip: 'Bold (Ctrl+B)', action: () => insertOrRemoveMarkdown('**', '**'), style: 'bold'},
-        {icon: Italic, tooltip: 'Italic (Ctrl+I)', action: () => insertOrRemoveMarkdown('*', '*'), style: 'italic'},
-        {icon: Heading, tooltip: 'Heading', action: () => insertOrRemoveMarkdown('# ', '', true), style: 'heading'},
-        {icon: Quote, tooltip: 'Blockquote', action: () => insertOrRemoveMarkdown('> ', '', true), style: 'quote'},
-        {
-            icon: List,
-            tooltip: 'Unordered List',
-            action: () => insertOrRemoveMarkdown('- ', '', true),
-            style: 'unorderedList'
-        },
-        {
-            icon: ListOrdered,
-            tooltip: 'Ordered List',
-            action: () => insertOrRemoveMarkdown('1. ', '', true),
-            style: 'orderedList'
-        },
-        {icon: Link, tooltip: 'Link (Ctrl+K)', action: () => insertOrRemoveMarkdown('[', '](url)')},
-        {icon: Image, tooltip: 'Image', action: () => insertOrRemoveMarkdown('![alt text](', ')')},
-        {icon: Code, tooltip: 'Inline Code', action: () => insertOrRemoveMarkdown('`', '`'), style: 'code'},
+        { icon: Bold, tooltip: 'Bold (Ctrl+B)', action: () => insertOrRemoveMarkdown('**', '**'), style: 'bold' },
+        { icon: Italic, tooltip: 'Italic (Ctrl+I)', action: () => insertOrRemoveMarkdown('*', '*'), style: 'italic' },
+        { icon: Heading, tooltip: 'Heading', action: () => insertOrRemoveMarkdown('# ', '', true), style: 'heading' },
+        { icon: Quote, tooltip: 'Blockquote', action: () => insertOrRemoveMarkdown('> ', '', true), style: 'quote' },
+        { icon: List, tooltip: 'Unordered List', action: () => insertOrRemoveMarkdown('- ', '', true), style: 'unorderedList' },
+        { icon: ListOrdered, tooltip: 'Ordered List', action: () => insertOrRemoveMarkdown('1. ', '', true), style: 'orderedList' },
+        { icon: Link, tooltip: 'Link (Ctrl+K)', action: () => insertOrRemoveMarkdown('[', '](url)') },
+        { icon: Image, tooltip: 'Image', action: () => insertOrRemoveMarkdown('![alt text](', ')') },
+        { icon: Code, tooltip: 'Inline Code', action: () => insertOrRemoveMarkdown('`', '`'), style: 'code' },
     ];
 
     createEffect(() => {
-        const textarea = document.getElementById('markdown-editor') as HTMLTextAreaElement;
+        const textarea = document.getElementById(props.id ?? 'markdown-editor') as HTMLTextAreaElement;
         if (textarea) {
             textarea.addEventListener('mouseup', updateSelectedStyles);
             textarea.addEventListener('keyup', updateSelectedStyles);
@@ -163,62 +154,118 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             }
         };
     });
+
     return (
-        <div
-            class="w-full border rounded-md overflow-hidden has-[:focus]:ring-offset-2 has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-blue-500">
+        <div class="w-full border rounded-md overflow-hidden has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
             <Tabs value={activeTab()} onChange={setActiveTab}>
-                <div class="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 border-b">
-                    <div class="flex space-x-2">
-                        {actions.map((action) => (
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={action.action}
-                                        class={`p-1 bg-transparent hover:bg-gray-200 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white  ${
-                                            selectedStyles()[action.style] ? 'bg-blue-100 dark:bg-blue-900' : ''
-                                        }`}
-                                    >
-                                        <action.icon size={18}/>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent class="bg-gray-800 text-white text-sm py-1 px-2 rounded">
-                                    {action.tooltip}
-                                </TooltipContent>
-                            </Tooltip>
-                        ))}
+                <div class="flex justify-between items-center p-2 bg-muted border-b">
+                    <div class="flex space-x-2 overflow-x-auto md:overflow-x-visible">
+                        <For each={actions.slice(0, 3)}>
+                            {(action) => (
+                                <Tooltip>
+                                    <TooltipTrigger asChild tabIndex={-1}>
+                                        <Button
+                                            tabIndex={-1}
+                                            onClick={action.action}
+                                            class={`p-1 bg-transparent hover:bg-gray-200 hover:dark:bg-gray-800 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white ${
+                                                selectedStyles()[action.style] ? 'bg-blue-100 dark:bg-blue-900' : ''
+                                            }`}
+                                        >
+                                            <action.icon size={18} />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent class="bg-gray-800 text-white text-sm py-1 px-2 rounded">
+                                        {action.tooltip}
+                                    </TooltipContent>
+                                </Tooltip>
+                            )}
+                        </For>
+                        <Popover>
+                            <PopoverTrigger asChild tabIndex={-1}>
+                                <Button tabIndex={-1} class="p-1 bg-transparent hover:bg-gray-200 hover:dark:bg-gray-800 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white md:hidden">
+                                    <MoreHorizontal size={18} />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent class="w-32 p-1.5">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <For each={actions.slice(3)}>
+                                        {(action) => (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild tabIndex={-1}>
+                                                    <Button
+                                                        tabIndex={-1}
+                                                        onClick={action.action}
+                                                        class={`p-1 bg-transparent hover:bg-gray-200 hover:dark:bg-gray-800 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white ${
+                                                            selectedStyles()[action.style] ? 'bg-blue-100 dark:bg-blue-900' : ''
+                                                        }`}
+                                                    >
+                                                        <action.icon size={18} />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent class="bg-gray-800 text-white text-sm py-1 px-2 rounded">
+                                                    {action.tooltip}
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
+                                    </For>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                        <For each={actions.slice(3)} >
+                            {(action) => (
+                                <Tooltip>
+                                    <TooltipTrigger asChild tabIndex={-1}>
+                                        <Button
+                                            tabIndex={-1}
+                                            onClick={action.action}
+                                            class={`hidden md:flex p-1 bg-transparent hover:bg-gray-200 hover:dark:bg-gray-800 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white ${
+                                                selectedStyles()[action.style] ? 'bg-blue-100 dark:bg-blue-900' : ''
+                                            }`}
+                                        >
+                                            <action.icon size={18} />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent class="text-white text-sm py-1 px-2 rounded">
+                                        {action.tooltip}
+                                    </TooltipContent>
+                                </Tooltip>
+                            )}
+                        </For>
                     </div>
-                    <TabsList class="flex">
+                    <TabsList class="flex" tabIndex={-1}>
                         <TabsTrigger
+                            tabIndex={-1}
                             value="edit"
-                            class="px-3 py-1 text-sm rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="px-3 py-1 text-sm rounded-l-md focus:ring-1 focus:ring-primary "
                             classList={{
-                                'bg-blue-500 text-white': activeTab() === 'edit',
-                                'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300': activeTab() !== 'edit',
+                                'bg-primary z-10': activeTab() === 'edit',
+                                'bg-gray-200 dark:bg-gray-700': activeTab() !== 'edit',
                             }}
                         >
                             Edit
                         </TabsTrigger>
                         <TabsTrigger
+                            tabIndex={-1}
                             value="preview"
-                            class="px-3 py-1 text-sm rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="px-3 py-1 text-sm rounded-r-md focus:ring-1 focus:ring-primary"
                             classList={{
-                                'bg-blue-500 text-white': activeTab() === 'preview',
-                                'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300': activeTab() !== 'preview',
+                                'bg-primary z-10': activeTab() === 'preview',
+                                'bg-gray-200 dark:bg-gray-700': activeTab() !== 'preview',
                             }}
                         >
                             Preview
                         </TabsTrigger>
                     </TabsList>
                 </div>
-                <TabsContent value="edit">
-                    <TextField required={props.required} 
+                <TabsContent value="edit" class="mt-0">
+                    <TextField required={props.required}
                                value={props.value}
                                onChange={(value) => props.onChange(value)}>
                         <TextFieldTextArea
-                            id={props.id}
+                            id={props.id ?? 'markdown-editor'}
                             onSelect={updateSelectedStyles}
                             onKeyDown={handleKeyDown}
-                            class="mt-1 block w-full rounded-md  border-gray-300 shadow-sm ring-0 outline-none border focus-visible:ring-0 focus-visible:ring-offset-0"
+                            class="border-0 mt-0 block w-full rounded-md border-gray-300 shadow-sm ring-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                             placeholder="Enter description here..."
                             rows="9"
                         />

@@ -139,7 +139,7 @@ public class UserRepository : IUserRepository
             return Error.NotFound("User not found");
         }
 
-        var result = await _userManager.SetLockoutEndDateAsync(user, new DateTimeOffset(DateTime.UtcNow));
+        var result = await _userManager.SetLockoutEndDateAsync(user, null);
 
         if (result.Succeeded)
         {

@@ -1,6 +1,6 @@
 ﻿import {For, Match, Switch} from 'solid-js';
-import {Card} from "~/components/ui/card";
-import {Answer, QuestionTypes, Template, TemplateConfiguration} from '~/types/template';
+import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card";
+import {Answer, QuestionTypes, TemplateConfiguration} from '~/types/template';
 import {TextField, TextFieldInput, TextFieldTextArea} from "~/components/ui/text-field";
 import {SetStoreFunction, Store} from "solid-js/store";
 import {Checkbox} from "~/components/ui/checkbox";
@@ -13,6 +13,8 @@ import {
 import {Label} from "~/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
 import {SolidMarkdown} from "solid-markdown";
+import Image from "~/components/Image"
+
 
 interface TemplateViewProps {
     template: TemplateConfiguration;
@@ -23,138 +25,124 @@ interface TemplateViewProps {
     isReadonly?: boolean;
 }
 
-export default function TemplateView(props: TemplateViewProps) {
 
+export default function TemplateView(props: TemplateViewProps) {
     return (
         <Card class="shadow-lg rounded-lg overflow-hidden">
-            <div className="relative h-32 bg-muted">
-                <img
-                    src={props.template.image || '/placeholder.svg?height=128&width=256'}
-                    alt={props.template.name}
-                    class="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-2">
-                    <h3 className="text-sm font-medium truncate">{props.template.name}</h3>
-                    <p className="text-xs text-muted-foreground truncate">
-                        <SolidMarkdown>{props.template.description}</SolidMarkdown></p>
-                </div>
-            </div>
-            <div className="space-y-2 p-2">
-                <div className="border-b pb-2 last:border-b-0">
-                    <div>
-                        <Label class="block text-sm font-medium mb-1"
-                               for={`question-date}`}>Date</Label>
-                        <p className="text-sm text-muted-foreground mb-2">Date the form was filled out</p>
-                        <TextField
-                            readOnly
-                            required
-                            value={new Date(props.fillingDate).toLocaleString()}
-                        >
-                            <TextFieldTextArea id={`question-date`}
-                                               class="w-full p-2 bg-background border border-input rounded-md"/>
-                        </TextField>
+            <CardHeader class="relative bg-muted p-6 min-h-52">
+                <Image as={"div"} class="absolute inset-0 bg-auto bg-no-repeat bg-center"
+                       src={props.template.image || '/placeholder.svg'}>
+                    <div class="absolute inset-0  backdrop-blur-sm"></div>
+                </Image>
+                <div class="relative z-10">
+                    <CardTitle class="text-3xl font-bold mb-2 break-all">{props.template.name}</CardTitle>
+                    <div class="text-lg break-all">
+                        <SolidMarkdown>{props.template.description}</SolidMarkdown>
                     </div>
                 </div>
-                <div className="border-b pb-2 last:border-b-0">
-                    <div>
-                        <Label class="block text-sm font-medium mb-1"
-                               for={`question-date}`}>User</Label>
-                        <p className="text-sm text-muted-foreground mb-2">User who filled out this form</p>
-                        <TextField
-                            readOnly
-                            required
-                            value={props.filledBy}
-                        >
-                            <TextFieldTextArea id={`question-date`}
-                                               class="w-full p-2 bg-background border border-input rounded-md"/>
+            </CardHeader>
+            <CardContent class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <div class="border-t pt-4 first:border-t-0 first:pt-0">
+                        <Label class="text-lg font-medium mb-2" for="filling-date">Date</Label>
+                        <p class="text-sm text-muted-foreground mb-2">Date the form was filled out</p>
+                        <TextField id="filling-date" readOnly required
+                                   value={new Date(props.fillingDate).toLocaleString()}>
+                            <TextFieldInput type="text" class="w-full"/>
+                        </TextField>
+                    </div>
+                    <div class="border-t pt-4 first:border-t-0 first:pt-0">
+                        <Label class="text-lg font-medium mb-2" for="filled-by">User</Label>
+                        <p class="text-sm text-muted-foreground mb-2">Date the form was filled out</p>
+                        <TextField id="filled-by" readOnly required value={props.filledBy}>
+                            <TextFieldInput type="text" class="w-full"/>
                         </TextField>
                     </div>
                 </div>
                 <For each={props.template.questions}>
                     {(question, index) => (
-                        <div className="border-b pb-2 last:border-b-0">
-
-                            <div>
-                                <Label class="block text-sm font-medium mb-1"
-                                       for={`question-${index()}`}>{question.title}</Label>
-                                <p className="text-sm text-muted-foreground mb-2">{question.description}</p>
-                                <Switch>
-                                    <Match when={question.type === QuestionTypes.SingleLine}>
-                                        <TextField
-                                            readOnly={props.isReadonly}
-                                            required
-                                            value={props?.answers?.[question.id]?.stringValue}
-                                            onChange={(value) => props?.setAnswers?.(question.id, {stringValue: value})}
-                                        >
-                                            <TextFieldInput type="text" id={`question-${index()}`}
-                                                            class="w-full p-2 bg-background border border-input rounded-md"/>
-                                        </TextField>
-                                    </Match>
-                                    <Match when={question.type === QuestionTypes.MultiLine}>
-                                        <TextField
-                                            readOnly={props.isReadonly}
-                                            required
-                                            value={props?.answers?.[question.id]?.stringValue}
-                                            onChange={(value) => props?.setAnswers?.(question.id, {stringValue: value})}
-                                        >
-                                            <TextFieldTextArea id={`question-${index()}`}
-                                                               class="w-full p-2 bg-background border border-input rounded-md"/>
-                                        </TextField>
-                                    </Match>
-                                    <Match when={question.type === QuestionTypes.Integer}>
-                                        <NumberField
-                                            readOnly={props.isReadonly}
-                                            required
-                                            onRawValueChange={(value) => props?.setAnswers?.(question.id, {numericValue: value})}
-                                            rawValue={props?.answers?.[question.id]?.numericValue}
-                                            class="w-full p-2 bg-background border border-input rounded-md"
-                                        >
-                                            <NumberFieldGroup>
-                                                <NumberFieldInput id={`question-${index()}`}/>
-                                                <NumberFieldIncrementTrigger/>
-                                                <NumberFieldDecrementTrigger/>
-                                            </NumberFieldGroup>
-                                        </NumberField>
-                                    </Match>
-                                    <Match when={question.type === QuestionTypes.Integer}>
+                        <div class="border-t pt-4 first:border-t-0 first:pt-0">
+                            <Label class="text-lg font-medium mb-2" for={`question-${index()}`}>
+                                {question.title}
+                            </Label>
+                            <p class="text-sm text-muted-foreground mb-2">{question.description}</p>
+                            <Switch>
+                                <Match when={question.type === QuestionTypes.SingleLine}>
+                                    <TextField
+                                        id={`question-${index()}`}
+                                        readOnly={props.isReadonly}
+                                        required
+                                        value={props?.answers?.[question.id!]?.stringValue}
+                                        onChange={(value) => props?.setAnswers?.(question.id!, {stringValue: value})}
+                                    >
+                                        <TextFieldInput type="text" class="w-full"/>
+                                    </TextField>
+                                </Match>
+                                <Match when={question.type === QuestionTypes.MultiLine}>
+                                    <TextField
+                                        id={`question-${index()}`}
+                                        readOnly={props.isReadonly}
+                                        required
+                                        value={props?.answers?.[question.id!]?.stringValue}
+                                        onChange={(value) => props?.setAnswers?.(question.id!, {stringValue: value})}
+                                    >
+                                        <TextFieldTextArea class="w-full min-h-[100px]"/>
+                                    </TextField>
+                                </Match>
+                                <Match when={question.type === QuestionTypes.Integer}>
+                                    <NumberField
+                                        id={`question-${index()}`}
+                                        readOnly={props.isReadonly}
+                                        required
+                                        onRawValueChange={(value) => props?.setAnswers?.(question.id!, {numericValue: value})}
+                                        rawValue={props?.answers?.[question.id!]?.numericValue}
+                                        class="w-full"
+                                    >
+                                        <NumberFieldGroup>
+                                            <NumberFieldInput/>
+                                            <NumberFieldIncrementTrigger/>
+                                            <NumberFieldDecrementTrigger/>
+                                        </NumberFieldGroup>
+                                    </NumberField>
+                                </Match>
+                                <Match when={question.type === QuestionTypes.Checkbox}>
+                                    <div class="flex items-center space-x-2">
                                         <Checkbox
-                                            readOnly={props.isReadonly}
                                             id={`question-${index()}`}
-                                            checked={props?.answers?.[question.id]?.booleanValue}
-                                            onChange={(value) => props?.setAnswers?.(question.id, {booleanValue: value})}
-                                            required
-                                            class="w-full p-2 bg-background border border-input rounded-md"
+                                            checked={props?.answers?.[question.id!]?.booleanValue}
+                                            onChange={(checked) => props?.setAnswers?.(question.id!, {booleanValue: checked})}
+                                            disabled={props.isReadonly}
                                         />
-                                    </Match>
-                                    <Match when={question.type === QuestionTypes.Select}>
-                                        <Select
-                                            readOnly={props.isReadonly}
-                                            value={props?.answers?.[question.id]?.stringValue}
-                                            onChange={(value) => props?.setAnswers?.(question.id, {stringValue: value!})}
-                                            options={question.options ?? []}
-                                            placeholder="Select a variant"
-                                            required
-                                            itemComponent={(props) => <SelectItem
-                                                item={props.item}>{props.item.rawValue}</SelectItem>}
-                                        >
-                                            <SelectTrigger aria-label="Select question" class="w-[180px]"
-                                                           id={`question-${index()}`}>
-                                                <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
-                                            </SelectTrigger>
-                                            <SelectContent/>
-                                        </Select>
-                                    </Match>
-                                </Switch>
-                            </div>
+                                        <Label for={`question-${index()}-input`}
+                                               class="text-lg">Yes</Label>
+                                    </div>
+                                </Match>
+                                <Match when={question.type === QuestionTypes.Select}>
+                                    <Select
+                                        disabled={props.isReadonly}
+                                        value={props?.answers?.[question.id!]?.stringValue}
+                                        onChange={(value) => props?.setAnswers?.(question.id!, {stringValue: value!})}
+                                        options={question.options ?? []}
+                                        placeholder="Select an option"
+                                        itemComponent={(props) => <SelectItem
+                                            item={props.item}>{props.item.rawValue}</SelectItem>}
+                                    >
+                                        <SelectTrigger class="w-full" id={`question-${index()}`}>
+                                            <SelectValue<string>>{(state) => state.selectedOption() || "Select an option"}</SelectValue>
+                                        </SelectTrigger>
+                                        <SelectContent/>
+                                    </Select>
+                                </Match>
+                            </Switch>
                         </div>
                     )}
                 </For>
-            </div>
+            </CardContent>
         </Card>
     );
 }
 
 
 //
-// <h3 className="text-lg font-semibold mb-2">{question.title}</h3>
-// <p className="text-gray-600 dark:text-gray-400 mb-4">{question.description}</p>
+// <h3 class="text-lg font-semibold mb-2">{question.title}</h3>
+// <p class="text-gray-600 dark:text-gray-400 mb-4">{question.description}</p>

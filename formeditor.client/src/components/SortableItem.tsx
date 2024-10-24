@@ -1,17 +1,20 @@
-﻿import { createSortable } from '@thisbeyond/solid-dnd';
-import { FaSolidGripVertical } from 'solid-icons/fa';
+﻿import { createSortable, transformStyle, useDragDropContext } from '@thisbeyond/solid-dnd';
+import {GripVertical} from "lucide-solid";
+import { createSignal, JSX } from "solid-js";
 
-const SortableItem = (props) => {
+const SortableItem = (props: {children: (listener: Listener) => JSX.Element, id: string | number }) => {
     const sortable = createSortable(props.id);
+    const [state] = useDragDropContext();
     return (
         <div
-            use:sortable
-            class="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-2 transition-all duration-200 hover:shadow-md"
+            ref={sortable.ref}
+            style={transformStyle(sortable.transform)}
+            classList={{
+                "opacity-25": sortable.isActiveDraggable,
+                "transition-transform": !!state.active.draggable,
+            }}
         >
-            <div class="cursor-move text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                <FaSolidGripVertical />
-            </div>
-            <div class="flex-grow">{props.children}</div>
+            {props.children(sortable.dragActivators)}
         </div>
     );
 };

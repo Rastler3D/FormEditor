@@ -28,7 +28,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>();
 
 export function AuthProvider(props: { children: JSX.Element }) {
-    const [user, setUser] = createSignal<User>();
+    const [user, setUser] = makePersisted(createSignal<User>(), {
+        name: "user-profile",
+        sync: storageSync,
+        storage: localStorage
+    });
     const [refreshToken, setRefreshToken] = makePersisted(createSignal<string>(), {
         name: "refresh-token",
         sync: storageSync,
@@ -52,7 +56,7 @@ export function AuthProvider(props: { children: JSX.Element }) {
         }
     });
 
-    const isAuthenticated = () => !!user();
+    const isAuthenticated = () => !!accessToken();
 
     const hasRole = (roles?: string[]) => user() ? (roles ? roles.includes(user()!.role) : true) : false;
 
@@ -69,13 +73,13 @@ export function AuthProvider(props: { children: JSX.Element }) {
 
     const signUp = (data: { name: string, email: string, password: string }) => {
         return userServices.register(data);
-       
+
     };
 
     const signInWithProvider = async () => {
-      
+
     };
-    
+
     const manuallyRefreshToken = async () => {
         let token = refreshToken();
         try {
@@ -88,9 +92,8 @@ export function AuthProvider(props: { children: JSX.Element }) {
     };
 
     const updateUser = async (data: UpdateUser): Promise<User> => {
-        const updatedUser = await userServices.updateUser(user()!.id, data);
-        setUser(updatedUser);
-        return updatedUser;
+        return userServices.updateUser(user()!.id, data)
+            .then(x => (setUser(x), x));
     };
 
     return (

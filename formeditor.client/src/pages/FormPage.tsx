@@ -5,6 +5,7 @@ import {fetchForm, getFormWithTemplate, submitForm, updateForm} from "~/services
 import {ProgressCircle} from "~/components/ui/progress-circle";
 import FormDetails from "~/components/FormDetails"
 import {createAction} from "~/lib/action.ts";
+import { Oval } from "solid-spinner";
 
 
 const FormPage = () => {
@@ -22,10 +23,10 @@ const FormPage = () => {
 
     return (
         <Show when={!formDetails.error} fallback={
-            <div class="m-auto">Form not found.</div>
+            <div class="m-auto"><h1>Form not found.</h1></div>
         }>
             <Show when={!formDetails.loading} fallback={
-                <div class="m-auto"> Loading <Oval width="24" height="24" /></div>
+                <div class="m-auto"> Loading <Oval width="64" height="64" /></div>
             }>
                 <FormDetails
                     form={formDetails()?.form!}

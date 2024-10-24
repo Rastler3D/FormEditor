@@ -29,7 +29,6 @@ const Header = () => {
 
     const [query, setQuery] = createSignal("");
     const [isSearchOpen, setIsSearchOpen] = createSignal(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = createSignal(false);
 
     const handleSearch = (e: SubmitEvent) => {
         e.preventDefault();
@@ -49,7 +48,7 @@ const Header = () => {
                                     <Menu class="h-5 w-5"/>
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent position="left" class="w-64 p-0">
+                            <SheetContent position="left" class="w-60 p-0 !overflow-y-hidden">
                                 <Sidebar isSheet/>
                             </SheetContent>
                         </Sheet>

@@ -52,14 +52,14 @@ export default function TagSelector(props: TagSelectorProps) {
             placeholder="Select tags"
             itemComponent={value => props.tagOptions.includes(value.item.rawValue) || props.tags.includes(value.item.rawValue)
                 ?
-                <ComboboxItem item={value.item} class="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                <ComboboxItem item={value.item} class="p-2 cursor-pointer ">
                     <ComboboxItemLabel>{value.item.rawValue}</ComboboxItemLabel>
                     <ComboboxItemIndicator>
                         <FaSolidCheck/>
                     </ComboboxItemIndicator>
                 </ComboboxItem>
                 : <ComboboxItem item={value.item}
-                                class="p-2 cursor-pointer bg-blue-50 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                class="p-2 cursor-pointer">
                     <ComboboxItemLabel>Create new tag '<b>{value.item.rawValue}</b>'</ComboboxItemLabel>
                     <ComboboxItemIndicator>
                         <FaSolidCheck/>
@@ -68,7 +68,7 @@ export default function TagSelector(props: TagSelectorProps) {
             }
         >
             <ComboboxControl<string> aria-label="Tags"
-                                     class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground has-[:focus]:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full p-2 text-left bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-blue-500">
+                                     class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 w-full p-2 text-left  rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
                 {state => (
                     <>
                         <div class="flex items-center gap-2 flex-wrap p-2 w-full">
@@ -94,7 +94,7 @@ export default function TagSelector(props: TagSelectorProps) {
                 )}
             </ComboboxControl>
             <ComboboxContent
-                class="bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded shadow-lg"/>
+                class="border border-gray-300 dark:border-gray-500 rounded"/>
         </Combobox>
     );
 }

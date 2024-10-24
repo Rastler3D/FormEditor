@@ -122,11 +122,11 @@ export function createResource<T, S, R>(
 }
 
 export function isResolved<T>(resource: Resource<T>): Accessor<boolean> {
-    return () => resource.state === "ready" && resource() !== undefined
+    return () => resource.state === "ready"
 }
 
-export function resolve<T>(resource: Resource<T>, action: () => void): EffectFunction<undefinedd,> {
-    on(isResolved(resource), (resolved) => resolved && action())
+export function resolve<T>(resource: Resource<T>, action: (value: T) => any): EffectFunction<void> {
+    return on(isResolved(resource), (resolved) => { resolved && action(resource()!) })
 }
 
 
