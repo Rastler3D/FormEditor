@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
-builder.WebHost.UseUrls($"https://*:{port}");
+builder.WebHost.UseUrls($"http://*:{port}");
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddSignalR();
 
