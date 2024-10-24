@@ -21,6 +21,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "noEmitOnError": false,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     /* Linting */

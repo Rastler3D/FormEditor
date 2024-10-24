@@ -1,8 +1,10 @@
 
 using FormEditor.Server.Models;
+using FormEditor.Server.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FormEditor.Server.Data;
 
@@ -93,5 +95,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasOne(c => c.Author)
             .WithMany()
             .HasForeignKey(c => c.AuthorId);
+    }
+    
+    protected override void ConfigureConventions(
+        Microsoft.EntityFrameworkCore.ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+        
+        configurationBuilder.Properties<DateTime>()
+            .HaveConversion<DateTimeToDateTimeUtc>();
     }
 }

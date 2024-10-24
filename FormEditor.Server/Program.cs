@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
+builder.WebHost.UseUrls($"https://*:{port}");
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddSignalR();
 
