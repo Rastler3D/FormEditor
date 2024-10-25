@@ -54,19 +54,19 @@ export default TemplateCard;
 export const TemplateSkeleton = () => {
     return (
         <Card class="overflow-hidden w-[300px] h-[400px]">
-            <Skeleton class="h-[180px] w-full" />
+            <Skeleton class="h-[180px] w-full" width={400} height={180} animate />
             <CardContent class="p-4 h-[180px]">
-                <Skeleton class="h-6 w-3/4 mb-2" />
-                <Skeleton class="h-4 w-full mb-2" />
-                <Skeleton class="h-4 w-5/6 mb-3" />
+                <Skeleton class="h-6 w-3/4 mb-2" height={24} width={300} animate />
+                <Skeleton class="h-4 w-full mb-2" height={16} width={400} animate  />
+                <Skeleton class="h-4 w-5/6 mb-3" height={16} width={330} animate />
                 <div class="flex gap-2">
-                    <Skeleton class="h-6 w-16" />
-                    <Skeleton class="h-6 w-16" />
-                    <Skeleton class="h-6 w-16" />
+                    <Skeleton class="h-6 w-16" height={24} width={64} animate />
+                    <Skeleton class="h-6 w-16" height={24} width={64} animate />
+                    <Skeleton class="h-6 w-16" height={24} width={64} animate />
                 </div>
             </CardContent>
             <CardFooter class="flex justify-between items-center p-4 bg-muted/50">
-                <Skeleton class="h-4 w-24" />
+                <Skeleton class="h-4 w-24" height={16} width={64} animate/>
             </CardFooter>
         </Card>
     );

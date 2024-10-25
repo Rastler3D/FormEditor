@@ -90,7 +90,7 @@ public class FormService : IFormService
             return form.Error;
         }
 
-        var template = await _templateRepository.GetTemplateAsync(form.Value.TemplateId);
+        var template = await _templateRepository.GetTemplateWithQuestionsAsync(form.Value.TemplateId);
         form.Value.Template = template.Value;
 
         return _mapper.Map<FormWithQuestionViewModel>(form.Value);

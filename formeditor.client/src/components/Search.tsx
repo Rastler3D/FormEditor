@@ -1,5 +1,6 @@
 ﻿import {createResource, createSignal, For, Match, Show, Switch} from "solid-js";
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
+import {Oval} from "solid-spinner";
 
 interface SearchProps {
     query?: string;

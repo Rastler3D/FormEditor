@@ -5,15 +5,16 @@ import {Skeleton} from "~/components/ui/skeleton.tsx";
 import {TagInfo} from "~/types/template.ts";
 
 interface TagCloudProps {
-    tags?: TagInfo[],
-    onTagClick: (tag: string) => void
-    isLoading: boolean,
+    tags?: TagInfo[];
+    onTagClick: (tag: string) => void;
+    isLoading: boolean;
 }
+
 const TagCloud = (props: TagCloudProps) => {
     let svgRef: SVGSVGElement;
     let cloudLayout: ReturnType<typeof cloud>;
-    const [hoveredTag, setHoveredTag] = createSignal(null as string | null);
-    const [selectedTag, setSelectedTag] = createSignal(null as string | null);
+    const [hoveredTag, setHoveredTag] = createSignal<string | null>(null);
+    const [selectedTag, setSelectedTag] = createSignal<string | null>(null);
 
     onMount(() => {
         const width = 500;
@@ -22,7 +23,7 @@ const TagCloud = (props: TagCloudProps) => {
         cloudLayout = cloud()
             .size([width, height])
             .padding(5)
-            .rotate(() => ~~(Math.random() * 2) * 90)
+            .rotate(() => 0) // Set rotation to 0 to keep tags horizontal
             .font("Arial")
             .fontSize(d => d.size!)
             .on("end", draw);
@@ -31,7 +32,7 @@ const TagCloud = (props: TagCloudProps) => {
     createEffect(() => {
         if (!props.tags || props.tags.length === 0) return;
 
-        const words = props.tags.map(d => ({text: d.name, size: 10 + d.count * 3}));
+        const words = props.tags.map(d => ({ text: d.name, size: 10 + d.count * 3 }));
 
         // Limit the number of tags to improve performance
         const maxTags = 100;
@@ -61,24 +62,20 @@ const TagCloud = (props: TagCloudProps) => {
             .style("font-family", "Arial")
             .style("fill", (_, i) => color(i))
             .attr("text-anchor", "middle")
-            .attr("transform", d => `translate(${[d.x, d.y]})rotate(${d.rotate})`)
+            .attr("transform", d => `translate(${[d.x, d.y]})`)
             .text(d => d.text!)
             .attr("role", "button")
             .attr("tabindex", "0")
             .attr("aria-pressed", d => selectedTag() === d.text ? "true" : "false")
             .on("click", (_, d) => {
                 setSelectedTag(d.text!);
-                if (props.onTagClick) {
-                    props.onTagClick(d.text!);
-                }
+                props.onTagClick(d.text!);
             })
             .on("keydown", (event, d) => {
                 if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
                     setSelectedTag(d.text!);
-                    if (props.onTagClick) {
-                        props.onTagClick(d.text!);
-                    }
+                    props.onTagClick(d.text!);
                 }
             })
             .on("mouseover", (event, d) => {
@@ -99,7 +96,15 @@ const TagCloud = (props: TagCloudProps) => {
         d3.select(svgRef).selectAll("*").remove();
     });
 
-    return <div>{ props.isLoading? <Skeleton></Skeleton> : <svg ref={svgRef!}></svg> }</div>;
+    return (
+        <div class="w-full h-[300px] flex items-center justify-center">
+            {props.isLoading ? (
+                <Skeleton class="w-full h-full" />
+            ) : (
+                <svg ref={svgRef!} class="w-full h-full" />
+            )}
+        </div>
+    );
 };
 
 export default TagCloud;
