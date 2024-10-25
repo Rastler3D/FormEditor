@@ -1,9 +1,9 @@
 ﻿import {Card} from "~/components/ui/card.tsx";
-import { Form, FormInfo, Template} from "~/types/template.ts";
+import {Form, FormInfo, QuestionTypes, Template} from "~/types/template.ts";
 import DataTable from "./DataTable";
 import {getSubmittedForms} from "../services/formService.ts";
 import {useNavigate} from "@solidjs/router";
-import { ColumnDef } from "@tanstack/solid-table";
+import {ColumnDef} from "@tanstack/solid-table";
 
 const defaultColumns: ColumnDef<FormInfo, any>[] = [
     {
@@ -31,7 +31,18 @@ const TemplateSubmissions = (props: TemplateSubmissionsProps) => {
             .map(q => ({
                 accessorKey: `answers.${q.id}`,
                 header: q.title,
-                cell: (info) => info.getValue(),
+                cell: (info) => {
+                    if (!info.getValue()) {
+                        return "-"
+                    } else if (q.type == QuestionTypes.Integer) {
+                        return info.getValue().numericValue
+                    } else if (q.type == QuestionTypes.Checkbox) {
+                        return info.getValue().booleanValue ? "Yes" : "No"
+                    } else {
+                        return info.getValue().stringValue
+                    }
+
+                },
             })),
         // ... actions column
     ];

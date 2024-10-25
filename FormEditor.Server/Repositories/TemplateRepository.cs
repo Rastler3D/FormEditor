@@ -193,7 +193,7 @@ public class TemplateRepository : ITemplateRepository
         existingTemplate.AccessSetting = template.AccessSetting;
         existingTemplate.Image = template.Image;
         existingTemplate.Topic = await UpsertTopic(template.Topic);
-        existingTemplate.Tags = await UpsertTags(existingTemplate.Tags);
+        existingTemplate.Tags = await UpsertTags(template.Tags);
         existingTemplate.AllowList = template.AllowList;
 
         var existingQuestions = existingTemplate.Questions.ToDictionary(q => q.Id);

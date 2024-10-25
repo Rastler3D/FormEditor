@@ -50,15 +50,15 @@ export default function FormDetails(props: FormDetailsProps) {
     }
 
     const handleSubmit = () => {
-        setIsEdit(false);
-        setError(null);
-
         props.onFormChange({
             fillingDate: fillingDate().toISOString(),
             templateId: props.form.templateId,
             answers: unwrap(answers),
             sendEmail: sendEmail()
         });
+
+        setIsEdit(false);
+        setError(null);
     }
 
     return (
