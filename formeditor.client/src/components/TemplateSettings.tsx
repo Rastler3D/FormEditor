@@ -47,7 +47,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
     createEffect(on(() => props.template, (template) => setTemplate(reconcile(template))))
 
     return (
-        <div class="container mx-auto p-4 bg-background text-foreground">
+        <div class="rounded-lg overflow-hidden">
             <form onSubmit={handleSubmit} class="space-y-6">
                 <Tabs defaultValue="general" class="w-full">
                     <TabsList class="flex w-full border-b border-border mb-4 overflow-x-auto overflow-y-hidden">

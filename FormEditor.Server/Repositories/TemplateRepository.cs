@@ -287,8 +287,7 @@ public class TemplateRepository : ITemplateRepository
     {
         var tagCounts = await _context.Tags
             .Include(x => x.Templates)
-            .GroupBy(t => t.Name)
-            .Select(g => new TagInfo { Name = g.Key, Count = g.Count() })
+            .Select(t => new TagInfo { Name = t.Name, Count = t.Templates.Count })
             .ToListAsync();
 
         return tagCounts;

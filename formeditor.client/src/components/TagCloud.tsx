@@ -15,26 +15,33 @@ const TagCloud = (props: TagCloudProps) => {
     let cloudLayout: ReturnType<typeof cloud>;
     const [hoveredTag, setHoveredTag] = createSignal<string | null>(null);
     const [selectedTag, setSelectedTag] = createSignal<string | null>(null);
-
+    const width = 800;
+    const height = 400;
     onMount(() => {
-        const width = 500;
-        const height = 300;
-
+        
+        
         cloudLayout = cloud()
             .size([width, height])
             .padding(5)
-            .rotate(() => 0) // Set rotation to 0 to keep tags horizontal
+            .rotate(() => 0)
             .font("Arial")
-            .fontSize(d => d.size!)
+            .fontSize(d => d.size)
+            .padding(5)
+            .rotate(0) // No rotation for horizontal text
+            .spiral('archimedean') // Use archimedean spiral for more elliptical shape
+            .random(() => 0.5) // Consistent layout
             .on("end", draw);
     });
 
     createEffect(() => {
         if (!props.tags || props.tags.length === 0) return;
 
-        const words = props.tags.map(d => ({ text: d.name, size: 10 + d.count * 3 }));
-
-        // Limit the number of tags to improve performance
+        const maxCount = Math.max(...props.tags.map(tag => tag.count));
+        const minCount = Math.min(...props.tags.map(tag => tag.count));
+        const fontSize = d3.scaleLinear()
+            .domain([minCount, maxCount])
+            .range([20, 100]);
+        const words = props.tags.map(d => ({ text: d.name, size: fontSize(d.count) }));
         const maxTags = 100;
         const limitedWords = words.slice(0, maxTags);
 
@@ -46,15 +53,22 @@ const TagCloud = (props: TagCloudProps) => {
         d3.select(svgRef).selectAll("*").remove();
 
         const svg = d3.select(svgRef)
-            .attr("width", cloudLayout.size()[0])
-            .attr("height", cloudLayout.size()[1])
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("viewBox", `0 0 ${cloudLayout.size()[0]} ${cloudLayout.size()[1]}`)
+            .attr("preserveAspectRatio", "xMidYMid meet")
             .attr("aria-label", "Tag cloud");
 
         const group = svg.append("g")
             .attr("transform", `translate(${cloudLayout.size()[0] / 2},${cloudLayout.size()[1] / 2})`);
 
         const color = d3.scaleOrdinal(d3.schemeCategory10);
-
+        group.append('ellipse')
+            .attr('rx', width * 0.45)
+            .attr('ry', height * 0.45)
+            .attr('fill', 'none')
+            .attr('stroke', '#e5e7eb')
+            .attr('stroke-dasharray', '5,5');
         group.selectAll("text")
             .data(tags)
             .enter().append("text")
@@ -78,15 +92,25 @@ const TagCloud = (props: TagCloudProps) => {
                     props.onTagClick(d.text!);
                 }
             })
-            .on("mouseover", (event, d) => {
+            .on("mouseenter", (event, d) => {
                 setHoveredTag(d.text!);
-                d3.select(event.target).style("cursor", "pointer");
+                d3.select(event.target)
+                    .style("cursor", "pointer")
+                    .transition()
+                    .duration(300)
+                    .style("font-size", `${(d.size as number) * 1.2}px`);
             })
-            .on("mouseout", () => {
-                setHoveredTag(null);
+            .on("mouseleave", (event, d) => {
+                hoveredTag() != d.text! ? setHoveredTag(d.text!) : setHoveredTag(null);
+                d3.select(event.target)
+                    .transition()
+                    .duration(300)
+                    .style("font-size", `${d.size}px`);
             })
             .style("transition", "all 0.3s ease")
             .style("cursor", "pointer")
+            .transition()
+            .duration(300)
             .style("opacity", d => (hoveredTag() && hoveredTag() !== d.text) ? 0.3 : 1)
             .style("font-weight", d => (selectedTag() === d.text) ? "bold" : "normal")
             .style("text-decoration", d => (selectedTag() === d.text) ? "underline" : "none");
@@ -97,9 +121,9 @@ const TagCloud = (props: TagCloudProps) => {
     });
 
     return (
-        <div class="w-full h-[300px] flex items-center justify-center">
+        <div class="w-full h-[400px] flex items-center justify-center">
             {props.isLoading ? (
-                <Skeleton class="w-full h-full" />
+                <Skeleton class="!w-full !h-full" />
             ) : (
                 <svg ref={svgRef!} class="w-full h-full" />
             )}

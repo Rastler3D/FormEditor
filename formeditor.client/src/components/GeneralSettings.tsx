@@ -10,6 +10,15 @@ import {Label} from "~/components/ui/label.tsx";
 import UserTableList from "~/components/UserSelection.tsx";
 import {fetchTags, fetchTopics} from "~/services/templateService.ts";
 import {Card, CardContent} from "~/components/ui/card.tsx";
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxControl,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxItemLabel, ComboboxTrigger
+} from "~/components/ui/combobox.tsx";
 
 interface GeneralSettingsProps {
     template: TemplateConfiguration;
@@ -65,24 +74,25 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                         </div>
                         <div class="sm:col-span-2">
                             <Label for="topics" class="text-lg font-semibold mb-2">Topic</Label>
-                            <Select
+                            <Combobox<string>
                                 id="topics"
-                                required
+                                options={(topics()?.length > 0) ? topics()! : ["Education", "Quiz"]}
                                 value={props.template.topic}
                                 onChange={(value) => props.updateTemplate("topic", value ?? "Education")}
-                                options={(topics()?.length > 0) ? topics()! : ["Education", "Quiz"]}
+                                placeholder="Select tags"
                                 itemComponent={(props) => (
-                                    <SelectItem item={props.item} class="p-2 cursor-pointer hover:bg-accent">
-                                        <SelectValue>{props.item.rawValue}</SelectValue>
-                                    </SelectItem>
+                                    <ComboboxItem item={props.item} class="p-2 cursor-pointer hover:bg-accent">
+                                        <ComboboxItemLabel>{props.item.rawValue}</ComboboxItemLabel>
+                                        <ComboboxItemIndicator/>
+                                    </ComboboxItem>
                                 )}
                             >
-                                <SelectTrigger
-                                    class="w-full p-2 bg-background border border-input rounded-md focus:ring-2 focus:ring-ring">
-                                    <SelectValue>{props.template.topic}</SelectValue>
-                                </SelectTrigger>
-                                <SelectContent class="bg-popover border border-border rounded-md shadow-md"/>
-                            </Select>
+                                <ComboboxControl aria-label="Topic" class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 w-full px-2 text-left  rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
+                                    <ComboboxInput class="" />
+                                    <ComboboxTrigger class="" />
+                                </ComboboxControl>
+                                <ComboboxContent class="bg-popover border border-border rounded-md shadow-md" />
+                            </Combobox>
                         </div>
                         <div class="sm:col-span-2">
                             <Label for="image" class="text-lg font-semibold mb-2">Image</Label>

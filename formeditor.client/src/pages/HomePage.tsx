@@ -18,6 +18,7 @@ const HomePage = () => {
     return (
         <div class="container mx-auto px-4 py-8 space-y-12">
             <h1 class="text-4xl font-bold mb-8">Template Gallery</h1>
+
             <section>
                 <Card>
                     <CardHeader>
@@ -26,13 +27,13 @@ const HomePage = () => {
                     <CardContent>
                         <Show
                             when={!latestTemplates.loading}
-                            fallback={<TemplateGallery isLoading={true}/>}
+                            fallback={<TemplateGallery isLoading={true} />}
                         >
                             <Show
                                 when={latestTemplates()?.length > 0}
                                 fallback={
                                     <Alert>
-                                        <AlertCircle class="h-4 w-4"/>
+                                        <AlertCircle class="h-4 w-4" />
                                         <AlertTitle>No templates found</AlertTitle>
                                         <AlertDescription>
                                             There are no latest templates available at the moment.
@@ -40,7 +41,7 @@ const HomePage = () => {
                                     </Alert>
                                 }
                             >
-                                <TemplateGallery templates={latestTemplates()} isLoading={false}/>
+                                <TemplateGallery templates={latestTemplates()} isLoading={false} />
                             </Show>
                         </Show>
                     </CardContent>
@@ -55,13 +56,13 @@ const HomePage = () => {
                     <CardContent>
                         <Show
                             when={!popularTemplates.loading}
-                            fallback={<TemplateTable isLoading={true}/>}
+                            fallback={<TemplateTable isLoading={true} />}
                         >
                             <Show
                                 when={popularTemplates()?.length > 0}
                                 fallback={
                                     <Alert>
-                                        <AlertCircle class="h-4 w-4"/>
+                                        <AlertCircle class="h-4 w-4" />
                                         <AlertTitle>No templates found</AlertTitle>
                                         <AlertDescription>
                                             There are no popular templates available at the moment.
@@ -69,7 +70,7 @@ const HomePage = () => {
                                     </Alert>
                                 }
                             >
-                                <TemplateTable templates={popularTemplates()} isLoading={false}/>
+                                <TemplateTable templates={popularTemplates()} isLoading={false} />
                             </Show>
                         </Show>
                     </CardContent>
@@ -84,14 +85,13 @@ const HomePage = () => {
                     <CardContent>
                         <Show
                             when={!tags.loading}
-                            fallback={<TagCloud isLoading={true} onTagClick={() => {
-                            }}/>}
+                            fallback={<TagCloud isLoading={true} onTagClick={() => {}} />}
                         >
                             <Show
                                 when={tags()?.length > 0}
                                 fallback={
                                     <Alert>
-                                        <AlertCircle class="h-4 w-4"/>
+                                        <AlertCircle class="h-4 w-4" />
                                         <AlertTitle>No tags found</AlertTitle>
                                         <AlertDescription>
                                             There are no tags available at the moment.

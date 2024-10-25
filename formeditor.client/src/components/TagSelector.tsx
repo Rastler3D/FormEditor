@@ -68,7 +68,7 @@ export default function TagSelector(props: TagSelectorProps) {
             }
         >
             <ComboboxControl<string> aria-label="Tags"
-                                     class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 w-full p-2 text-left  rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
+                                     class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 w-full px-2 text-left  rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
                 {state => (
                     <>
                         <div class="flex items-center gap-2 flex-wrap p-2 w-full">
