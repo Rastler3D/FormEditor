@@ -54,7 +54,7 @@ export default function FormDetails(props: FormDetailsProps) {
         setError(null);
 
         props.onFormChange({
-            fillingDate: fillingDate().toLocaleString(),
+            fillingDate: fillingDate().toISOString(),
             templateId: props.form.templateId,
             answers: unwrap(answers),
             sendEmail: sendEmail()

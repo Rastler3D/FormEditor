@@ -161,9 +161,11 @@ public class FormRepository : IFormRepository
         {
             return Error.NotFound($"Referenced template not found.");
         }
+        
+        await _context.Entry(existingForm).Reference(x => x.Submitter).LoadAsync();
+        await _context.Entry(existingForm).Reference(x => x.Template).LoadAsync();
 
-
-        return filledForm;
+        return existingForm;
     }
 
     public async Task<Result<Form, Error>> GetFormAsync(int formId)
