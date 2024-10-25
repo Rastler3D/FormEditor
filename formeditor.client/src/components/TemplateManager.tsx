@@ -17,7 +17,7 @@ const TemplateManager = (props: TemplateManagerProps) => {
     return (
         <div class="space-y-8">
             <Tabs defaultValue="form" disabled={props.isSavingChanges} class="w-full">
-                <TabsList class="flex flex-wrap space-x-2 space-y-2 sm:space-y-0 mb-6">
+                <TabsList class="flex w-full border-b border-border mb-4 overflow-x-auto overflow-y-hidden">
                     <TabsTrigger value="form" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
                         Form
                     </TabsTrigger>

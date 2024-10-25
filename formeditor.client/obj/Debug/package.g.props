@@ -6,7 +6,7 @@
     <PackageJsonVersion Condition="$(PackageJsonVersion) == ''">0.0.0</PackageJsonVersion>
     <PackageJsonType Condition="$(PackageJsonType) == ''">module</PackageJsonType>
     <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">vite</PackageJsonScriptsDev>
-    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">tsc -b &amp;&amp; vite build</PackageJsonScriptsBuild>
+    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">vite build</PackageJsonScriptsBuild>
     <PackageJsonScriptsPreview Condition="$(PackageJsonScriptsPreview) == ''">vite preview</PackageJsonScriptsPreview>
     <PackageJsonDependenciesCorvuResizable Condition="$(PackageJsonDependenciesCorvuResizable) == ''">^0.2.3</PackageJsonDependenciesCorvuResizable>
     <PackageJsonDependenciesKobalteCore Condition="$(PackageJsonDependenciesKobalteCore) == ''">^0.13.7</PackageJsonDependenciesKobalteCore>
@@ -22,6 +22,7 @@
     <PackageJsonDependenciesThisbeyondSolidDnd Condition="$(PackageJsonDependenciesThisbeyondSolidDnd) == ''">^0.7.5</PackageJsonDependenciesThisbeyondSolidDnd>
     <PackageJsonDependenciesThisbeyondSolidSelect Condition="$(PackageJsonDependenciesThisbeyondSolidSelect) == ''">^0.15.0</PackageJsonDependenciesThisbeyondSolidSelect>
     <PackageJsonDependenciesAxios Condition="$(PackageJsonDependenciesAxios) == ''">^1.7.7</PackageJsonDependenciesAxios>
+    <PackageJsonDependenciesChartJs Condition="$(PackageJsonDependenciesChartJs) == ''">^4.4.5</PackageJsonDependenciesChartJs>
     <PackageJsonDependenciesClassVarianceAuthority Condition="$(PackageJsonDependenciesClassVarianceAuthority) == ''">^0.7.0</PackageJsonDependenciesClassVarianceAuthority>
     <PackageJsonDependenciesClsx Condition="$(PackageJsonDependenciesClsx) == ''">^2.1.1</PackageJsonDependenciesClsx>
     <PackageJsonDependenciesD3 Condition="$(PackageJsonDependenciesD3) == ''">^7.9.0</PackageJsonDependenciesD3>
@@ -29,6 +30,7 @@
     <PackageJsonDependenciesLucideSolid Condition="$(PackageJsonDependenciesLucideSolid) == ''">^0.447.0</PackageJsonDependenciesLucideSolid>
     <PackageJsonDependenciesMarked Condition="$(PackageJsonDependenciesMarked) == ''">^14.1.2</PackageJsonDependenciesMarked>
     <PackageJsonDependenciesMeilisearch Condition="$(PackageJsonDependenciesMeilisearch) == ''">^0.44.1</PackageJsonDependenciesMeilisearch>
+    <PackageJsonDependenciesSolidChartjs Condition="$(PackageJsonDependenciesSolidChartjs) == ''">^1.3.11</PackageJsonDependenciesSolidChartjs>
     <PackageJsonDependenciesSolidIcons Condition="$(PackageJsonDependenciesSolidIcons) == ''">^1.1.0</PackageJsonDependenciesSolidIcons>
     <PackageJsonDependenciesSolidJs Condition="$(PackageJsonDependenciesSolidJs) == ''">^1.9.1</PackageJsonDependenciesSolidJs>
     <PackageJsonDependenciesSolidMarkdown Condition="$(PackageJsonDependenciesSolidMarkdown) == ''">^2.0.13</PackageJsonDependenciesSolidMarkdown>

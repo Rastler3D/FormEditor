@@ -39,6 +39,8 @@ builder.Services
     .AddScheme<AuthenticationSchemeOptions, AuthenticationHandler>(AuthenticationHandler.Scheme, null)
     .AddBearerToken(IdentityConstants.BearerScheme, options =>
     {
+        options.BearerTokenExpiration = TimeSpan.FromMinutes(60);
+        options.RefreshTokenExpiration = TimeSpan.FromDays(14);
         options.Events.OnMessageReceived = context =>
         {
             var accessToken = context.Request.Query["access_token"];

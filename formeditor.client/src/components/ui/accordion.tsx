@@ -75,7 +75,7 @@ const AccordionContent = <T extends ValidComponent = "div">(
       )}
       {...others}
     >
-      <div class="pb-4 pt-0">{local.children}</div>
+      {local.children}
     </AccordionPrimitive.Content>
   )
 }

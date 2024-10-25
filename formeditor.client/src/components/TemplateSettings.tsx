@@ -1,16 +1,16 @@
 import {createEffect, createMemo, on, Show} from 'solid-js';
 import {BiSolidCog} from 'solid-icons/bi';
 import {FaSolidPencil, FaSolidEye} from 'solid-icons/fa';
-import {Card, CardContent} from "~/components/ui/card";
+import {Card, CardContent, CardHeader} from "~/components/ui/card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "~/components/ui/tabs";
 import {QuestionConfiguration, TemplateConfiguration} from '~/types/template';
 import GeneralSettings from '~/components/GeneralSettings';
 import QuestionEditor from '~/components/QuestionEditor';
 import TemplateView from '~/components/TemplateView';
 import {Button} from "~/components/ui/button.tsx";
-import { createStore, reconcile, unwrap } from 'solid-js/store';
+import {createStore, reconcile, unwrap} from 'solid-js/store';
 import {useAuth} from "~/contexts/AuthContext.tsx";
-import { Oval } from 'solid-spinner';
+import {Oval} from 'solid-spinner';
 import {Settings, Pencil, Eye} from "lucide-solid";
 
 interface TemplateSettingsProps {
@@ -21,7 +21,7 @@ interface TemplateSettingsProps {
 
 export default function TemplateSettings(props: TemplateSettingsProps) {
     const [template, setTemplate] = createStore(props.template);
-    const { user } = useAuth();
+    const {user} = useAuth();
     const filledBy = createMemo(() => user()?.name ?? "Anonymous");
     const fillingDate = createMemo(on(() => props.template, () => new Date()));
 
@@ -55,7 +55,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                             value="general"
                             class="flex-1 py-2 px-4 text-center hover:bg-accent transition-colors duration-200 whitespace-nowrap"
                         >
-                            <Settings class="w-4 h-4 inline-block mr-2" />
+                            <Settings class="w-4 h-4 inline-block mr-2"/>
                             <span class="hidden sm:inline">General Settings</span>
                             <span class="sm:hidden">General</span>
                         </TabsTrigger>
@@ -63,7 +63,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                             value="edit"
                             class="flex-1 py-2 px-4 text-center hover:bg-accent transition-colors duration-200 whitespace-nowrap"
                         >
-                            <Pencil class="w-4 h-4 inline-block mr-2" />
+                            <Pencil class="w-4 h-4 inline-block mr-2"/>
                             <span class="hidden sm:inline">Question Editor</span>
                             <span class="sm:hidden">Questions</span>
                         </TabsTrigger>
@@ -71,7 +71,7 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                             value="preview"
                             class="flex-1 py-2 px-4 text-center hover:bg-accent transition-colors duration-200 whitespace-nowrap"
                         >
-                            <Eye class="w-4 h-4 inline-block mr-2" />
+                            <Eye class="w-4 h-4 inline-block mr-2"/>
                             Preview
                         </TabsTrigger>
                     </TabsList>
@@ -89,7 +89,17 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                         />
                     </TabsContent>
                     <TabsContent value="preview">
-                        <TemplateView template={template} fillingDate={fillingDate()} filledBy={filledBy()} />
+                        <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
+                            <form class="space-y-6">
+                                <CardHeader>
+                                    <h2 class="text-2xl font-bold">Preview</h2>
+                                </CardHeader>
+                                <CardContent>
+                                    <TemplateView template={template} fillingDate={fillingDate()}
+                                                  filledBy={filledBy()}/>
+                                </CardContent>
+                            </form>
+                        </Card>
                     </TabsContent>
                 </Tabs>
                 <div class="flex justify-end">
@@ -97,12 +107,13 @@ export default function TemplateSettings(props: TemplateSettingsProps) {
                         when={!props.isSavingChanges}
                         fallback={
                             <Button disabled class="w-full sm:w-40 bg-primary text-primary-foreground">
-                                <Oval width="20" height="20" class="mr-2" />
+                                <Oval width="20" height="20" class="mr-2"/>
                                 Saving...
                             </Button>
                         }
                     >
-                        <Button type="submit" class="w-full sm:w-40 bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Button type="submit"
+                                class="w-full sm:w-40 bg-primary text-primary-foreground hover:bg-primary/90">
                             {"id" in props.template ? "Save Changes" : "Create Template"}
                         </Button>
                     </Show>

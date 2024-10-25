@@ -44,14 +44,14 @@ export default function Likes(props: LikesProps) {
                 <Button variant="outline"
                         class="text-primary inline-flex items-center" disabled>
                     <Heart class={`h-4 w-4`} />
-                    <span><Oval width="24" height="24" /></span>
+                    <span class="ml-1"><Oval width="24" height="24" /></span>
                 </Button>
             } >
                 {(likesInfo) => (
                     <Button onClick={handleToggleLike} variant="outline" disabled={!user()}
                             class="text-primary inline-flex items-center">
                         <Heart class="h-4 w-4" classList={{'fill-current' : likesInfo().isLiked}} />
-                        <span>{likesInfo().likes} Likes</span>
+                        <span class="ml-1">{likesInfo().likes} Likes</span>
                     </Button>
                 )}
                

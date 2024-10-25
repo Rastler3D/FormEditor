@@ -29,6 +29,8 @@ public class MappingProfile : Profile
             .ConstructUsing(s => new AllowList { UserId = s })
             .ReverseMap()
             .ConstructUsing(t => t.UserId);
+        CreateMap<User, string>()
+            .ConstructUsing(u => u.UserName);
         CreateMap<AnswerViewModel, Answer>()
             .ForMember(dest => dest.QuestionId, opt => opt.MapFrom((src, dest, destMember, context) =>
                 context.Items.TryGetValue("QuestionId", out var id) ? id : 0))
@@ -53,7 +55,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom((src, dest, destMember, context) =>
                 context.Items.TryGetValue("TemplateId", out var id) ? id : 0));
 
-        CreateMap<Template, TemplateInfoViewModel>();
+        CreateMap<Template, TemplateInfoViewModel>()
+            .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.Creator));
         CreateMap<Template, TemplateViewModel>();
         CreateMap<Form, FormInfoViewModel>()
             .ForMember(dest => dest.TemplateName, opt => opt.MapFrom(src => src.Template.Name))

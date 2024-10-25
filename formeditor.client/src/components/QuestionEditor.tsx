@@ -1,4 +1,4 @@
-﻿import {createEffect, createSignal, For, Show} from 'solid-js';
+﻿import { createSignal, For, Show} from 'solid-js';
 import {
     DragDropProvider,
     DragDropSensors,
@@ -8,7 +8,7 @@ import {
     closestCenter
 } from '@thisbeyond/solid-dnd';
 import {Button} from "~/components/ui/button";
-import {Card, CardContent} from "~/components/ui/card";
+import {Card, CardContent, CardHeader} from "~/components/ui/card";
 import SortableItem from '~/components/SortableItem';
 import {QuestionConfiguration, QuestionTypes} from '~/types/template';
 import Question from './Question';
@@ -34,7 +34,7 @@ export default function QuestionEditor(props: QuestionEditorProps) {
             }
         }
     };
-    
+
     const addQuestion = () => {
         const newQuestion: QuestionConfiguration = {
             type: QuestionTypes.SingleLine,
@@ -52,47 +52,52 @@ export default function QuestionEditor(props: QuestionEditorProps) {
     const removeQuestion = (id: number) => {
         props.changeQuestions(props.questions.filter((_, index) => index !== id));
     };
-    
+
     return (
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
-            <CardContent class="p-6">
-                <DragDropProvider onDragEnd={onDragEnd} onDragStart={onDragStart} collisionDetector={closestCenter}>
-                    <DragDropSensors></DragDropSensors>
-                    <div class="space-y-4 column self-stretch">
-                    <SortableProvider ids={props.questions.map((_,index)=> index)}>
-                            <For each={props.questions.map((item,sortIndex)=> ({item, sortIndex}))}>
-                                {({item, sortIndex}, index) => (
-                                    <SortableItem id={sortIndex}>
-                                        {(sortListener) => (
-                                            <Question
-                                                sortListener={sortListener}
-                                                updateQuestion={(field, value) => updateQuestion(index(), field, value)}
-                                                removeQuestion={() => removeQuestion(index())}
-                                                question={item}
-                                            />
-                                        )}
+            <div class="space-y-6">
+                <CardHeader>
+                    <h2 class="text-2xl font-bold">Question Editor</h2>
+                </CardHeader>
+                <CardContent>
+                    <DragDropProvider onDragEnd={onDragEnd} onDragStart={onDragStart} collisionDetector={closestCenter}>
+                        <DragDropSensors></DragDropSensors>
+                        <div class="space-y-4 column self-stretch">
+                            <SortableProvider ids={props.questions.map((_, index) => index)}>
+                                <For each={props.questions.map((item, sortIndex) => ({item, sortIndex}))}>
+                                    {({item, sortIndex}, index) => (
+                                        <SortableItem id={sortIndex}>
+                                            {(sortListener) => (
+                                                <Question
+                                                    sortListener={sortListener}
+                                                    updateQuestion={(field, value) => updateQuestion(index(), field, value)}
+                                                    removeQuestion={() => removeQuestion(index())}
+                                                    question={item}
+                                                />
+                                            )}
 
-                                    </SortableItem>
-                                )}
-                            </For>
-                    </SortableProvider>
-                    </div>
-                    <DragOverlay>
-                        <Show when={props.questions?.[activeItem()!]}>
-                            <Question
-                                question={props.questions[activeItem()!]}
-                                updateQuestion={(field, value) => updateQuestion(activeItem()!, field, value)}
-                                removeQuestion={() => removeQuestion(activeItem()!)}
-                            />
-                        </Show>
-                    </DragOverlay>
-                </DragDropProvider>
-                <Button onClick={addQuestion}
-                        class="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90">
-                    <Plus class="w-4 h-4 mr-2"/>
-                    Add Question
-                </Button>
-            </CardContent>
+                                        </SortableItem>
+                                    )}
+                                </For>
+                            </SortableProvider>
+                        </div>
+                        <DragOverlay>
+                            <Show when={props.questions?.[activeItem()!]}>
+                                <Question
+                                    question={props.questions[activeItem()!]}
+                                    updateQuestion={(field, value) => updateQuestion(activeItem()!, field, value)}
+                                    removeQuestion={() => removeQuestion(activeItem()!)}
+                                />
+                            </Show>
+                        </DragOverlay>
+                    </DragDropProvider>
+                    <Button onClick={addQuestion}
+                            class="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Plus class="w-4 h-4 mr-2"/>
+                        Add Question
+                    </Button>
+                </CardContent>
+            </div>
         </Card>
     );
 }

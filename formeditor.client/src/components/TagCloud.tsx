@@ -62,12 +62,7 @@ const TagCloud = (props: TagCloudProps) => {
             .attr("transform", `translate(${cloudLayout.size()[0] / 2},${cloudLayout.size()[1] / 2})`);
 
         const color = d3.scaleOrdinal(d3.schemeCategory10);
-        group.append('ellipse')
-            .attr('rx', width * 0.45)
-            .attr('ry', height * 0.45)
-            .attr('fill', 'none')
-            .attr('stroke', '#e5e7eb')
-            .attr('stroke-dasharray', '5,5');
+       
         group.selectAll("text")
             .data(tags)
             .enter().append("text")

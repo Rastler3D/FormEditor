@@ -14,7 +14,10 @@ sealed class AuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> 
         var bearerResult = await Context.AuthenticateAsync(IdentityConstants.BearerScheme);
         if (bearerResult.Failure != null)
         {
-            Context.Response.Headers.Append("Token-Expired", "true");
+            if (!OriginalPath.StartsWithSegments("/api/authentication/refresh", StringComparison.OrdinalIgnoreCase))
+            {
+                Context.Response.Headers.Append("Token-Expired", "true");
+            }
         }
         return bearerResult;
     }

@@ -31,7 +31,6 @@ public interface ITemplateRepository
     Task<bool> GetIsLikedAsync(int templateId, int userId);
     Task<LikesInfo> ToggleLikeAsync(int templateId, int userId);
     Task<AggregatedResults> GetAggregatedResultsAsync(int templateId);
-
 }
 
 // Repositories/TemplateRepository.cs
@@ -102,7 +101,7 @@ public class TemplateRepository : ITemplateRepository
     public async Task<TableData<List<Template>>> GetTemplatesAsync(TableOption option)
     {
         var template = LoadProperties(_context.Templates);
-            
+
         return await ApplyTableOptions(template, option);
     }
 
@@ -120,7 +119,7 @@ public class TemplateRepository : ITemplateRepository
     {
         var template = await LoadProperties(_context.Templates)
             .FirstOrDefaultAsync(t => t.Id == id);
-        
+
         if (template == null)
         {
             return Error.NotFound("Template not found.");
@@ -314,6 +313,7 @@ public class TemplateRepository : ITemplateRepository
         var like = await GetLikeAsync(templateId, userId);
         return like != null;
     }
+
     public async Task<Like?> GetLikeAsync(int templateId, int userId)
     {
         var like = await _context.Likes.FindAsync(templateId, userId);
@@ -372,9 +372,12 @@ public class TemplateRepository : ITemplateRepository
                             .Count()
                         : null,
                     OptionCountsSelect = q.Type == QuestionType.Select
-                        ? q.Answers
-                            .GroupBy(a => a.StringValue)
-                            .Select(g => new OptionPair{ Option = g.Key, Count = g.Count() })
+                        ? q.Options
+                            .Select(option => new OptionPair
+                            {
+                                Option = option,
+                                Count = q.Answers.Count(a => a.StringValue == option) // Count answers matching each option
+                            })
                             .ToArray()
                         : null,
                     TrueCountBoolean = q.Type == QuestionType.Checkbox
@@ -430,7 +433,8 @@ public class TemplateRepository : ITemplateRepository
 
             return Error.NotFound("Author not found");
         }
-        await _context.Entry(comment).Reference(x=>x.Author).LoadAsync();
+
+        await _context.Entry(comment).Reference(x => x.Author).LoadAsync();
         return comment;
     }
 }

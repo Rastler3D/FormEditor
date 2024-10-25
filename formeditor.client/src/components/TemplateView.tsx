@@ -31,7 +31,8 @@ export default function TemplateView(props: TemplateViewProps) {
         <Card class="rounded-lg overflow-hidden">
             <CardHeader class="relative bg-muted p-6 min-h-52">
                 <Image as={"div"} class="absolute inset-0 bg-auto bg-no-repeat bg-center"
-                       src={props.template.image || '/placeholder.svg'}>
+                       src={props.template.image }
+                       classList={{"dark:invert": !props.template.image}}>
                     <div class="absolute inset-0  backdrop-blur-sm"></div>
                 </Image>
                 <div class="relative z-10">
@@ -117,7 +118,7 @@ export default function TemplateView(props: TemplateViewProps) {
                                             class="has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 peer"
                                         />
                                         <Label for={`question-${index()}-input`}
-                                               class="text-lg peer-has-[:disabled]:opacity-50">{props?.answers?.[question.id!]?.booleanValue? "Yes" : "No"}</Label>
+                                               class="text-sm peer-has-[:disabled]:opacity-50">{props?.answers?.[question.id!]?.booleanValue? "Yes" : "No"}</Label>
                                     </div>
                                 </Match>
                                 <Match when={question.type === QuestionTypes.Select}>

@@ -18,7 +18,24 @@ api.interceptors.request.use(request => {
 });
 
 api.interceptors.response.use(
-    response => response, // Directly return successful responses.
+    async response => {
+        if (response.headers["token-expired"] === 'true') {
+            try {
+                await refreshExpired();
+                const request = response.config;
+                if (request.method === 'get') {
+                    return api(request); // Retry the original request with the new access token.
+                }
+            } catch (refreshError) {
+                // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
+                console.error('Token refresh failed:');
+                localStorage.removeItem('access-token');
+                localStorage.removeItem('refresh-token');
+                return Promise.reject(refreshError);
+            }
+        }
+        return response
+    },
     async error => {
         const originalRequest = error.config;
         if (error.response.headers["token-expired"] === 'true') {
@@ -62,3 +79,17 @@ api.interceptors.response.use(
         return Promise.reject('An unexpected error occurred');
     }
 );
+
+
+const refreshExpired = async () => {
+    const token = localStorage.getItem('refresh-token');
+    const refreshTokenValue = token && JSON.parse(token); // Retrieve the stored refresh token.
+    // Make a request to your auth server to refresh the token.
+    const tokens = await refreshToken(refreshTokenValue);
+    const {accessToken, refreshToken: newRefreshToken} = tokens;
+    // Store the new access and refresh tokens.
+    localStorage.setItem('access-token', JSON.stringify(accessToken));
+    localStorage.setItem('refresh-token', JSON.stringify(newRefreshToken));
+    // Update the authorization header with the new access token.
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+} 

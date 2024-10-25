@@ -32,7 +32,7 @@ const Sidebar = (props: SidebarProps) => {
     return (
         <aside class={cn("bg-background sticky top-0 left-0 h-screen z-40 flex flex-col border-r overflow-y-auto", props.class)}>
             <Motion.div
-                class={'h-screen flex flex-col border-r group w-16 overflow-x-hidden'}
+                class={'h-screen flex flex-col group w-16 overflow-x-hidden'}
                 data-collapsed={!isExpanded()}
                 animate={{width: isExpanded() ? "240px" : "64px"}}
                 transition={{duration: props.isSheet ? 0 : 0.6}}

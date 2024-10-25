@@ -20,6 +20,7 @@ const TemplateCard = (props: TemplateCardProps) => {
                         src={props.template.image || '/placeholder.svg?height=180&width=300'}
                         alt={props.template.name}
                         class="w-full h-full object-cover rounded-t-lg"
+                        classList={{"dark:invert": !props.template.image}}
                     />
                     <div class="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 flex items-center">
                         <Heart class="w-4 h-4 text-primary mr-1" />

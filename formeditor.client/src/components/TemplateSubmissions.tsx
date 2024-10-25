@@ -1,4 +1,4 @@
-﻿import {Card} from "~/components/ui/card.tsx";
+﻿import {Card, CardContent, CardHeader} from "~/components/ui/card.tsx";
 import {Form, FormInfo, QuestionTypes, Template} from "~/types/template.ts";
 import DataTable from "./DataTable";
 import {getSubmittedForms} from "../services/formService.ts";
@@ -49,14 +49,18 @@ const TemplateSubmissions = (props: TemplateSubmissionsProps) => {
 
     return (
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
-            <div class="p-4">
-                <h2 class="text-2xl font-bold mb-4">Submitted Applications</h2>
-                <DataTable<Form>
-                    columns={columns}
-                    fetchData={(opt) => getSubmittedForms(props.template.id, opt)}
-                    onRowClick={(form) => navigate(`/forms/${form.id}`)}
-                    rowId="id"
-                />
+            <div class="space-y-6">
+                <CardHeader>
+                    <h2 class="text-2xl font-bold mb-4">Submitted Applications</h2>
+                </CardHeader>
+                <CardContent>
+                    <DataTable<Form>
+                        columns={columns}
+                        fetchData={(opt) => getSubmittedForms(props.template.id, opt)}
+                        onRowClick={(form) => navigate(`/forms/${form.id}`)}
+                        rowId="id"
+                    />
+                </CardContent>
             </div>
         </Card>
     )
