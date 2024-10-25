@@ -39,7 +39,7 @@ export default function Likes(props: LikesProps) {
     };
 
     return (
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-end items-center mb-4">
             <Show when={likesInfo()} fallback={
                 <Button variant="outline"
                         class="text-primary inline-flex items-center" disabled>

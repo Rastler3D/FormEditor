@@ -15,7 +15,7 @@ interface TemplateManagerProps {
 
 const TemplateManager = (props: TemplateManagerProps) => {
     return (
-        <div class="container mx-auto p-4 space-y-8">
+        <div class="space-y-8">
             <Tabs defaultValue="form" disabled={props.isSavingChanges} class="w-full">
                 <TabsList class="flex flex-wrap space-x-2 space-y-2 sm:space-y-0 mb-6">
                     <TabsTrigger value="form" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
@@ -31,7 +31,6 @@ const TemplateManager = (props: TemplateManagerProps) => {
                         Aggregation
                     </TabsTrigger>
                 </TabsList>
-
                 <TabsContent value="form">
                     <TemplateSubmission template={props.template} />
                 </TabsContent>
@@ -45,13 +44,9 @@ const TemplateManager = (props: TemplateManagerProps) => {
                     <FormAggregation template={props.template} />
                 </TabsContent>
             </Tabs>
-
-            <div class="space-y-6">
-                <Likes template={props.template} />
-                <Comments template={props.template} />
-            </div>
         </div>
     );
 };
+
 
 export default TemplateManager;

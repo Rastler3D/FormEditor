@@ -1,5 +1,5 @@
 ﻿import {createSignal, createEffect, For, onCleanup} from 'solid-js';
-import {HubConnectionBuilder, HubConnection} from '@microsoft/signalr';
+import {HubConnectionBuilder, HubConnection, HttpTransportType} from '@microsoft/signalr';
 import {Card, CardContent, CardFooter, CardHeader} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';
 import {useAuth} from '~/contexts/AuthContext';
@@ -20,14 +20,14 @@ export default function Comments(props: CommentsProps) {
     const [newComment, setNewComment] = createSignal('');
     const [error, setError] = createSignal<string>();
     const [connection, setConnection] = createSignal<HubConnection>();
-    const { user, refreshToken } = useAuth();
+    const { user, accessToken } = useAuth();
 
     createEffect(() => {
         const builder = new HubConnectionBuilder();
         if (user()) {
-            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, { accessTokenFactory: async () => (await refreshToken())! })
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, { accessTokenFactory: accessToken, transport: HttpTransportType.ServerSentEvents  });
         } else {
-            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`)
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, { transport: HttpTransportType.ServerSentEvents })
         }
         const newConnection = builder
             .withAutomaticReconnect()
@@ -39,18 +39,29 @@ export default function Comments(props: CommentsProps) {
             .then(() => {
                 newConnection.invoke('JoinFormGroup', props.template.id);
             })
-            .catch(err => console.error('SignalR Connection Error: ', err));
+            .catch(err => {
+                console.error('SignalR Connection Error: ', err);
+                setError('Failed to connect to the comment service. Please try again later.');
+            });
+
         newConnection.on('InitialComments', (comments: Comment[]) => {
             setComments(comments);
         });
+
         newConnection.on('ReceiveComment', (comment: Comment) => {
             setComments(prev => [...prev, comment]);
         });
-        newConnection.on('Error', (comment: {message: string}) => {
-            setError(comment.message);
+
+        newConnection.on('Error', (errorMessage: { message: string }) => {
+            setError(errorMessage.message);
         });
 
-        onCleanup(() => newConnection.stop())
+        onCleanup(() => {
+            if (newConnection.state === 'Connected') {
+                newConnection.stop()
+                    .catch(err => console.error('Error stopping SignalR connection:', err));
+            }
+        });
     });
 
     const sendComment = async () => {
@@ -58,18 +69,20 @@ export default function Comments(props: CommentsProps) {
             try {
                 await connection()!.invoke('SendComment', props.template.id, newComment());
                 setNewComment('');
+                setError(undefined);
             } catch (err) {
+                console.error('Error sending comment:', err);
                 showToast({
                     title: "Error",
-                    description: "Failed to send comment",
+                    description: "Failed to send comment. Please try again.",
                     variant: "destructive"
-                })
+                });
             }
         }
     };
 
     return (
-        <Card class="mt-8">
+        <Card class="mt-8 shadow-lg">
             <CardHeader>
                 <h3 class="text-xl font-semibold">Comments</h3>
             </CardHeader>

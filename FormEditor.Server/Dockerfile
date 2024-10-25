@@ -17,6 +17,13 @@ RUN apt-get -y install nodejs
 
 
 FROM with-node AS build
+
+ARG MEILISEARCH_MASTER_KEY
+ARG MEILISEARCH_API_KEY_UUID
+ARG VITE_MEILISEARCH_URL
+ARG VITE_CLOUDINARY_UPLOAD_PRESET
+ARG VITE_CLOUDINARY_CLOUD_NAME
+
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["FormEditor.Server/FormEditor.Server.csproj", "FormEditor.Server/"]
@@ -29,6 +36,13 @@ RUN dotnet build "./FormEditor.Server.csproj" -c $BUILD_CONFIGURATION -o /app/bu
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
+
+ARG MEILISEARCH_MASTER_KEY
+ARG MEILISEARCH_API_KEY_UUID
+ARG VITE_MEILISEARCH_URL
+ARG VITE_CLOUDINARY_UPLOAD_PRESET
+ARG VITE_CLOUDINARY_CLOUD_NAME
+
 RUN dotnet publish "./FormEditor.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)

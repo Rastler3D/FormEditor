@@ -28,7 +28,7 @@ interface TemplateViewProps {
 
 export default function TemplateView(props: TemplateViewProps) {
     return (
-        <Card class="shadow-lg rounded-lg overflow-hidden">
+        <Card class="rounded-lg overflow-hidden">
             <CardHeader class="relative bg-muted p-6 min-h-52">
                 <Image as={"div"} class="absolute inset-0 bg-auto bg-no-repeat bg-center"
                        src={props.template.image || '/placeholder.svg'}>
@@ -46,7 +46,7 @@ export default function TemplateView(props: TemplateViewProps) {
                     <div class="border-t pt-4 first:border-t-0 first:pt-0">
                         <Label class="text-lg font-medium mb-2" for="filling-date">Date</Label>
                         <p class="text-sm text-muted-foreground mb-2">Date the form was filled out</p>
-                        <TextField id="filling-date" readOnly required
+                        <TextField id="filling-date" readOnly required disabled
                                    value={new Date(props.fillingDate).toLocaleString()}>
                             <TextFieldInput type="text" class="w-full"/>
                         </TextField>
@@ -54,7 +54,7 @@ export default function TemplateView(props: TemplateViewProps) {
                     <div class="border-t pt-4 first:border-t-0 first:pt-0">
                         <Label class="text-lg font-medium mb-2" for="filled-by">User</Label>
                         <p class="text-sm text-muted-foreground mb-2">Date the form was filled out</p>
-                        <TextField id="filled-by" readOnly required value={props.filledBy}>
+                        <TextField id="filled-by" disabled readOnly required value={props.filledBy}>
                             <TextFieldInput type="text" class="w-full"/>
                         </TextField>
                     </div>

@@ -131,7 +131,7 @@ public class TemplateRepository : ITemplateRepository
 
     public async Task<List<Template>> GetLatestTemplatesAsync()
     {
-        return await _context.Templates
+        return await LoadProperties(_context.Templates)
             .OrderByDescending(t => t.CreatedAt)
             .Take(10)
             .ToListAsync();
@@ -139,7 +139,7 @@ public class TemplateRepository : ITemplateRepository
 
     public async Task<List<Template>> GetPopularTemplatesAsync()
     {
-        return await _context.Templates
+        return await LoadProperties(_context.Templates)
             .OrderByDescending(t => t.FilledCount)
             .Take(10)
             .ToListAsync();
@@ -398,6 +398,7 @@ public class TemplateRepository : ITemplateRepository
     public async Task<List<Comment>> GetCommentsAsync(int templateId)
     {
         var comments = await _context.Comments
+            .Include(c => c.Author)
             .Where(c => c.TemplateId == templateId)
             .OrderBy(c => c.Date)
             .ToListAsync();
@@ -430,7 +431,7 @@ public class TemplateRepository : ITemplateRepository
 
             return Error.NotFound("Author not found");
         }
-
+        await _context.Entry(comment).Reference(x=>x.Author).LoadAsync();
         return comment;
     }
 }

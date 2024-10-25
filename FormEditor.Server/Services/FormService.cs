@@ -111,14 +111,14 @@ public class FormService : IFormService
         {
             return formSubmittion.Error;
         }
-
+        var form = formSubmittion.Value;
         if (filledForm.SendEmail)
         {
-            await _templateRepository.GetTemplateWithQuestionsAsync(formSubmittion.Value.TemplateId);
-            await _emailSenderService.SendFilledFormAsync(formSubmittion.Value);
+            form.Template = (await _templateRepository.GetTemplateWithQuestionsAsync(form.TemplateId)).Value;
+            await _emailSenderService.SendFilledFormAsync(form);
         }
 
-        return _mapper.Map<FormInfoViewModel>(formSubmittion.Value);
+        return _mapper.Map<FormInfoViewModel>(form);
     }
 
     public async Task<Result<FormInfoViewModel, Error>> UpdateFormAsync(int formId, FilledFormViewModel filledForm,
@@ -144,13 +144,14 @@ public class FormService : IFormService
             return formUpdate.Error;
         }
 
+        var form = formUpdate.Value;
         if (filledForm.SendEmail)
         {
-            await _templateRepository.GetTemplateWithQuestionsAsync(formUpdate.Value.TemplateId);
-            await _emailSenderService.SendFilledFormAsync(formUpdate.Value);
+            form.Template = (await _templateRepository.GetTemplateWithQuestionsAsync(form.TemplateId)).Value;
+            await _emailSenderService.SendFilledFormAsync(form);
         }
 
-        return _mapper.Map<FormInfoViewModel>(formUpdate.Value);
+        return _mapper.Map<FormInfoViewModel>(form);
     }
 
     public async Task<Result<Error>> DeleteFormAsync(int formId, int userId)

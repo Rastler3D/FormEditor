@@ -19,6 +19,7 @@ interface AuthContextType {
     signInWithProvider: (provider: 'google' | 'facebook') => Promise<void>;
     signUp: (args: { name: string, email: string, password: string }) => Promise<void>;
     refreshToken: () => Promise<string | undefined>;
+    accessToken: () => string;
     signOut: () => void;
     updateUser: (data: UpdateUser) => Promise<User>;
     isAuthenticated: () => boolean;
@@ -84,6 +85,8 @@ export function AuthProvider(props: { children: JSX.Element }) {
         let token = refreshToken();
         try {
             const tokens = await userServices.refreshToken(token!);
+            setAccessToken(tokens.accessToken);
+            setRefreshToken(tokens.refreshToken);
             return tokens.accessToken;
         } catch (err) {
             setRefreshToken();
@@ -106,7 +109,8 @@ export function AuthProvider(props: { children: JSX.Element }) {
             updateUser,
             isAuthenticated,
             hasRole,
-            refreshToken: manuallyRefreshToken
+            refreshToken: manuallyRefreshToken,
+            accessToken
         }}>
             {props.children}
         </AuthContext.Provider>
