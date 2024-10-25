@@ -18,7 +18,7 @@ public class Template
     public string Description { get; set; }
     public string? Image { get; set; }
     public int CreatorId { get; set; }
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
     public User Creator{ get; set; }
     public Topic Topic { get; set; }
     public HashSet<Tag> Tags { get; set; }

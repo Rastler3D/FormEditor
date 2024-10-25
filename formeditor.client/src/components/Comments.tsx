@@ -6,8 +6,10 @@ import {useAuth} from '~/contexts/AuthContext';
 import {Template} from "~/types/template.ts";
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
-import {FaSolidComment} from "solid-icons/fa";
 import {Comment} from "~/types/template.ts";
+import { MessageSquare } from 'lucide-solid';
+
+
 
 interface CommentsProps {
     template: Template;
@@ -18,19 +20,19 @@ export default function Comments(props: CommentsProps) {
     const [newComment, setNewComment] = createSignal('');
     const [error, setError] = createSignal<string>();
     const [connection, setConnection] = createSignal<HubConnection>();
-    const {user, refreshToken} = useAuth();
+    const { user, refreshToken } = useAuth();
 
     createEffect(() => {
         const builder = new HubConnectionBuilder();
         if (user()) {
-            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, {accessTokenFactory: async () => (await refreshToken())!})
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, { accessTokenFactory: async () => (await refreshToken())! })
         } else {
             builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`)
         }
         const newConnection = builder
             .withAutomaticReconnect()
             .build();
-        
+
         setConnection(newConnection);
 
         newConnection.start()
@@ -67,45 +69,47 @@ export default function Comments(props: CommentsProps) {
     };
 
     return (
-        <Card>
-            <div class="mt-8">
-                <CardHeader><h3 class="text-xl font-semibold mb-4">Comments</h3></CardHeader>
-                <CardContent>
-                    <div class="space-y-4 max-h-60 overflow-y-auto">
-                        <For each={comments()}>
-                            {(comment) => (
-                                <Card class="bg-accent">
-                                    <div class="p-4">
-                                        <p class="mb-2">{comment.text}</p>
-                                        <div class="text-sm text-muted-foreground flex justify-between">
-                                            <span>{comment.author}</span>
-                                            <span>{new Date(comment.date).toLocaleString()}</span>
-                                        </div>
+        <Card class="mt-8">
+            <CardHeader>
+                <h3 class="text-xl font-semibold">Comments</h3>
+            </CardHeader>
+            <CardContent>
+                <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                    <For each={comments()}>
+                        {(comment) => (
+                            <Card class="bg-accent">
+                                <CardContent class="p-4">
+                                    <p class="mb-2">{comment.text}</p>
+                                    <div class="text-sm text-muted-foreground flex justify-between">
+                                        <span>{comment.author}</span>
+                                        <span>{new Date(comment.date).toLocaleString()}</span>
                                     </div>
-                                </Card>
-                            )}
-                        </For>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <div class="mt-4">
-                        <TextField value={newComment()} onChange={(value) => setNewComment(value)}>
-                            <TextFieldInput
-                                type="text"
-                                placeholder="Add a comment..."
-                                class="mb-2 w-full bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring"
-                            />
-                        </TextField>
-                        {error() && <span>{error()}</span>}
-                        <Button onClick={sendComment}
-                                disabled={!connection() || !user()}
-                                class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center">
-                            <FaSolidComment class="mr-2"/>
-                            <span>Send</span>
-                        </Button>
-                    </div>
-                </CardFooter>
-            </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </For>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <div class="w-full space-y-2">
+                    <TextField value={newComment()} onChange={(value) => setNewComment(value)}>
+                        <TextFieldInput
+                            type="text"
+                            placeholder="Add a comment..."
+                            class="w-full bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring"
+                        />
+                    </TextField>
+                    {error() && <p class="text-sm text-destructive">{error()}</p>}
+                    <Button
+                        onClick={sendComment}
+                        disabled={!connection() || !user() || !newComment().trim()}
+                        class="w-full bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center"
+                    >
+                        <MessageSquare class="mr-2 h-4 w-4" />
+                        <span>Send</span>
+                    </Button>
+                </div>
+            </CardFooter>
         </Card>
     );
 }

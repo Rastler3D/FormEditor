@@ -15,23 +15,19 @@ interface TemplateManagerProps {
 
 const TemplateManager = (props: TemplateManagerProps) => {
     return (
-        <div class="container mx-auto p-4">
-            <Tabs defaultValue="form" disabled={props.isSavingChanges}>
-                <TabsList class="flex space-x-2 mb-4">
-                    <TabsTrigger value="form"
-                                 class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
+        <div class="container mx-auto p-4 space-y-8">
+            <Tabs defaultValue="form" disabled={props.isSavingChanges} class="w-full">
+                <TabsList class="flex flex-wrap space-x-2 space-y-2 sm:space-y-0 mb-6">
+                    <TabsTrigger value="form" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
                         Form
                     </TabsTrigger>
-                    <TabsTrigger value="answers"
-                                 class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
+                    <TabsTrigger value="answers" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
                         Answers
                     </TabsTrigger>
-                    <TabsTrigger value="configuration"
-                                 class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
+                    <TabsTrigger value="configuration" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
                         Configuration
                     </TabsTrigger>
-                    <TabsTrigger value="aggregation"
-                                 class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
+                    <TabsTrigger value="aggregation" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
                         Aggregation
                     </TabsTrigger>
                 </TabsList>
@@ -50,9 +46,9 @@ const TemplateManager = (props: TemplateManagerProps) => {
                 </TabsContent>
             </Tabs>
 
-            <div class="p-6 border-t border-border">
-                <Likes template={props.template}></Likes>
-                <Comments template={props.template}></Comments>
+            <div class="space-y-6">
+                <Likes template={props.template} />
+                <Comments template={props.template} />
             </div>
         </div>
     );

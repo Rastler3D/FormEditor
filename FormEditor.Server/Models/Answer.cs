@@ -7,7 +7,7 @@ public class Answer
     public Form Form { get; set; }
     public int QuestionId { get; set; }
     public Question Question { get; set; }
-    public string StringValue { get; set; }
+    public string? StringValue { get; set; }
     public double? NumericValue { get; set; }
     public bool? BooleanValue { get; set; }
 }

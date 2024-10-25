@@ -19,8 +19,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
-builder.WebHost.UseUrls($"http://*:{port}");
+
+if (builder.Environment.IsProduction()){
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
+    builder.WebHost.UseUrls($"http://*:{port}");
+}
+
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddSignalR();
 
@@ -42,7 +46,7 @@ builder.Services
             // If the request is for our hub...
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) &&
-                (path.StartsWithSegments("/hub")))
+                (path.StartsWithSegments("/api/hub")))
             {
                 // Read the token out of the query string
                 context.Token = accessToken;
@@ -133,7 +137,7 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/health");
 app.MapControllers();
-app.MapHub<CommentHub>("/hub/comment");
+app.MapHub<CommentHub>("/api/hub/comment");
 
 app.MapFallbackToFile("/index.html");
 

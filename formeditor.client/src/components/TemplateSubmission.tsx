@@ -1,34 +1,38 @@
-﻿import {AccessSetting, Answer, Template} from "~/types/template.ts";
+﻿import {AccessSetting, Answer, Form, Template} from "~/types/template.ts";
 import {getSubmittedForm, submitOrUpdateForm} from "../services/formService";
-import {Card} from "./ui/card";
+import {Card, CardContent, CardFooter, CardHeader} from "./ui/card";
 import TemplateView from "~/components/TemplateView.tsx";
 import {createStore, reconcile, unwrap} from "solid-js/store";
-import {createEffect, createResource, createSignal, Match, Show, createMemo} from "solid-js";
+import {createEffect, createSignal, Match, Show, createMemo, Switch, on} from "solid-js";
 import {Button} from "~/components/ui/button.tsx";
-import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
-import {createAction} from "~/lib/action.ts";
+import {createAction, createResource, resolve} from "~/lib/action.ts";
 import {useAuth, User} from "~/contexts/AuthContext.tsx";
-import {Switch} from "~/components/ui/switch.tsx";
 import {A} from "@solidjs/router";
 import {Checkbox} from "~/components/ui/checkbox.tsx";
 import {Label} from "~/components/ui/label.tsx";
+import {Oval} from "solid-spinner";
 
 interface TemplateSubmissionProps {
     template: Template;
 }
 
-const fetchSubmission = async ({templateId, user}: { templateId: number, user: User | undefined }) => {
-    if (user == null) {
-        return null;
-    } else {
-        return await getSubmittedForm(templateId, user.id)
-    }
+const fetchSubmission = ({ templateId, user }: { templateId: number, user: User | undefined }) => {
+    return new Promise<Form>((res, rej) => {
+        if (user == null) {
+            return res(undefined);
+        } else {
+            return getSubmittedForm(templateId, user.id)
+                .then(res)
+                .catch(rej);
+        }
+    });
 }
+
 export default function TemplateSubmission(props: TemplateSubmissionProps) {
     const [sendEmail, setSendEmail] = createSignal(false);
     const formSubmission = createAction(submitOrUpdateForm, () => props.template.id);
-    const {user} = useAuth();
-    const [form, {mutate: mutateForm}] = createResource(() => ({
+    const { user } = useAuth();
+    const [form, { mutate: mutateForm }] = createResource(() => ({
         templateId: props.template.id,
         user: user()
     }), fetchSubmission);
@@ -39,32 +43,11 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
     const hasPermission = () => !!user() &&
         (props.template.accessSetting == AccessSetting.All || props.template.allowList!.includes(user()!.id));
 
-    createEffect(() => {
-        if (!form.loading) {
-            const fetchedForm = form();
-            if (fetchedForm) {
-                setAnswers(fetchedForm.answers);
-            } else {
-                setIsEdit(true);
-            }
-        }
-    })
+    createEffect(resolve(form, (data) => data && setAnswers(data.answers)));
+    createEffect(resolve(formSubmission.data, (data) => data && mutateForm({ ...data, answers: unwrap(answers) })));
+    createEffect(on(() => formSubmission.data.error, (error) => error && setIsEdit(true)));
 
-    createEffect(() => {
-        if (!formSubmission.data.loading) {
-            const submittedForm = formSubmission.data();
-            if (submittedForm) {
-                mutateForm({...submittedForm, answers: unwrap(answers)});
-            } else {
-                setIsEdit(true);
-            }
-        }
-    })
-
-
-    const handleEditForm = () => {
-        setIsEdit(true);
-    }
+    const handleEditForm = () => setIsEdit(true);
     const handleCancelEditForm = () => {
         const formData = form();
         if (formData) {
@@ -73,85 +56,86 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
         setIsEdit(false);
     }
 
-    const handleSubmit = () => {
-        setIsEdit(false);
+    const handleSubmit = (e: Event) => {
+        e.preventDefault();
         formSubmission({
             formId: form()?.id,
             filledForm: {
                 templateId: props.template.id,
-                fillingDate: fillingDate().toLocaleString(),
+                fillingDate: fillingDate().toISOString(),
                 answers: unwrap(answers),
                 sendEmail: sendEmail()
             }
         })
+        setIsEdit(false);
     }
 
     return (
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
-            <form onSubmit={handleSubmit} class="space-y-6 p-6">
-                <div class="p-4">
-                    <h2 class="text-2xl font-bold mb-4">Form</h2>
-                    <TemplateView template={props.template}
-                                  answers={answers}
-                                  setAnswers={setAnswers}
-                                  isReadonly={!hasPermission() || !isEdit()}
-                                  fillingDate={fillingDate()}
-                                  filledBy={form()?.submittedBy ?? filledBy()}/>
+            <form onSubmit={handleSubmit} class="space-y-6">
+                <CardHeader>
+                    <h2 class="text-2xl font-bold">Form Submission</h2>
+                </CardHeader>
+                <CardContent>
+                    <TemplateView
+                        template={props.template}
+                        answers={answers}
+                        setAnswers={setAnswers}
+                        isReadonly={!hasPermission() || !isEdit()}
+                        fillingDate={fillingDate()}
+                        filledBy={form()?.submittedBy ?? filledBy()}
+                    />
+                </CardContent>
+                <CardFooter class="flex flex-col space-y-4">
                     <Show when={!form.loading && !formSubmission.data.loading} fallback={
-                        <Button disabled class="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                            Loading <Oval width="24" height="24" />
+                        <Button disabled class="w-full">
+                            <Oval width="24" height="24" class="mr-2" />
+                            Loading...
                         </Button>
                     }>
                         <Show when={form()} fallback={
                             <Switch>
                                 <Match when={!user()}>
-                                    <h3 class="text-lg font-semibold mb-2 text-muted-foreground">
+                                    <p class="text-lg font-semibold text-muted-foreground">
                                         <A href="/login" class="underline">
                                             Sign in
-                                        </A> to submit this form</h3>
+                                        </A> to submit this form
+                                    </p>
                                 </Match>
                                 <Match when={!hasPermission()}>
-                                    <h3 class="text-lg font-semibold mb-2 text-muted-foreground">
+                                    <p class="text-lg font-semibold text-muted-foreground">
                                         You don't have permission to fill this form
-                                    </h3>
-                                    <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                            disabled>Submit</Button>
+                                    </p>
                                 </Match>
                                 <Match when={hasPermission()}>
-                                    <div class="items-top flex space-x-2">
-                                        <Checkbox id="terms1" onChange={setSendEmail} checked={sendEmail()}/>
-                                        <div class="grid gap-1.5 leading-none">
-                                            <Label for="terms1-input">Send form on email?</Label>
-                                        </div>
+                                    <div class="flex items-center space-x-2">
+                                        <Checkbox id="send-email" onChange={(value) => setSendEmail(value)} checked={sendEmail()} />
+                                        <Label for="send-email">Send form on email?</Label>
                                     </div>
-                                    <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                            onClick={handleSubmit} disabled={!hasPermission()}>Submit</Button>
+                                    <Button type="submit" class="w-full" disabled={!hasPermission()}>
+                                        Submit
+                                    </Button>
                                 </Match>
                             </Switch>
-
                         }>
                             <p class="text-sm text-muted-foreground">
-                                Form submitted: {form()!.submittedAt}
+                                Form submitted: {new Date(form()!.submittedAt).toLocaleString()}
                             </p>
-                            <Show when={isEdit} fallback={
-                                <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={handleEditForm}>Edit</Button>
+                            <Show when={isEdit()} fallback={
+                                <Button class="w-full" onClick={handleEditForm}>Edit</Button>
                             }>
-                                <div class="items-top flex space-x-2">
-                                    <Checkbox id="terms1" onChange={setSendEmail} checked={sendEmail()}/>
-                                    <div class="grid gap-1.5 leading-none">
-                                        <Label for="terms1-input">Send form on email?</Label>
-                                    </div>
+                                <div class="flex items-center space-x-2">
+                                    <Checkbox id="send-email-edit" onChange={(value) => setSendEmail(value)} checked={sendEmail()} />
+                                    <Label for="send-email-edit">Send form on email?</Label>
                                 </div>
-                                <Button type="submit"
-                                        class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={handleSubmit}>Save</Button>
-                                <Button class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                                        onClick={handleCancelEditForm}>Cancel</Button>
+                                <div class="flex space-x-2 w-full">
+                                    <Button type="submit" class="flex-1">Save</Button>
+                                    <Button type="button" variant="outline" class="flex-1" onClick={handleCancelEditForm}>Cancel</Button>
+                                </div>
                             </Show>
                         </Show>
                     </Show>
-                </div>
+                </CardFooter>
             </form>
         </Card>
     )

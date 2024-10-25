@@ -47,8 +47,8 @@ const FormAggregation = (props: FormAggregationProps) => {
                                         </Match>
                                         <Match when={question.type === QuestionTypes.Select}>
                                             <div>
-                                                <For each={Object.entries(aggregation.optionCountsSelect!)}>
-                                                    {([option, count]) => (
+                                                <For each={aggregation.optionCountsSelect!}>
+                                                    {({option, count}) => (
                                                         <p>'{option}' count: {count}</p>
                                                     )}
                                                 </For>

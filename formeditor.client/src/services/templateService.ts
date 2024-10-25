@@ -78,7 +78,7 @@ export const deleteTemplate = (templateId: number): Promise<void> => {
         });
 };
 
-export const toggleLike = (templateId: number): Promise<LikesInfo> => {
+export const toggleLike = ({templateId}: {templateId: number, isLiked: boolean}): Promise<LikesInfo> => {
     return api.put<LikesInfo>(`/Template/${templateId}/likes/toggle`)
         .then(response => response.data);
 };

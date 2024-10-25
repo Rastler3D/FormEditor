@@ -3,7 +3,6 @@ import {Button} from "./ui/button";
 import {createResource, createEffect, Show} from "solid-js";
 import {createAction} from "~/lib/action";
 import {fetchLikes, toggleLike} from "~/services/templateService.ts";
-import {ProgressCircle} from "~/components/ui/progress-circle.tsx";
 import {useAuth} from "~/contexts/AuthContext.tsx";
 import { Heart } from "lucide-solid";
 import { Oval } from "solid-spinner";
@@ -24,7 +23,7 @@ export default function Likes(props: LikesProps) {
         }
     })
     const handleToggleLike = async () => {
-        toggleLikes(props.template.id);
+        toggleLikes({ templateId: props.template.id, isLiked: likesInfo()!.isLiked });
         if (likesInfo()!.isLiked) {
             mutate(prev => ({
                 likes: prev!.likes - 1,

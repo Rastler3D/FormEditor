@@ -312,16 +312,22 @@ public class TemplateRepository : ITemplateRepository
 
     public async Task<bool> GetIsLikedAsync(int templateId, int userId)
     {
-        var like = await _context.Likes.FindAsync(templateId, userId);
+        var like = await GetLikeAsync(templateId, userId);
         return like != null;
+    }
+    public async Task<Like?> GetLikeAsync(int templateId, int userId)
+    {
+        var like = await _context.Likes.FindAsync(templateId, userId);
+        return like;
     }
 
     public async Task<LikesInfo> ToggleLikeAsync(int templateId, int userId)
     {
-        var isLiked = await GetIsLikedAsync(templateId, userId);
-        if (isLiked)
+        var like = await GetLikeAsync(templateId, userId);
+        var isLike = like != null;
+        if (isLike)
         {
-            _context.Likes.Remove(new Like { TemplateId = templateId, UserId = userId });
+            _context.Likes.Remove(like);
         }
         else
         {
@@ -331,7 +337,7 @@ public class TemplateRepository : ITemplateRepository
         await _context.SaveChangesAsync();
         var count = await GetLikesCountAsync(templateId);
 
-        return new LikesInfo { Likes = count, IsLiked = isLiked };
+        return new LikesInfo { Likes = count, IsLiked = !isLike };
     }
 
     public async Task<AggregatedResults> GetAggregatedResultsAsync(int templateId)
@@ -369,8 +375,8 @@ public class TemplateRepository : ITemplateRepository
                     OptionCountsSelect = q.Type == QuestionType.Select
                         ? q.Answers
                             .GroupBy(a => a.StringValue)
-                            .Select(g => new { Option = g.Key, Count = g.Count() })
-                            .ToDictionary(x => x.Option, x => x.Count)
+                            .Select(g => new OptionPair{ Option = g.Key, Count = g.Count() })
+                            .ToArray()
                         : null,
                     TrueCountBoolean = q.Type == QuestionType.Checkbox
                         ? q.Answers

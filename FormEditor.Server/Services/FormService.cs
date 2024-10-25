@@ -114,6 +114,7 @@ public class FormService : IFormService
 
         if (filledForm.SendEmail)
         {
+            await _templateRepository.GetTemplateWithQuestionsAsync(formSubmittion.Value.TemplateId);
             await _emailSenderService.SendFilledFormAsync(formSubmittion.Value);
         }
 
@@ -145,6 +146,7 @@ public class FormService : IFormService
 
         if (filledForm.SendEmail)
         {
+            await _templateRepository.GetTemplateWithQuestionsAsync(formUpdate.Value.TemplateId);
             await _emailSenderService.SendFilledFormAsync(formUpdate.Value);
         }
 

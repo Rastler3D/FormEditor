@@ -25,7 +25,7 @@ public class MeiliSearchService : ISearchService
     public MeiliSearchService(IConfiguration configuration)
     {
         _configuration = configuration;
-        var host = _configuration["VITE_MEILISEARCH_URL"]??"https://meilisearch-rastler3d.up.railway.app:3331";
+        var host = _configuration["VITE_MEILISEARCH_URL"]??"https://meilisearch-rastler3d.up.railway.app";
         var masterKey = _configuration["MEILISEARCH_MASTER_KEY"]??"gdvwfp4jb2bnr9wy79ocme33e8yafewl";
         _client = new MeilisearchClient(host, masterKey);
     }

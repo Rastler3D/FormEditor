@@ -65,7 +65,7 @@ export default function FormDetails(props: FormDetailsProps) {
                     <Separator class="my-6"/>
                     <div class="p-4">
                         <h2 class="text-2xl font-bold mb-4">Form</h2>
-                        <TemplateView template={props.template} answers={answers} setAnswers={setAnswers}
+                        <TemplateView template={props.template} answers={answers} setForm={setAnswers}
                                       isReadonly={props.isReadonly || !isEdit() || props.isSubmitting}
                                       fillingDate={fillingDate()} filledBy={props.form.submittedBy}/>
                         <Show when={!props.isSubmitting} fallback={

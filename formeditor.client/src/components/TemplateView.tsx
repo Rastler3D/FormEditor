@@ -69,28 +69,29 @@ export default function TemplateView(props: TemplateViewProps) {
                             <Switch>
                                 <Match when={question.type === QuestionTypes.SingleLine}>
                                     <TextField
+                                        disabled={props.isReadonly}
                                         id={`question-${index()}`}
                                         readOnly={props.isReadonly}
                                         required
-                                        value={props?.answers?.[question.id!]?.stringValue}
                                         onChange={(value) => props?.setAnswers?.(question.id!, {stringValue: value})}
                                     >
-                                        <TextFieldInput type="text" class="w-full"/>
+                                        <TextFieldInput value={props?.answers?.[question.id!]?.stringValue} type="text" class="w-full"/>
                                     </TextField>
                                 </Match>
                                 <Match when={question.type === QuestionTypes.MultiLine}>
                                     <TextField
+                                        disabled={props.isReadonly}
                                         id={`question-${index()}`}
                                         readOnly={props.isReadonly}
                                         required
-                                        value={props?.answers?.[question.id!]?.stringValue}
                                         onChange={(value) => props?.setAnswers?.(question.id!, {stringValue: value})}
                                     >
-                                        <TextFieldTextArea class="w-full min-h-[100px]"/>
+                                        <TextFieldTextArea value={props?.answers?.[question.id!]?.stringValue} class="w-full min-h-[100px]"/>
                                     </TextField>
                                 </Match>
                                 <Match when={question.type === QuestionTypes.Integer}>
                                     <NumberField
+                                        disabled={props.isReadonly}
                                         id={`question-${index()}`}
                                         readOnly={props.isReadonly}
                                         required
@@ -111,6 +112,7 @@ export default function TemplateView(props: TemplateViewProps) {
                                             id={`question-${index()}`}
                                             checked={props?.answers?.[question.id!]?.booleanValue}
                                             onChange={(checked) => props?.setAnswers?.(question.id!, {booleanValue: checked})}
+                                            readOnly={props.isReadonly}
                                             disabled={props.isReadonly}
                                         />
                                         <Label for={`question-${index()}-input`}
@@ -120,6 +122,7 @@ export default function TemplateView(props: TemplateViewProps) {
                                 <Match when={question.type === QuestionTypes.Select}>
                                     <Select
                                         disabled={props.isReadonly}
+                                        readOnly={props.isReadonly}
                                         value={props?.answers?.[question.id!]?.stringValue}
                                         onChange={(value) => props?.setAnswers?.(question.id!, {stringValue: value!})}
                                         options={question.options ?? []}

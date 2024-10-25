@@ -115,7 +115,12 @@ export interface Aggregation {
     uniqueCountText?: number;
     trueCountBoolean: number;
     falseCountBoolean: number;
-    optionCountsSelect?: Record<number, number>
+    optionCountsSelect?: OptionPair[]
+}
+
+export interface OptionPair{
+    option: string,
+    count: number
 }
 
 export interface Comment {

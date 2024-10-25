@@ -33,6 +33,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.QuestionId, opt => opt.MapFrom((src, dest, destMember, context) =>
                 context.Items.TryGetValue("QuestionId", out var id) ? id : 0))
             .ReverseMap();
+        CreateMap<Answer, AnswerViewModel>();
         CreateMap<QuestionViewModel, Question>()
             .ForMember(dest => dest.Order, opt => opt.MapFrom((src, dest, destMember, context) =>
                 context.Items.TryGetValue("Index", out var index) ? index : 0))
@@ -62,7 +63,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.SubmittedBy, opt => opt.MapFrom(src => src.Submitter.UserName))
             .ForMember(dest => dest.Answers, opt =>
                 opt.MapFrom<Dictionary<int, AnswerViewModel>>((src, _, _, context) => src.Answers
-                    .Select(item => (Id: item.Id, Answer: context.Mapper.Map<AnswerViewModel>(context)))
+                    .Select(item => (Id: item.QuestionId, Answer: context.Mapper.Map<AnswerViewModel>(item)))
                     .ToDictionary(x => x.Id, x => x.Answer)
                 )
             );

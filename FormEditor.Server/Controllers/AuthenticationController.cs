@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Net.Mail;
 using System.Text;
 using System.Text.Encodings.Web;
 using FormEditor.Server.Models;
@@ -71,7 +72,16 @@ public class AuthenticationController : ControllerBase
             return CreateValidationProblem(result);
         }
 
-        await SendConfirmationEmailAsync(user, _userManager, HttpContext, email);
+        try
+        {
+            await SendConfirmationEmailAsync(user, _userManager, HttpContext, email);
+        }
+        catch (SmtpException exp)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+                { { "EmailSendFailed", ["Failed to send email"] } });
+        }
+
         return TypedResults.Ok();
     }
 
@@ -93,7 +103,7 @@ public class AuthenticationController : ControllerBase
         {
             if (!string.IsNullOrEmpty(login.TwoFactorCode))
             {
-                result = await _signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, false, 
+                result = await _signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, false,
                     rememberClient: false);
             }
             else if (!string.IsNullOrEmpty(login.TwoFactorRecoveryCode))
@@ -108,13 +118,16 @@ public class AuthenticationController : ControllerBase
             {
                 return TypedResults.Problem("User is blocked", statusCode: StatusCodes.Status401Unauthorized);
             }
+
             if (result.IsNotAllowed)
             {
                 if (!user.EmailConfirmed)
-                    return TypedResults.Problem("Email address is not verified", statusCode: StatusCodes.Status401Unauthorized);
-                return TypedResults.Problem("Login not allowed", statusCode: StatusCodes.Status401Unauthorized); 
+                    return TypedResults.Problem("Email address is not verified",
+                        statusCode: StatusCodes.Status401Unauthorized);
+                return TypedResults.Problem("Login not allowed", statusCode: StatusCodes.Status401Unauthorized);
             }
-            return TypedResults.Problem("Incorrect password", statusCode: StatusCodes.Status401Unauthorized); 
+
+            return TypedResults.Problem("Incorrect password", statusCode: StatusCodes.Status401Unauthorized);
         }
 
         // The signInManager already produced the needed response in the form of a cookie or bearer token.
@@ -187,14 +200,22 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("resendConfirmationEmail")]
-    public async Task<Ok> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest resendRequest)
+    public async Task<Results<Ok, ValidationProblem>> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest resendRequest)
     {
         if (await _userManager.FindByEmailAsync(resendRequest.Email) is not { } user)
         {
             return TypedResults.Ok();
         }
-
-        await SendConfirmationEmailAsync(user, _userManager, HttpContext, resendRequest.Email);
+        
+        try
+        {
+            await SendConfirmationEmailAsync(user, _userManager, HttpContext, resendRequest.Email);
+        }
+        catch (SmtpException exp)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+                { { "EmailSendFailed", ["Failed to send email. Try again later"] } });
+        }
         return TypedResults.Ok();
     }
 
@@ -207,8 +228,17 @@ public class AuthenticationController : ControllerBase
         {
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-            await _emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(code));
+            
+            try
+            {
+                await _emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(code));
+            }
+            catch (SmtpException exp)
+            {
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+                    { { "EmailSendFailed", ["Failed to send email. Try again later"] } });
+            }
+            
         }
 
         // Don't reveal that the user does not exist or is not confirmed, so don't return a 200 if we would have
@@ -439,6 +469,7 @@ public class AuthenticationController : ControllerBase
 
             errorDictionary[error.Code] = newDescriptions;
         }
+
         return TypedResults.ValidationProblem(errorDictionary);
     }
 
@@ -452,5 +483,4 @@ public class AuthenticationController : ControllerBase
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user),
         };
     }
-    
 }

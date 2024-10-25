@@ -62,6 +62,6 @@ export default defineConfig({
     define: {
         'import.meta.env.VITE_MEILISEARCH_API_KEY': JSON.stringify(meiliSearchApiKey),
         'import.meta.env.VITE_API_URL': JSON.stringify("/api"),
-        'import.meta.env.VITE_HUB_URL': JSON.stringify("/hub"),
+        'import.meta.env.VITE_HUB_URL': JSON.stringify("/api/hub"),
     }
 })

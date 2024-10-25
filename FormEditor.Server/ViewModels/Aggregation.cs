@@ -9,5 +9,11 @@ public class Aggregation
     public int? UniqueCountText { get; set; }
     public int? TrueCountBoolean { get; set; }
     public int? FalseCountBoolean { get; set; }
-    public Dictionary<string, int>? OptionCountsSelect { get; set; }
+    public OptionPair[]? OptionCountsSelect { get; set; }
+}
+
+public class OptionPair
+{
+    public string Option { get; set; }
+    public int Count { get; set; }
 }
