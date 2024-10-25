@@ -114,9 +114,10 @@ export default function TemplateView(props: TemplateViewProps) {
                                             onChange={(checked) => props?.setAnswers?.(question.id!, {booleanValue: checked})}
                                             readOnly={props.isReadonly}
                                             disabled={props.isReadonly}
+                                            class="has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 peer"
                                         />
                                         <Label for={`question-${index()}-input`}
-                                               class="text-lg">Yes</Label>
+                                               class="text-lg peer-has-[:disabled]:opacity-50">{props?.answers?.[question.id!]?.booleanValue? "Yes" : "No"}</Label>
                                     </div>
                                 </Match>
                                 <Match when={question.type === QuestionTypes.Select}>

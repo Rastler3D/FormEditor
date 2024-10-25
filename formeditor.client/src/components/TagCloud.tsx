@@ -13,13 +13,12 @@ interface TagCloudProps {
 const TagCloud = (props: TagCloudProps) => {
     let svgRef: SVGSVGElement;
     let cloudLayout: ReturnType<typeof cloud>;
-    const [hoveredTag, setHoveredTag] = createSignal<string | null>(null);
     const [selectedTag, setSelectedTag] = createSignal<string | null>(null);
     const width = 800;
     const height = 400;
     onMount(() => {
-        
-        
+
+
         cloudLayout = cloud()
             .size([width, height])
             .padding(5)
@@ -40,15 +39,15 @@ const TagCloud = (props: TagCloudProps) => {
         const minCount = Math.min(...props.tags.map(tag => tag.count));
         const fontSize = d3.scaleLinear()
             .domain([minCount, maxCount])
-            .range([20, 100]);
-        const words = props.tags.map(d => ({ text: d.name, size: fontSize(d.count) }));
+            .range([50, 100]);
+        const words = props.tags.map(d => ({text: d.name, size: fontSize(d.count)}));
         const maxTags = 100;
         const limitedWords = words.slice(0, maxTags);
 
         cloudLayout.words(limitedWords);
         cloudLayout.start();
     });
-
+    
     const draw = (tags: cloud.Word[]) => {
         d3.select(svgRef).selectAll("*").remove();
 
@@ -80,6 +79,7 @@ const TagCloud = (props: TagCloudProps) => {
             .text(d => d.text!)
             .attr("role", "button")
             .attr("tabindex", "0")
+            .attr('data-id', d => d.text)
             .attr("aria-pressed", d => selectedTag() === d.text ? "true" : "false")
             .on("click", (_, d) => {
                 setSelectedTag(d.text!);
@@ -92,26 +92,27 @@ const TagCloud = (props: TagCloudProps) => {
                     props.onTagClick(d.text!);
                 }
             })
-            .on("mouseenter", (event, d) => {
-                setHoveredTag(d.text!);
+            .on("mouseout", (event, d) => {
+                d3.select(event.target)
+                    .transition()
+                    .duration(300)
+                    .style("font-size", `${d.size}px`);
+                d3.selectAll("text")
+                    .data(tags)
+                    .style("opacity", 1)
+            })
+            .on("mouseover", (event, d) => {
+                d3.selectAll("text")
+                    .data(tags)
+                    .style("opacity", j => j.text == d.text ? 1 : 0.3)
                 d3.select(event.target)
                     .style("cursor", "pointer")
                     .transition()
                     .duration(300)
                     .style("font-size", `${(d.size as number) * 1.2}px`);
             })
-            .on("mouseleave", (event, d) => {
-                hoveredTag() != d.text! ? setHoveredTag(d.text!) : setHoveredTag(null);
-                d3.select(event.target)
-                    .transition()
-                    .duration(300)
-                    .style("font-size", `${d.size}px`);
-            })
-            .style("transition", "all 0.3s ease")
+            .style("transition", "all 0.8s ease")
             .style("cursor", "pointer")
-            .transition()
-            .duration(300)
-            .style("opacity", d => (hoveredTag() && hoveredTag() !== d.text) ? 0.3 : 1)
             .style("font-weight", d => (selectedTag() === d.text) ? "bold" : "normal")
             .style("text-decoration", d => (selectedTag() === d.text) ? "underline" : "none");
     }
@@ -123,9 +124,9 @@ const TagCloud = (props: TagCloudProps) => {
     return (
         <div class="w-full h-[400px] flex items-center justify-center">
             {props.isLoading ? (
-                <Skeleton class="!w-full !h-full" />
+                <Skeleton class="!w-full !h-full"/>
             ) : (
-                <svg ref={svgRef!} class="w-full h-full" />
+                <svg ref={svgRef!} class="w-full h-full"/>
             )}
         </div>
     );
