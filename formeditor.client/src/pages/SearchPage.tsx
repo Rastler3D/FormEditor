@@ -6,16 +6,16 @@ const SearchPage = () => {
 
     return (
         <Search
-            query={queryParams.query}
-            pageSize={Number(queryParams.pageSize)}
-            page={Number(queryParams.page)}
-            sorting={queryParams.sort}
-            filters={{tags: queryParams.tags?.split(",") ?? [], topics: queryParams.topics?.split(",") ?? []}}
+            query={queryParams.query ?? ""}
+            pageSize={Number(queryParams.pageSize ?? 12)}
+            page={Number(queryParams.page ?? 1)}
+            sorting={queryParams.sort ?? "createdAt:desc" }
+            filters={{tags: queryParams.tags?.split(",") ?? [], topic: queryParams.topic?.split(",") ?? []}}
             onQueryChange={query => setQueryParams({query})}
             onPageSizeChange={pageSize => setQueryParams({pageSize})}
             onPageChange={page => setQueryParams({page})}
             onSortingChange={sort => setQueryParams({sort})}
-            onFiltersChange={({tags, topics}) => setQueryParams({tags: tags?.join(","), topics: topics?.join(",")})}
+            onFiltersChange={({tags, topic}) => setQueryParams({tags: tags?.join(","), topic: topic?.join(",")})}
         />
     )
 }

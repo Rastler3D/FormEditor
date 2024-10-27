@@ -7,7 +7,7 @@ public class TemplateViewModel
     public string Description { get; set; }
     public string? Image { get; set; }
     public int CreatorId { get; set; }
-    public int CreatedBy { get; set; }
+    public string CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public string Topic { get; set; }
     public HashSet<string> Tags { get; set; }

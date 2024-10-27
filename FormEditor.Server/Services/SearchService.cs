@@ -34,7 +34,7 @@ public class MeiliSearchService : ISearchService
     public async Task Initialize()
     {
         await _client.CreateIndexAsync("templates", "id");
-        await _client.Index("templates").UpdateFilterableAttributesAsync(["tags", "topics"]);
+        await _client.Index("templates").UpdateFilterableAttributesAsync(["tags", "topic"]);
         await _client.Index("templates").UpdateSortableAttributesAsync(["name", "filledCount", "createdAt"]);
 
         await _client.CreateKeyAsync(new Key

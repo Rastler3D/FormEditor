@@ -9,7 +9,8 @@
     LucideProps,
     Plus,
     Files,
-    UserCog
+    UserCog,
+    Search
 } from "lucide-solid";
 import {Motion, Presence} from "solid-motionone";
 import {Button, buttonVariants} from "~/components/ui/button";
@@ -96,6 +97,7 @@ type NavItemProps = {
 const menuItems = [
     {icon: Plus, label: 'Create template', href: "/templates/create", role: 'User'},
     {icon: Home, label: 'Home', href: "/home", role: 'All'},
+    {icon: Search, label: 'Search', href: "/search", role: 'All'},
     {icon: Folder, label: 'My Templates', href: "/templates", role: 'User'},
     {icon: FileText, label: 'My Forms', href: "/forms", role: 'User'},
     {icon: Folders, label: 'All Templates', href: "/templates/all", role: 'Admin'},

@@ -193,7 +193,8 @@ public class TemplateRepository : ITemplateRepository
         {
             return Error.NotFound($"Referenced user not found.");
         }
-
+        await _context.Entry(template).Reference(t => t.Creator).LoadAsync();
+        
         return template;
     }
 

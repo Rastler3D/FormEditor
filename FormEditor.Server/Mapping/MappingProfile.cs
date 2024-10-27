@@ -57,7 +57,8 @@ public class MappingProfile : Profile
 
         CreateMap<Template, TemplateInfoViewModel>()
             .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.Creator));
-        CreateMap<Template, TemplateViewModel>();
+        CreateMap<Template, TemplateViewModel>()
+            .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.Creator));
         CreateMap<Form, FormInfoViewModel>()
             .ForMember(dest => dest.TemplateName, opt => opt.MapFrom(src => src.Template.Name))
             .ForMember(dest => dest.SubmittedBy, opt => opt.MapFrom(src => src.Submitter.UserName));
@@ -97,7 +98,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Role, opt =>
                 opt.MapFrom(src => src.Roles))
             .ForMember(dest => dest.Status,
-                opt => opt.MapFrom(src => src.LockoutEnabled && src.LockoutEnd.HasValue && src.LockoutEnd > DateTimeOffset.Now ? StatusViewModel.Blocked : StatusViewModel.Active));
+                opt => opt.MapFrom(src =>
+                    src.LockoutEnabled && src.LockoutEnd.HasValue && src.LockoutEnd > DateTimeOffset.Now
+                        ? StatusViewModel.Blocked
+                        : StatusViewModel.Active));
         CreateMap<Comment, CommentViewModel>()
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author.UserName))
             .ReverseMap();

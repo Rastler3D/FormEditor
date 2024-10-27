@@ -1,4 +1,4 @@
-﻿import {createResource, createSignal, For, Match, Show, Switch} from "solid-js";
+﻿import {createResource, createSignal, Match, Show, Switch} from "solid-js";
 import {TextField, TextFieldInput} from "~/components/ui/text-field";
 import {Oval} from "solid-spinner";
 import {debounce} from '@solid-primitives/scheduled';
@@ -30,6 +30,7 @@ import {TemplateInfo} from "~/types/types";
 import TemplateTable from "~/components/TemplateTable";
 import TemplateGallery from "~/components/TemplateGallery";
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from "~/components/ui/sheet.tsx";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "./ui/dropdown-menu";
 
 
 interface SearchProps {
@@ -67,44 +68,11 @@ function Search(props: SearchProps) {
             <div class="flex flex-col space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <h1 class="text-3xl font-bold tracking-tight">Search Templates</h1>
-                    <ViewToggle view={view()} onToggle={setView}/>
                 </div>
 
                 <div class="flex flex-col lg:flex-row gap-4">
                     <div class="w-full lg:flex-1">
                         <SearchInput value={props.query} onInput={props.onQueryChange}/>
-                    </div>
-                    <div class="flex gap-2 self-end">
-                        <Sheet open={isFilterOpen()} onOpenChange={setIsFilterOpen}>
-                            <SheetTrigger as={Button} variant="outline" class="lg:hidden relative">
-                                <Filter class="h-4 w-4 mr-2"/>
-                                Filters
-                                <Show when={Object.keys(props.filters ?? {}).length > 0}>
-                  <span
-                      class="absolute -top-2 -right-2 bg-primary text-primary-foreground w-5 h-5 rounded-full text-xs flex items-center justify-center">
-                    {Object.values(props.filters ?? {}).flat().length}
-                  </span>
-                                </Show>
-                            </SheetTrigger>
-                            <SheetContent position="left" class="w-[300px] sm:w-[400px]">
-                                <SheetHeader>
-                                    <SheetTitle>Filters</SheetTitle>
-                                </SheetHeader>
-                                <div class="mt-6">
-                                    <FilterPanel
-                                        filters={props.filters}
-                                        onFilterChange={(filters) => {
-                                            props.onFiltersChange?.(filters);
-                                            setIsFilterOpen(false);
-                                        }}
-                                        tags={tags()}
-                                        isTagsLoading={tags.loading}
-                                        topics={topics()}
-                                        isTopicsLoading={topics.loading}
-                                    />
-                                </div>
-                            </SheetContent>
-                        </Sheet>
                     </div>
                 </div>
             </div>
@@ -124,10 +92,63 @@ function Search(props: SearchProps) {
                 <div class="flex-1 space-y-6">
                     <div
                         class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-lg">
-                        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <div class="flex flex-col sm:flex-row gap-4 w-full">
                             <SortingDropdown value={props.sorting} onChange={props.onSortingChange}/>
                             <PageSizeSelector pageSize={props.pageSize} onPageSizeChange={props.onPageSizeChange}/>
                         </div>
+                        <div class="flex sm:flex-row gap-4 w-full">
+                            <div class="flex gap-2 self-end ml-auto mr-0">
+                                <Sheet open={isFilterOpen()} onOpenChange={setIsFilterOpen}>
+                                    <SheetTrigger as={Button} variant="outline" class="lg:hidden relative">
+                                        <Filter class="h-4 w-4 mr-2"/>
+                                        Filters
+                                        <Show when={Object.keys(props.filters ?? {}).length > 0}>
+                                      <span
+                                          class="absolute -top-2 -right-2 bg-primary text-primary-foreground w-5 h-5 rounded-full text-xs flex items-center justify-center">
+                                        {Object.values(props.filters ?? {}).flat().length}
+                                      </span>
+                                        </Show>
+                                    </SheetTrigger>
+                                    <SheetContent position="left" class="w-[300px] sm:w-[400px]">
+                                        <SheetHeader>
+                                            <SheetTitle>Filters</SheetTitle>
+                                        </SheetHeader>
+                                        <div class="mt-6">
+                                            <FilterPanel
+                                                filters={props.filters}
+                                                onFilterChange={(filters) => {
+                                                    props.onFiltersChange?.(filters);
+                                                    setIsFilterOpen(false);
+                                                }}
+                                                tags={tags()}
+                                                isTagsLoading={tags.loading}
+                                                topics={topics()}
+                                                isTopicsLoading={topics.loading}
+                                            />
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
+                            </div>
+                            <div class="">
+                                <ViewToggle view={view()} onToggle={setView}/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <Switch>
+                        <Match when={view() === 'table'}>
+                            <div class="overflow-x-auto">
+                                <TemplateTable templates={searchResults()?.hits as TemplateInfo[]}
+                                               isLoading={searchResults.loading}/>
+                            </div>
+                        </Match>
+                        <Match when={view() === 'gallery'}>
+                            <TemplateGallery templates={searchResults()?.hits as TemplateInfo[]}
+                                             isLoading={searchResults.loading}/>
+                        </Match>
+                    </Switch>
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <Show when={searchResults()}>
                             {(result) => (
                                 <p class="text-sm text-muted-foreground whitespace-nowrap">
@@ -136,38 +157,26 @@ function Search(props: SearchProps) {
                                 </p>
                             )}
                         </Show>
+                        <Pagination
+                            count={searchResults()?.totalPages || 1}
+                            page={props.page}
+                            onPageChange={(page) => props.onPageChange?.(page)}
+                            itemComponent={(props) => (
+                                <PaginationItem
+                                    page={props.page}
+                                    class="hidden sm:inline-flex"
+                                >
+                                    {props.page}
+                                </PaginationItem>
+                            )}
+                            ellipsisComponent={() => <PaginationEllipsis class="hidden sm:inline-flex"/>}
+                            class="flex items-center justify-center gap-1 sm:gap-2"
+                        >
+                            <PaginationPrevious/>
+                            <PaginationItems/>
+                            <PaginationNext/>
+                        </Pagination>
                     </div>
-
-                    <Switch>
-                        <Match when={view() === 'table'}>
-                            <div class="overflow-x-auto">
-                                <TemplateTable templates={searchResults()?.hits} isLoading={searchResults.loading}/>
-                            </div>
-                        </Match>
-                        <Match when={view() === 'gallery'}>
-                            <TemplateGallery templates={searchResults()?.hits} isLoading={searchResults.loading}/>
-                        </Match>
-                    </Switch>
-
-                    <Pagination
-                        count={searchResults()?.totalPages || 1}
-                        page={props.page}
-                        onPageChange={(page) => props.onPageChange?.(page)}
-                        itemComponent={(props) => (
-                            <PaginationItem
-                                page={props.page}
-                                class="hidden sm:inline-flex"
-                            >
-                                {props.page}
-                            </PaginationItem>
-                        )}
-                        ellipsisComponent={() => <PaginationEllipsis class="hidden sm:inline-flex"/>}
-                        class="flex items-center justify-center gap-1 sm:gap-2"
-                    >
-                        <PaginationPrevious/>
-                        <PaginationItems/>
-                        <PaginationNext/>
-                    </Pagination>
                 </div>
             </div>
         </div>
@@ -180,11 +189,11 @@ function SearchInput(props: { value?: string; onInput?: (value: string) => void 
     return (
         <div class="relative w-full">
             <SearchIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"/>
-            <TextField value={props.value} onChange={(value) => debouncedOnInput(value)}>
+            <TextField onChange={(value) => debouncedOnInput(value)}>
                 <TextFieldInput
                     type="text"
                     placeholder="Search templates..."
-                    class="pl-10 w-full h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="w-full h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm pl-10 "
                 />
             </TextField>
         </div>
@@ -193,29 +202,20 @@ function SearchInput(props: { value?: string; onInput?: (value: string) => void 
 
 function ViewToggle(props: { view: string; onToggle: (view: string) => void }) {
     return (
-        <div class="flex items-center bg-muted rounded-lg p-1">
-            <Button
-                variant={props.view === 'table' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => props.onToggle('table')}
-                class="rounded-md"
-            >
-                <Grid class="h-4 w-4 mr-2"/>
-                <span class="hidden sm:inline">Table</span>
-                <span class="sr-only">Table view</span>
-            </Button>
-            <Button
-                variant={props.view === 'gallery' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => props.onToggle('gallery')}
-                class="rounded-md"
-            >
-                <LayoutGrid class="h-4 w-4 mr-2"/>
-                <span class="hidden sm:inline">Gallery</span>
-                <span class="sr-only">Gallery view</span>
-            </Button>
-        </div>
-    );
+        <DropdownMenu>
+            <DropdownMenuTrigger as={Button} variant="outline">
+                {props.view === 'table' ? <Grid class="h-4 w-4"/> : <LayoutGrid class="h-4 w-4"/>}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => props.onToggle('table')}>
+                    <Grid class="mr-2 h-4 w-4"/> Table
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => props.onToggle('gallery')}>
+                    <LayoutGrid class="mr-2 h-4 w-4"/> Gallery
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
 }
 
 function SortingDropdown(props: { value?: string; onChange?: (value: string) => void }) {
@@ -229,7 +229,7 @@ function SortingDropdown(props: { value?: string; onChange?: (value: string) => 
     } as Record<string, string>;
 
     return (
-        <Select
+        <Select<string>
             value={props.value}
             onChange={(value) => props.onChange?.(value ?? "createdAt:desc")}
             options={Object.keys(options)}
@@ -240,7 +240,7 @@ function SortingDropdown(props: { value?: string; onChange?: (value: string) => 
             )}
         >
             <SelectTrigger class="w-full sm:w-[200px]">
-                <SelectValue>{(state) => options[state.selectedOption()]}</SelectValue>
+                <SelectValue<string>>{(state) => options[state.selectedOption()]}</SelectValue>
             </SelectTrigger>
             <SelectContent class="min-w-[200px]"/>
         </Select>
@@ -338,41 +338,34 @@ function FilterCombobox(props: {
                 </ComboboxItem>
             )}
         >
-            <ComboboxControl<string>
-                aria-label={props.placeholder}
-                class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full p-2 text-left bg-background border border-input rounded-lg"
-            >
+            <ComboboxControl<string> aria-label="Tags"
+                                     class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 w-full px-2 text-left  rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
                 {state => (
                     <>
-                        <div class="flex flex-wrap gap-2 p-1">
-                            <For each={state.selectedOptions()}>
-                                {(option) => (
-                                    <span
-                                        class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full inline-flex items-center gap-2 transition-colors hover:bg-primary/20">
-                    
+                        <div class="flex items-center gap-2 flex-wrap p-2 w-full">
+                            {state.selectedOptions().map(option => (
+                                <span
+                                    onPointerDown={e => e.stopPropagation()}
+                                    class="bg-zinc-100 dark:bg-zinc-700 text-sm px-2 py-0.5 rounded inline-flex items-center gap-x-2"
+                                >
                     {option}
-                                        <button
-                                            type="button"
-                                            onClick={() => state.remove(option)}
-                                            class="hover:bg-secondary-foreground/20 rounded-full p-1"
-                                        >
-                      <X class="h-3 w-3"/>
+                                    <button
+                                        tabindex="-1"
+                                        onClick={() => state.remove(option)}
+                                        class="ml-1 text-blue-600 hover:text-blue-800"
+                                    >
+                      &times;
                     </button>
                   </span>
-                                )}
-                            </For>
-                            <ComboboxInput class="flex-1 outline-none bg-transparent text-sm min-w-[120px]"/>
+                            ))}
+                            <ComboboxInput/>
                         </div>
-                        <ComboboxTrigger
-                            class="ml-2 text-secondary-foreground hover:text-primary cursor-pointer transition"/>
+                        <ComboboxTrigger/>
                     </>
                 )}
             </ComboboxControl>
-
             <ComboboxContent
-                class="bg-popover text-popover-foreground border border-input rounded-md shadow-md mt-1 max-h-60 overflow-auto z-50">
-                   
-            </ComboboxContent>
+                class="border border-gray-300 dark:border-gray-500 rounded"/>
         </Combobox>
     );
 }
