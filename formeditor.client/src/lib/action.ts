@@ -1,5 +1,4 @@
-﻿import {createTrigger} from "@solid-primitives/trigger";
-import {
+﻿import {
     Accessor,
     createResource as solidResource,
     createSignal,
@@ -13,7 +12,6 @@ import {
     ResourceReturn,
     ResourceSource,
     ResourceFetcherInfo,
-    untrack,
     EffectFunction,
 } from "solid-js";
 

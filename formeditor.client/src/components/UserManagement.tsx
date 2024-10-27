@@ -6,21 +6,59 @@ import {getUsers} from '~/services/userService.ts';
 import {useAuth, User} from "~/contexts/AuthContext";
 import {createTrigger} from "@solid-primitives/trigger"
 import {showToast} from "./ui/toast";
-import {A} from '@solidjs/router';
+import {A, useNavigate} from '@solidjs/router';
 import {changeRole, performAction, performBulkAction} from "~/services/userService.ts";
-import {Action} from "~/types/template.ts";
+import {Action} from "~/types/types.ts";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem
+} from "~/components/ui/dropdown-menu.tsx";
+import {MoreHorizontal, Eye, Trash, UserX, UserCheck, ShieldOff, Shield} from "lucide-solid";
+import {Badge} from "~/components/ui/badge.tsx";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from "~/components/ui/dialog.tsx";
+import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
+import {Avatar, AvatarFallback, AvatarImage} from "~/components/ui/avatar.tsx";
+
 
 export default function UserManagement() {
     const [selection, setSelection] = createSignal<number[]>([]);
     const [fetchedUsers, setFetchedUsers] = createSignal<User[]>([]);
     const [selectedUsers, setSelectedUsers] = createSignal<User[]>([]);
     const {user, refreshToken} = useAuth();
+    const [track, trigger] = createTrigger();
+    const [deleteDialogOpen, setDeleteDialogOpen] = createSignal(false);
+    const [userToDelete, setUserToDelete] = createSignal<number | null>(null);
+    const navigate = useNavigate();
+
     const columns: ColumnDef<User, any>[] = [
+        {
+            accessorKey: 'avatar',
+            header: 'Avatar',
+            enableSorting: false,
+            cell: (info) => (
+                <Avatar class="w-10 h-10 rounded-full">
+                    <AvatarImage src={info.getValue()} alt={info.row.original.name}/>
+                    <AvatarFallback>{info.row.original.name.split(" ", 2).map((n) => n.charAt(0)).join("").toUpperCase()}</AvatarFallback>
+                </Avatar>
+            ),
+        },
         {
             accessorKey: 'name',
             header: 'Name',
-            cell: (info) => <A href={`/users/${info.row.original.id}`}
-                               class="text-primary hover:underline">{info.getValue()}</A>,
+            cell: (info) => (
+                <A href={`/users/${info.row.original.id}`} class="text-primary hover:underline">
+                    {info.getValue()}
+                </A>
+            ),
         },
         {
             accessorKey: 'email',
@@ -29,41 +67,55 @@ export default function UserManagement() {
         {
             accessorKey: 'role',
             header: 'Role',
+            cell: (info) => (
+                <Badge variant={info.getValue() === 'Admin' ? 'default' : 'secondary'}>
+                    {info.getValue()}
+                </Badge>
+            ),
         },
         {
             accessorKey: 'status',
             header: 'Status',
             cell: (info) => (
-                <span class={`px-2 py-1 rounded-full text-xs ${info.getValue() === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {info.getValue()}
-                </span>
+                <Badge variant={info.getValue() === 'Active' ? 'success' : 'destructive'}>
+                    {info.getValue()}
+                </Badge>
             ),
         },
         {
             id: 'actions',
             header: 'Actions',
             cell: (info) => (
-                <div class="flex gap-2">
-                    <Button as={A} href={`/users/${info.row.original.id}`} size="sm">
-                        View
-                    </Button>
-                    <Button size="sm" variant={info.row.original.status === 'Active' ? 'destructive' : 'default'}
-                            onClick={() => handleAction(info.row.original.status === 'Active' ? Action.Block : Action.Unblock, info.row.original.id)}>
-                        {info.row.original.status === 'Active' ? 'Block' : 'Unblock'}
-                    </Button>
-                    <Button size="sm" variant={info.row.original.role === 'Admin' ? 'destructive' : 'default'}
-                            onClick={() => handleToggleAdminRole(info.row.original.id, info.row.original.role)}>
-                        {info.row.original.role === 'Admin' ? 'Remove Admin' : 'Make Admin'}
-                    </Button>
-                    <Button size="sm" variant="destructive"
-                            onClick={() => handleAction(Action.Delete, info.row.original.id)}>
-                        Delete
-                    </Button>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger as={Button} variant="ghost" size="sm">
+                        <MoreHorizontal class="h-4 w-4"/>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem onSelect={() => navigate(`/users/${info.row.original.id}`)}>
+                            <Eye class="mr-2 h-4 w-4"/>
+                            View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() => handleAction(info.row.original.status === 'Active' ? Action.Block : Action.Unblock, info.row.original.id)}>
+                            {info.row.original.status === 'Active' ? <UserX class="mr-2 h-4 w-4"/> :
+                                <UserCheck class="mr-2 h-4 w-4"/>}
+                            {info.row.original.status === 'Active' ? 'Block' : 'Unblock'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() => handleToggleAdminRole(info.row.original.id, info.row.original.role)}>
+                            {info.row.original.role === 'Admin' ? <ShieldOff class="mr-2 h-4 w-4"/> :
+                                <Shield class="mr-2 h-4 w-4"/>}
+                            {info.row.original.role === 'Admin' ? 'Remove Admin' : 'Make Admin'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => openDeleteDialog(info.row.original.id)}>
+                            <Trash class="mr-2 h-4 w-4"/>
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             ),
         },
     ];
-
 
     const handleToggleAdminRole = async (userId: number, currentRole: string) => {
         try {
@@ -73,38 +125,22 @@ export default function UserManagement() {
                 await refreshToken();
             }
             trigger();
-            showToast({title: `User role updated to ${newRole}`, variant: "default"});
+            showToast({title: `User role updated to ${newRole}`, variant: "success"});
         } catch (error) {
             showToast({title: "Failed to update user role", variant: "destructive"});
         }
     };
-    const [track, trigger] = createTrigger();
+
     const handleAction = async (action: Action, userId: number) => {
         try {
-            switch (action) {
-                case Action.Block:
-                    await performAction(action, userId);
-                    showToast({title: "Selected users blocked successfully", variant: "default"});
-                    break;
-                case Action.Unblock:
-                    await performAction(action, userId);
-                    showToast({title: "Selected users unblocked successfully", variant: "default"});
-                    break;
-                case Action.Delete:
-                    if (confirm("Are you sure you want to delete the selected users? This action cannot be undone.")) {
-                        await performAction(action, userId);
-                        showToast({title: "Selected users deleted successfully", variant: "default"});
-                    }
-                    break;
-            }
+            await performAction(action, userId);
+            showToast({title: `User ${action.toLowerCase()}ed successfully`, variant: "success"});
             if (userId == user()?.id) {
                 await refreshToken();
             }
             trigger();
-            // Refresh the data after bulk action
-            // You might need to adjust this based on how your DataTable component handles refreshing
         } catch (error) {
-            showToast({title: `Failed to ${action} selected users`, variant: "destructive"});
+            showToast({title: `Failed to ${action.toLowerCase()} user`, variant: "destructive"});
         }
     };
 
@@ -115,31 +151,46 @@ export default function UserManagement() {
             return;
         }
 
+        if (action === Action.Delete) {
+            setDeleteDialogOpen(true);
+            return;
+        }
+
         try {
-            switch (action) {
-                case Action.Block:
-                    await performBulkAction(action, { ids: selectedIds });
-                    showToast({title: "Selected users blocked successfully", variant: "default"});
-                    break;
-                case Action.Unblock:
-                    await performBulkAction(action, { ids: selectedIds });
-                    showToast({title: "Selected users unblocked successfully", variant: "default"});
-                    break;
-                case Action.Delete:
-                    if (confirm("Are you sure you want to delete the selected users? This action cannot be undone.")) {
-                        await performBulkAction(action, { ids: selectedIds });
-                        showToast({title: "Selected users deleted successfully", variant: "default"});
-                    }
-                    break;
-            }
+            await performBulkAction({ids: selectedIds, action});
+            showToast({title: `Selected users ${action.toLowerCase()}ed successfully`, variant: "success"});
             if (user() && selectedIds.includes(user()!.id)) {
                 await refreshToken();
             }
             trigger();
-            // Refresh the data after bulk action
-            // You might need to adjust this based on how your DataTable component handles refreshing
         } catch (error) {
-            showToast({title: `Failed to ${action} selected users`, variant: "destructive"});
+            showToast({title: `Failed to ${action.toLowerCase()} selected users`, variant: "destructive"});
+        }
+    };
+
+    const openDeleteDialog = (userId: number | null) => {
+        setUserToDelete(userId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDelete = async () => {
+        const ids = userToDelete() ? [userToDelete()] : selection();
+        try {
+            if (ids.length === 1) {
+                await performAction(Action.Delete, ids[0]);
+            } else {
+                await performBulkAction({ids, action: Action.Delete});
+            }
+            showToast({title: `User(s) deleted successfully`, variant: "success"});
+            if (user() && ids.includes(user()!.id)) {
+                await refreshToken();
+            }
+            trigger();
+        } catch (error) {
+            showToast({title: "Failed to delete user(s)", variant: "destructive"});
+        } finally {
+            setDeleteDialogOpen(false);
+            setUserToDelete(null);
         }
     };
 
@@ -148,41 +199,69 @@ export default function UserManagement() {
         const users = fetchedUsers();
         if (users) {
             setSelectedUsers(prev => [
-                ...prev.filter((user) => selectedUsersId[user.id]),
-                ...users.filter((user) => selectedUsersId[user.id])
+                ...prev.filter((user) => selectedUsersId.includes(user.id)),
+                ...users.filter((user) => selectedUsersId.includes(user.id))
             ]);
-
         }
-    })
+    });
 
     return (
-        <div class="container mx-auto p-4">
-            <h1 class="text-3xl font-bold mb-4">User Management</h1>
-            <div class="mb-4 flex gap-2">
-                <Button
-                    onClick={() => handleBulkAction(Action.Block)}
-                    disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Blocked")}
-                >Block</Button>
-                <Button
-                    onClick={() => handleBulkAction(Action.Unblock)}
-                    disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Active")}
-                >Unblock</Button>
-                <Button
-                    variant="destructive"
-                    onClick={() => handleBulkAction(Action.Delete)}
-                    disabled={selection().length === 0}
-                >Delete</Button>
-            </div>
-            <DataTable
-                columns={columns}
-                fetchData={getUsers}
-                isSelectable={true}
-                rowId="id"
-                initialSelection={selection()}
-                onSelectionChange={setSelection}
-                onFetchData={setFetchedUsers}
-                refetchTrigger={track}
-            />
-        </div>
+        <Card class="bg-background">
+            <CardHeader>
+                <CardTitle>User Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div class="mb-4 flex flex-wrap gap-2">
+                    <Button
+                        onClick={() => handleBulkAction(Action.Block)}
+                        disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Blocked")}
+                    >
+                        <UserX class="mr-2 h-4 w-4"/>
+                        Block Selected
+                    </Button>
+                    <Button
+                        onClick={() => handleBulkAction(Action.Unblock)}
+                        disabled={selection().length === 0 || selectedUsers().every(user => user.status === "Active")}
+                    >
+                        <UserCheck class="mr-2 h-4 w-4"/>
+                        Unblock Selected
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        onClick={() => handleBulkAction(Action.Delete)}
+                        disabled={selection().length === 0}
+                    >
+                        <Trash class="mr-2 h-4 w-4"/>
+                        Delete Selected
+                    </Button>
+                </div>
+                <DataTable
+                    columns={columns}
+                    fetchData={getUsers}
+                    isSelectable={true}
+                    rowId="id"
+                    initialSelection={selection()}
+                    onSelectionChange={setSelection}
+                    onFetchData={setFetchedUsers}
+                    refetchTrigger={track}
+                />
+            </CardContent>
+            <Dialog open={deleteDialogOpen()} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Are you sure you want to delete?</DialogTitle>
+                        <DialogDescription>
+                            This action cannot be undone. This will permanently delete
+                            the {userToDelete() ? 'selected user' : 'selected users'} and remove their data from our
+                            servers.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+                        <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </Card>
     );
 }

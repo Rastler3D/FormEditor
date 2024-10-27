@@ -1,5 +1,5 @@
 ﻿import {User} from "~/contexts/AuthContext";
-import {Action, Bulk, TableData, TableOption, TokenResponse, UpdateUser} from "~/types/template.ts";
+import {Action, Bulk, TableData, TableOption, TokenResponse, UpdateUser} from "~/types/types.ts";
 import {api} from "~/lib/api.ts";
 import {uploadImage} from "~/services/imageUploadService.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
@@ -15,8 +15,8 @@ export const register = (data: { name: string, email: string, password: string }
             .then(response => response.data)
 }
 
-export const refreshToken = (refreshToken: string): Promise<{ refreshToken: string, accessToken: string }> => {
-    return api.post<{ refreshToken: string, accessToken: string }>('/Authentication/refresh', {refreshToken})
+export const refreshToken = (refreshToken: string): Promise<TokenResponse> => {
+    return api.post<TokenResponse>('/Authentication/refresh', {refreshToken})
         .then(response => response.data);
 }
 
@@ -35,14 +35,14 @@ export const getUser = (userId: number): Promise<User> => {
         .then(response => response.data);
 };
 
-export const performAction = (typeAction: Action, userId: number): Promise<void> => {
-    return api.patch(`/User/${userId}/${typeAction}`)
+export const performAction = (action: Action, userId: number): Promise<void> => {
+    return api.patch(`/User/${userId}/action/${action}`)
         .then(() => {
         });
 };
 
-export const performBulkAction = (typeAction: Action, bulk: Bulk): Promise<void> => {
-    return api.patch(`/User/${typeAction}`, bulk)
+export const performBulkAction = (bulk: Bulk): Promise<void> => {
+    return api.patch(`/User/action`, bulk)
         .then(() => {
         });
 };

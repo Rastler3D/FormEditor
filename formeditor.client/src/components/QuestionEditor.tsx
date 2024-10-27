@@ -10,7 +10,7 @@ import {
 import {Button} from "~/components/ui/button";
 import {Card, CardContent, CardHeader} from "~/components/ui/card";
 import SortableItem from '~/components/SortableItem';
-import {QuestionConfiguration, QuestionTypes} from '~/types/template';
+import {QuestionConfiguration, QuestionTypes} from '~/types/types.ts';
 import Question from './Question';
 import {Plus} from 'lucide-solid';
 

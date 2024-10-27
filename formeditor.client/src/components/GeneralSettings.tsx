@@ -1,5 +1,5 @@
 ﻿import {createResource, createSignal, Show} from 'solid-js';
-import {AccessSetting, TemplateConfiguration} from '~/types/template';
+import {AccessSetting, TemplateConfiguration} from '~/types/types.ts';
 import {TextField, TextFieldInput} from "~/components/ui/text-field";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select";
 import {Button} from "~/components/ui/button";
@@ -140,7 +140,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                             <Show when={props.template.accessSetting === AccessSetting.Specified}>
                                 <div class="sm:col-span-2">
                                     <Label for="users" class="text-lg font-semibold mb-2">Users</Label>
-                                    <Button id="users" onClick={() => setShowUserTableList(true)} variant="outline"
+                                    <Button id="users" onClick={() => setShowUserTableList(true)}
                                             class="w-full">
                                         Select Users
                                     </Button>

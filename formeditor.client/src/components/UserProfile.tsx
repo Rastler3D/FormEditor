@@ -73,7 +73,7 @@ function UserProfile(props: UserProfileProps) {
                 <div class="flex flex-col items-center">
                     <Avatar class="w-32 h-32 border-4 border-background shadow-xl">
                         <Show when={avatar()}
-                              fallback={<AvatarFallback class="text-4xl ">{name()?.charAt(0)}</AvatarFallback>}>
+                              fallback={<AvatarFallback class="text-4xl ">{name().split(" ", 2).map((n) => n.charAt(0)).join("").toUpperCase()}</AvatarFallback>}>
                             <AvatarImage src={avatar()} alt={name()}/>
                         </Show>
                     </Avatar>
@@ -156,13 +156,6 @@ function UserProfile(props: UserProfileProps) {
                             </Label>
                         </Show>
                     </div>
-                    <Show when={props.isReadonly}>
-                        <Alert class="mt-6 mx-4 sm:mx-6 lg:mx-8">
-                            <AlertDescription>
-                                This profile is in read-only mode. You don't have permission to edit it.
-                            </AlertDescription>
-                        </Alert>
-                    </Show>
                 </div>
             </CardFooter>
         </Card>

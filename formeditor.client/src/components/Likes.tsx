@@ -1,4 +1,4 @@
-﻿import {Template} from "../types/template";
+﻿import {Template} from "../types/types.ts";
 import {Button} from "./ui/button";
 import {createResource, createEffect, Show} from "solid-js";
 import {createAction} from "~/lib/action";

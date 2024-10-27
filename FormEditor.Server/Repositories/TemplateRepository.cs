@@ -13,6 +13,7 @@ namespace FormEditor.Server.Repositories;
 // Repositories/ITemplateRepository.cs
 public interface ITemplateRepository
 {
+    Task<Result<bool, Error>> GetTemplateIsAllowedAsync(int templateId, int userId);
     Task<List<Template>> GetLatestTemplatesAsync();
     Task<List<Template>> GetPopularTemplatesAsync();
     Task<TableData<List<Template>>> GetTemplatesAsync(TableOption option);
@@ -45,26 +46,25 @@ public class TemplateRepository : ITemplateRepository
 
     public async Task<TableData<List<Template>>> ApplyTableOptions(IQueryable<Template> templates, TableOption options)
     {
-        var totalPages = 0;
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             templates = templates.Where(f =>
-                f.Name == options.Filter ||
-                f.Topic.Name == options.Filter ||
-                f.Description == options.Filter
+                EF.Functions.ILike(f.Name, $"%{options.Filter}%") ||
+                EF.Functions.ILike(f.Topic.Name, $"%{options.Filter}%") ||
+                EF.Functions.ILike(f.Description, $"%{options.Filter}%")
             );
-            totalPages = await templates.CountAsync() / options.Pagination.PageSize + 1;
         }
 
+        var totalRows = await templates.CountAsync();
         foreach (var sortOption in options.Sort)
         {
             Expression<Func<Template, object>> selector = sortOption.Id switch
             {
-                "Topic" => x => x.Topic.Name,
-                "Name" => x => x.Name,
-                "Author" => x => x.Creator.UserName,
-                "Created At" => x => x.CreatedAt,
-                "Usage Count" => x => x.FilledCount,
+                "topic" => x => x.Topic.Name,
+                "name" => x => x.Name,
+                "createdBy" => x => x.Creator.UserName,
+                "createdAt" => x => x.CreatedAt,
+                "filledCount" => x => x.FilledCount,
                 _ => x => x.Id
             };
 
@@ -84,7 +84,7 @@ public class TemplateRepository : ITemplateRepository
         return new()
         {
             Data = await templates.ToListAsync(),
-            TotalPages = totalPages
+            TotalRows = totalRows
         };
     }
 
@@ -96,6 +96,26 @@ public class TemplateRepository : ITemplateRepository
             .Include(t => t.Topic)
             .Include(t => t.Likes)
             .Include(t => t.Creator);
+    }
+
+    public async Task<Result<bool, Error>> GetTemplateIsAllowedAsync(int templateId, int userId)
+    {
+        var isAllowed = await _context.Templates.FindAsync(templateId);
+
+        if (isAllowed == null)
+        {
+            return Error.NotFound("Template not found");
+        }
+
+        if (isAllowed.AccessSetting == AccessSetting.All)
+        {
+            return true;
+        }
+
+        var allowEntry = await _context.AllowList
+            .FirstOrDefaultAsync(x => x.TemplateId == templateId && x.UserId == userId);
+
+        return allowEntry != null;
     }
 
     public async Task<TableData<List<Template>>> GetTemplatesAsync(TableOption option)
@@ -376,7 +396,8 @@ public class TemplateRepository : ITemplateRepository
                             .Select(option => new OptionPair
                             {
                                 Option = option,
-                                Count = q.Answers.Count(a => a.StringValue == option) // Count answers matching each option
+                                Count = q.Answers.Count(a =>
+                                    a.StringValue == option) // Count answers matching each option
                             })
                             .ToArray()
                         : null,

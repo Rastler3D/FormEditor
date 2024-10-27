@@ -34,21 +34,23 @@ public class UserRepository : IUserRepository
 
     public async Task<TableData<List<User>>> ApplyTableOptions(IQueryable<User> users, TableOption options)
     {
-        var totalPages = 0;
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
-            users = users.Where(f => f.UserName == options.Filter || f.Email == options.Filter);
-            totalPages = await users.CountAsync() / options.Pagination.PageSize + 1;
+            users = users.Where(f =>
+                EF.Functions.ILike(f.UserName, $"%{options.Filter}%") ||
+                EF.Functions.ILike(f.Email, $"%{options.Filter}%")
+            );
         }
+        var totalRows = await users.CountAsync();
 
         foreach (var sortOption in options.Sort)
         {
             Expression<Func<User, object>> selector = sortOption.Id switch
             {
-                "Name" => x => x.UserName,
-                "Email" => x => x.Email,
-                "Role" => x => x.Roles.Count,
-                "Status" => x => x.LockoutEnabled,
+                "name" => x => x.UserName,
+                "email" => x => x.Email,
+                "role" => x => x.Roles.Count,
+                "status" => x => x.LockoutEnabled,
                 _ => x => x.Id
             };
 
@@ -68,7 +70,7 @@ public class UserRepository : IUserRepository
         return new()
         {
             Data = await users.ToListAsync(),
-            TotalPages = totalPages
+            TotalRows = totalRows
         };
     }
 

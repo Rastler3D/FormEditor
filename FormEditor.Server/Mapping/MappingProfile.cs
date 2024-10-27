@@ -92,11 +92,12 @@ public class MappingProfile : Profile
             .ConstructUsing(s =>
                 (s.FirstOrDefault(x => x.Name == Roles.Admin) == null) ? RoleViewModel.User : RoleViewModel.Admin);
         CreateMap<User, UserViewModel>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UserName))
             .ForMember(dest => dest.Role, opt =>
                 opt.MapFrom(src => src.Roles))
             .ForMember(dest => dest.Status,
-                opt => opt.MapFrom(src => src.LockoutEnabled && src.LockoutEnd.HasValue && src.LockoutEnd <= DateTimeOffset.Now ? StatusViewModel.Blocked : StatusViewModel.Active));
+                opt => opt.MapFrom(src => src.LockoutEnabled && src.LockoutEnd.HasValue && src.LockoutEnd > DateTimeOffset.Now ? StatusViewModel.Blocked : StatusViewModel.Active));
         CreateMap<Comment, CommentViewModel>()
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author.UserName))
             .ReverseMap();

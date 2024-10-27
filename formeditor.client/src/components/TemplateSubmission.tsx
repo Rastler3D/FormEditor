@@ -1,4 +1,4 @@
-﻿import {AccessSetting, Answer, Form, Template} from "~/types/template.ts";
+﻿import {AccessSetting, Answer, Form, Template} from "~/types/types.ts";
 import {getSubmittedForm, submitOrUpdateForm} from "../services/formService";
 import {Card, CardContent, CardFooter, CardHeader} from "./ui/card";
 import TemplateView from "~/components/TemplateView.tsx";
@@ -11,19 +11,27 @@ import {A} from "@solidjs/router";
 import {Checkbox} from "~/components/ui/checkbox.tsx";
 import {Label} from "~/components/ui/label.tsx";
 import {Oval} from "solid-spinner";
+import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
+import {showToast} from "~/components/ui/toast.tsx";
 
 interface TemplateSubmissionProps {
     template: Template;
 }
 
-const fetchSubmission = ({ templateId, user }: { templateId: number, user: User | undefined }) => {
-    return new Promise<Form>((res, rej) => {
+const fetchSubmission = ({templateId, user}: { templateId: number, user: User | undefined }) => {
+    return new Promise<Form | undefined>((res, rej) => {
         if (user == null) {
             return res(undefined);
         } else {
             return getSubmittedForm(templateId, user.id)
                 .then(res)
-                .catch(rej);
+                .catch(err => {
+                    if (err.status === 404) {
+                        res(undefined);
+                    } else {
+                        rej(err)
+                    }
+                });
         }
     });
 }
@@ -31,8 +39,8 @@ const fetchSubmission = ({ templateId, user }: { templateId: number, user: User 
 export default function TemplateSubmission(props: TemplateSubmissionProps) {
     const [sendEmail, setSendEmail] = createSignal(false);
     const formSubmission = createAction(submitOrUpdateForm, () => props.template.id);
-    const { user } = useAuth();
-    const [form, { mutate: mutateForm }] = createResource(() => ({
+    const {user} = useAuth();
+    const [form, {mutate: mutateForm}] = createResource(() => ({
         templateId: props.template.id,
         user: user()
     }), fetchSubmission);
@@ -43,9 +51,25 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
     const hasPermission = () => !!user() &&
         (props.template.accessSetting == AccessSetting.All || props.template.allowList!.includes(user()!.id));
 
-    createEffect(resolve(form, (data) => data && setAnswers(data.answers)));
-    createEffect(resolve(formSubmission.data, (data) => data && mutateForm({ ...data, answers: unwrap(answers) })));
+    createEffect(resolve(form, (data) => {
+        if (data) {
+            setAnswers(reconcile(data.answers))
+        } else {
+            setIsEdit(true)
+        }
+    }));
+    createEffect(resolve(formSubmission.data, (data) => {
+        if (data) {
+            showToast({title: `Form successfully submitted`, variant: 'success'});
+            setIsEdit(false);
+            mutateForm({
+                ...data,
+                answers: unwrap(answers)
+            })
+        }
+    }));
     createEffect(on(() => formSubmission.data.error, (error) => error && setIsEdit(true)));
+
 
     const handleEditForm = () => setIsEdit(true);
     const handleCancelEditForm = () => {
@@ -85,12 +109,18 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
                         fillingDate={fillingDate()}
                         filledBy={form()?.submittedBy ?? filledBy()}
                     />
+                    <Show when={formSubmission.data.error}>
+                        <Alert variant="destructive" class="mt-4">
+                            <AlertCircle class="h-4 w-4" />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{error()}</AlertDescription>
+                        </Alert>
+                    </Show>
                 </CardContent>
                 <CardFooter class="flex flex-col space-y-4">
                     <Show when={!form.loading && !formSubmission.data.loading} fallback={
                         <Button disabled class="w-full">
-                            <Oval width="24" height="24" class="mr-2" />
-                            Loading...
+                            <Oval width="24" height="24" class="mr-2"/>
                         </Button>
                     }>
                         <Show when={form()} fallback={
@@ -109,7 +139,8 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
                                 </Match>
                                 <Match when={hasPermission()}>
                                     <div class="flex items-center space-x-2">
-                                        <Checkbox id="send-email" onChange={(value) => setSendEmail(value)} checked={sendEmail()} />
+                                        <Checkbox id="send-email" onChange={(value) => setSendEmail(value)}
+                                                  checked={sendEmail()}/>
                                         <Label for="send-email">Send form on email?</Label>
                                     </div>
                                     <Button type="submit" class="w-full" disabled={!hasPermission()}>
@@ -125,12 +156,14 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
                                 <Button class="w-full" onClick={handleEditForm}>Edit</Button>
                             }>
                                 <div class="flex items-center space-x-2">
-                                    <Checkbox id="send-email-edit" onChange={(value) => setSendEmail(value)} checked={sendEmail()} />
+                                    <Checkbox id="send-email-edit" onChange={(value) => setSendEmail(value)}
+                                              checked={sendEmail()}/>
                                     <Label for="send-email-edit">Send form on email?</Label>
                                 </div>
                                 <div class="flex space-x-2 w-full">
                                     <Button type="submit" class="flex-1">Save</Button>
-                                    <Button type="button" variant="outline" class="flex-1" onClick={handleCancelEditForm}>Cancel</Button>
+                                    <Button type="button" variant="outline" class="flex-1"
+                                            onClick={handleCancelEditForm}>Cancel</Button>
                                 </div>
                             </Show>
                         </Show>

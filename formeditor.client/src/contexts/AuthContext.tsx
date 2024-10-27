@@ -1,7 +1,7 @@
 ﻿import {createContext, useContext, createSignal, createEffect, JSX} from 'solid-js';
 import * as userServices from "~/services/userService"
 import {login} from "~/services/userService";
-import {UpdateUser} from "~/types/template.ts";
+import {UpdateUser} from "~/types/types.ts";
 import {makePersisted, storageSync} from "@solid-primitives/storage";
 
 export interface User {
@@ -44,6 +44,11 @@ export function AuthProvider(props: { children: JSX.Element }) {
         sync: storageSync,
         storage: localStorage
     });
+    const [expiresIn, setExpiresIn] = makePersisted(createSignal<string>(), {
+        name: "expires-in",
+        sync: storageSync,
+        storage: localStorage
+    });
 
     createEffect(() => {
         if (accessToken()) {
@@ -65,6 +70,7 @@ export function AuthProvider(props: { children: JSX.Element }) {
         const tokens = await login(credentials);
         setAccessToken(tokens.accessToken);
         setRefreshToken(tokens.refreshToken);
+        setExpireDate(tokens.expiresIn);
     };
 
     const signOut = () => {
@@ -74,24 +80,40 @@ export function AuthProvider(props: { children: JSX.Element }) {
 
     const signUp = (data: { name: string, email: string, password: string }) => {
         return userServices.register(data);
-
     };
 
     const signInWithProvider = async () => {
 
     };
 
+    const setExpireDate = (expiresIn: number) => {
+        const date = new Date();
+        date.setSeconds(date.getSeconds() + expiresIn);
+        setExpiresIn(date.toISOString());
+    }
+    const isTokenExpired = () => {
+        const expirationDate = new Date(expiresIn());
+        const date = new Date();
+        return expirationDate < date;
+
+    }
+
     const manuallyRefreshToken = async () => {
-        let token = refreshToken();
-        try {
-            const tokens = await userServices.refreshToken(token!);
-            setAccessToken(tokens.accessToken);
-            setRefreshToken(tokens.refreshToken);
-            return tokens.accessToken;
-        } catch (err) {
-            setRefreshToken();
-            setAccessToken();
+        if (isTokenExpired()) {
+            try {
+                const tokens = await userServices.refreshToken(refreshToken());
+                setAccessToken(tokens.accessToken);
+                setRefreshToken(tokens.refreshToken);
+                setExpireDate(tokens.expiresIn);
+                return tokens.accessToken;
+            } catch (err) {
+                console.error('Failed to refresh token:', err.message);
+                setRefreshToken();
+                setAccessToken();
+                return;
+            }
         }
+        return accessToken();
     };
 
     const updateUser = async (data: UpdateUser): Promise<User> => {

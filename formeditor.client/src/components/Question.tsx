@@ -1,6 +1,6 @@
 import {Card} from "./ui/card";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select";
-import {QuestionConfiguration, QuestionTypes, QuestionOptions} from "../types/template";
+import {QuestionConfiguration, QuestionTypes, QuestionOptions} from "../types/types.ts";
 import {Button} from "./ui/button";
 import {TextField, TextFieldInput, TextFieldTextArea} from "./ui/text-field";
 import {createSignal, For, Show, createEffect} from "solid-js";

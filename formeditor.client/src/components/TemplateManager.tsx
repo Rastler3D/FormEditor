@@ -1,11 +1,10 @@
 ﻿import {Tabs, TabsList, TabsTrigger, TabsContent} from "~/components/ui/tabs";
 import TemplateSettings from "~/components/TemplateSettings";
-import {Template, TemplateConfiguration} from "~/types/template.ts";
+import {Template, TemplateConfiguration} from "~/types/types.ts";
 import TemplateSubmission from "~/components/TemplateSubmission.tsx";
 import TemplateSubmissions from "~/components/TemplateSubmissions.tsx";
 import FormAggregation from "~/components/FormAggregation.tsx";
-import Likes from "~/components/Likes.tsx";
-import Comments from "~/components/Comments.tsx";
+
 
 interface TemplateManagerProps {
     template: Template;

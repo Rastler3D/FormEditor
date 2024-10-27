@@ -9,6 +9,7 @@ import {createAction} from "~/lib/action.ts";
 import {Oval} from "solid-spinner";
 import Comments from "~/components/Comments.tsx";
 import Likes from "~/components/Likes.tsx";
+import {showToast} from "~/components/ui/toast.tsx";
 
 const TemplatePage = () => {
     const {user} = useAuth();
@@ -18,6 +19,7 @@ const TemplatePage = () => {
 
     createEffect(on(templateUpdating.data, (updatedTemplate) => {
         if (updatedTemplate) {
+            showToast({title: `Template successfully updated`, variant: 'success'});
             mutate(updatedTemplate);
         }
     }));

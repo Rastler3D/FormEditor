@@ -4,7 +4,7 @@ import {useAuth} from "~/contexts/AuthContext.tsx";
 const UserFormsPage = () => {
     const { user } = useAuth();
     
-    return <FormManagement templateFetcher={(opt) => getUserForms(user()!.id, opt)} name="User Forms" />
+    return <FormManagement formFetcher={(opt) => getUserForms(user()!.id, opt)}  name="User Forms" />
 }
 
 export default UserFormsPage;

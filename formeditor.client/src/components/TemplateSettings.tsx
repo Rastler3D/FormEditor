@@ -1,9 +1,7 @@
 import {createEffect, createMemo, on, Show} from 'solid-js';
-import {BiSolidCog} from 'solid-icons/bi';
-import {FaSolidPencil, FaSolidEye} from 'solid-icons/fa';
 import {Card, CardContent, CardHeader} from "~/components/ui/card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "~/components/ui/tabs";
-import {QuestionConfiguration, TemplateConfiguration} from '~/types/template';
+import {QuestionConfiguration, TemplateConfiguration} from '~/types/types.ts';
 import GeneralSettings from '~/components/GeneralSettings';
 import QuestionEditor from '~/components/QuestionEditor';
 import TemplateView from '~/components/TemplateView';

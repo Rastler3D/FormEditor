@@ -1,14 +1,14 @@
 ﻿import {createResource, For, Match, Show, Switch, createMemo} from 'solid-js';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/card';
 import {fetchAggregatedResults} from "~/services/templateService";
-import {QuestionTypes, Template} from "~/types/template";
+import {QuestionTypes, Template} from "~/types/types.ts";
 import {Skeleton} from "~/components/ui/skeleton";
 import {Progress} from "~/components/ui/progress";
 import {Badge} from "~/components/ui/badge";
 import {Tabs, TabsList, TabsTrigger, TabsContent} from "~/components/ui/tabs";
 import {Chart, Title, Tooltip, Legend, Colors} from 'chart.js';
 import {Pie, Bar} from 'solid-chartjs';
-import {Aggregation} from '~/types/template';
+import {Aggregation} from '~/types/types.ts';
 
 Chart.register(Title, Tooltip, Legend, Colors);
 

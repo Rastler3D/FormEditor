@@ -1,5 +1,5 @@
 ﻿import {For} from 'solid-js';
-import {TemplateInfo} from '~/types/template';
+import {TemplateInfo} from '~/types/types.ts';
 import TemplateCard, {TemplateSkeleton} from "~/components/TemplateCard.tsx";
 
 interface TemplateGalleryProps {

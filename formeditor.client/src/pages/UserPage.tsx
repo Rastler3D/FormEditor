@@ -11,7 +11,7 @@ import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
 
 const UserPage = () => {
     const params = useParams();
-    const {user: currentUser, updateUser} = useAuth();
+    const {user: currentUser} = useAuth();
     const [user, {mutate}] = createResource(() => Number(params.id), getUser);
 
     return (

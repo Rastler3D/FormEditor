@@ -3,7 +3,7 @@ import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table.tsx";
 import {debounce} from '@solid-primitives/scheduled';
-import {createResource, For, createEffect, on} from "solid-js";
+import {createResource, For, createEffect, on, createSignal, untrack, Show} from "solid-js";
 import {
     ColumnDef,
     createSolidTable,
@@ -19,25 +19,26 @@ import {
     PaginationPrevious
 } from "~/components/ui/pagination.tsx";
 import {Skeleton} from "~/components/ui/skeleton.tsx";
-import {TableData, TableOption} from "~/types/template.ts";
-import {createStore, unwrap} from "solid-js/store";
+import {TableData, TableOption} from "~/types/types.ts";
 import {Checkbox} from "./ui/checkbox";
 import {createWritableMemo} from "@solid-primitives/memo"
 
 const selectionColumn: ColumnDef<any, any> = {
     id: 'select',
-    header: ({ table }) => (
+    header: ({table}) => (
         <Checkbox
-            checked={table.getIsAllRowsSelected()}
-            indeterminate={table.getIsSomeRowsSelected()}
-            onChange={table.getToggleAllRowsSelectedHandler()}
+            class="cursor-pointer"
+            checked={table.getIsAllPageRowsSelected()}
+            indeterminate={table.getIsSomePageRowsSelected()}
+            onChange={table.toggleAllPageRowsSelected}
         />
     ),
-    cell: ({ row }) => (
+    cell: ({row}) => (
         <Checkbox
+            class="cursor-pointer"
             checked={row.getIsSelected()}
             indeterminate={row.getIsSomeSelected()}
-            onChange={row.getToggleSelectedHandler()}
+            onChange={row.toggleSelected}
         />
     ),
 };
@@ -54,7 +55,7 @@ interface DataTableProps<TData> {
     refetchTrigger?: () => any;
 }
 
-const DataTable = <TData,>(props: DataTableProps<TData>) => {
+const DataTable = <TData, >(props: DataTableProps<TData>) => {
     const [selection, setSelection] = createWritableMemo(() => (
             props.initialSelection ?? []).reduce((acc, row, index) => ({
             ...acc,
@@ -62,16 +63,19 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
         }), {} as Record<string, boolean>)
     );
 
-    const [options, setOptions] = createStore<TableOption>({
-        sort: [],
-        filter: '',
-        pagination: {
-            pageIndex: 0,
-            pageSize: 10
-        }
+    const [sort, setSort] = createSignal([]);
+    const [filter, setFilter] = createSignal('');
+    const [pagination, setPagination] = createSignal({
+        pageIndex: 0,
+        pageSize: 10
     });
 
-    const [response, { refetch }] = createResource(options, props.fetchData);
+    const [response, {refetch}] = createResource(() => ({
+        sort: sort(),
+        pagination: pagination(),
+        filter: filter()
+    }), props.fetchData);
+
     const debouncedFilterInput = debounce((value: string) => table.setGlobalFilter(value), 300);
 
     const handleRowSelectionChange = (updater: RowSelectionState | ((prev: RowSelectionState) => RowSelectionState)) => {
@@ -82,7 +86,11 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
     createEffect(() => {
         let fetchData = response()?.data;
         if (fetchData) {
-            const args = unwrap(options);
+            const args = untrack(() => ({
+                sort: sort(),
+                pagination: pagination(),
+                filter: filter()
+            }));
             props.onFetchData?.(fetchData, args);
         }
     });
@@ -98,9 +106,9 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
         },
         getCoreRowModel: getCoreRowModel(),
         onRowSelectionChange: handleRowSelectionChange,
-        onSortingChange: (sort) => setOptions("sort", sort),
-        onPaginationChange: (pagination) => setOptions("pagination", pagination),
-        onGlobalFilterChange: (filter) => setOptions("filter", filter),
+        onSortingChange: (sort) => setSort(sort),
+        onPaginationChange: (pagination) => setPagination(pagination),
+        onGlobalFilterChange: (filter) => setFilter(filter),
         manualSorting: true,
         manualFiltering: true,
         manualPagination: true,
@@ -111,41 +119,42 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
             return props.isSelectable;
         },
         getRowId: (row, index) => String(props.rowId ? row?.[props.rowId] : index),
-        get pageCount() {
-            return response()?.totalPages;
+        get rowCount() {
+            return response()?.totalRows;
         },
         state: {
             get rowSelection() {
                 return selection();
             },
             get sorting() {
-                return options.sort;
+                return sort();
             },
             get globalFilter() {
-                return options.filter;
+                return filter();
             },
             get pagination() {
-                return options.pagination;
+                return pagination();
             }
         }
     });
 
     return (
-        <div class="py-4">
-            <div class="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center w-full sm:w-auto">
-                    <Search class="mr-2 h-4 w-4 text-muted-foreground" />
-                    <TextField onChange={(value) => debouncedFilterInput(value)} class="w-full sm:w-auto">
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:w-64">
+                    <Search class="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground"/>
+                    <TextField onChange={(value) => debouncedFilterInput(value)}
+                               class="w-full">
                         <TextFieldInput
                             type="text"
                             placeholder="Search..."
-                            class="w-full p-2 bg-background border border-input rounded-md focus:ring-2 focus:ring-ring"
+                            class="pl-9 w-full"
                         />
                     </TextField>
                 </div>
-                <Select
-                    value={table.getState().pagination.pageSize.toString()}
-                    onChange={(value) => table.setPageSize(Number(value))}
+                <Select<number>
+                    value={table.getState().pagination.pageSize}
+                    onChange={(value: number) => table.setPageSize(value)}
                     options={[5, 10, 20, 30, 40, 50]}
                     itemComponent={props => (
                         <SelectItem item={props.item}>
@@ -160,7 +169,7 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
                     </SelectContent>
                 </Select>
             </div>
-            <div class="overflow-x-auto rounded-md border">
+            <div class="rounded-md border">
                 <Table>
                     <TableHeader>
                         <For each={table.getHeaderGroups()}>
@@ -168,7 +177,7 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
                                 <TableRow>
                                     <For each={headerGroup.headers}>
                                         {(header) => (
-                                            <TableHead>
+                                            <TableHead classList={{"text-end": header.column.getIsLastColumn()}}>
                                                 {header.isPlaceholder ? null : (
                                                     <div
                                                         class={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
@@ -179,11 +188,11 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
                                                             header.getContext()
                                                         )}
                                                         {{
-                                                            asc: <ArrowUp class="inline ml-1" size={12} />,
-                                                            desc: <ArrowDown class="inline ml-1" size={12} />,
+                                                            asc: <ArrowUp class="inline ml-1" size={12}/>,
+                                                            desc: <ArrowDown class="inline ml-1" size={12}/>,
                                                         }[header.column.getIsSorted()] ?? (
                                                             header.column.getCanSort() ?
-                                                                <ArrowUpDown class="inline ml-1" size={12} /> : null
+                                                                <ArrowUpDown class="inline ml-1" size={12}/> : null
                                                         )}
                                                     </div>
                                                 )}
@@ -196,13 +205,13 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
                     </TableHeader>
                     <TableBody>
                         {response.loading ? (
-                            <For each={Array(options.pagination.pageSize).fill(null)}>
+                            <For each={Array(pagination().pageSize).fill(null)}>
                                 {() => (
                                     <TableRow class="animate-pulse">
                                         <For each={props.columns}>
                                             {() => (
                                                 <TableCell>
-                                                    <Skeleton class="h-6 w-full" />
+                                                    <Skeleton class="!h-6 !w-full"/>
                                                 </TableCell>
                                             )}
                                         </For>
@@ -214,12 +223,12 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
                                 {(row) => (
                                     <TableRow
                                         class="hover:bg-accent transition-colors duration-200"
-                                        classList={{ "cursor-pointer": !!props.onRowClick }}
+                                        classList={{"cursor-pointer": !!props.onRowClick}}
                                         onClick={() => props.onRowClick?.(row.original)}
                                     >
                                         <For each={row.getVisibleCells()}>
                                             {(cell) => (
-                                                <TableCell>
+                                                <TableCell classList={{"text-end": cell.column.getIsLastColumn()}}>
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()
@@ -234,23 +243,32 @@ const DataTable = <TData,>(props: DataTableProps<TData>) => {
                     </TableBody>
                 </Table>
             </div>
-            <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-muted-foreground">
                     Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of {table.getFilteredRowModel().rows.length} results
                 </div>
+                <Show when={props.isSelectable}>
+                    <div class='flex-1 text-sm text-muted-foreground'>
+                        {Object.keys(selection()).filter(id => selection()[id]).length} of{' '}
+                        {response()?.totalRows ?? 0} row(s) selected.
+                    </div>
+                </Show>
+
                 <Pagination
                     count={table.getPageCount()}
                     page={table.getState().pagination.pageIndex + 1}
-                    onPageChange={(page) =>
-
-                        table.setPageIndex(page - 1)}
+                    onPageChange={(page) => table.setPageIndex(page - 1)}
                     itemComponent={(props) => <PaginationItem page={props.page}>{props.page}</PaginationItem>}
-                    ellipsisComponent={() => <PaginationEllipsis />}
+                    ellipsisComponent={() => <PaginationEllipsis/>}
                     class="flex items-center space-x-2"
                 >
-                    <PaginationPrevious />
-                    <PaginationItems />
-                    <PaginationNext />
+                    <PaginationPrevious disabled={!table.getCanPreviousPage()}>
+
+                    </PaginationPrevious>
+                    <PaginationItems/>
+                    <PaginationNext disabled={!table.getCanNextPage()}>
+
+                    </PaginationNext>
                 </Pagination>
             </div>
         </div>

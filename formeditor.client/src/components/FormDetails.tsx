@@ -1,7 +1,7 @@
 ﻿import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';
 import {Separator} from '~/components/ui/separator';
-import {FilledForm, Form, Template} from "~/types/template.ts";
+import {FilledForm, Form, Template} from "~/types/types.ts";
 import {createEffect, createMemo, createSignal, Show} from "solid-js";
 import {createStore, reconcile, unwrap} from "solid-js/store";
 import TemplateView from "./TemplateView";

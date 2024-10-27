@@ -5,7 +5,7 @@ import {
     FormInfo,
     TableOption,
     TableData, FilledForm
-} from "~/types/template.ts";
+} from "~/types/types.ts";
 import {api} from "~/lib/api.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 

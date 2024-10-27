@@ -143,6 +143,7 @@ export enum Action{
 }
 export interface Bulk
 {
+    action: Action;
     ids: number[];
 }
 
@@ -151,9 +152,10 @@ export type UpdateUser = Partial<Pick<User, "name" | "email" >> & { avatar?: str
 export interface TokenResponse {
     refreshToken: string;
     accessToken: string;
+    expiresIn: number;
 }
 
 export interface TableData<T> {
     data: T;
-    totalPages: number;
+    totalRows: number;
 }

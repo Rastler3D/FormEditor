@@ -103,7 +103,17 @@ public class FormService : IFormService
         {
             return Error.NotFound("User not found");
         }
+        
+        var templateIsAllowed = await _templateRepository.GetTemplateIsAllowedAsync(filledForm.TemplateId, userId);
 
+        if (templateIsAllowed.IsErr)
+        {
+            return templateIsAllowed.Error;
+        }
+        if (!templateIsAllowed.Value)
+        {
+            return Error.Unauthorized("You are not allowed to fill this form");
+        }
         var newForm = _mapper.Map<Form>(filledForm, opt => opt.Items["SubmitterId"] = userId);
 
         var formSubmittion = await _formRepository.SubmitFormAsync(newForm);
@@ -126,13 +136,13 @@ public class FormService : IFormService
     {
         var user = await _userManager.FindByIdAsync(updatorId.ToString());
 
-        var template = await _formRepository.GetFormAsync(formId);
-        if (template.IsErr)
+        var oldForm = await _formRepository.GetFormAsync(formId);
+        if (oldForm.IsErr)
         {
-            return template.Error;
+            return oldForm.Error;
         }
 
-        if (template.Value.SubmitterId != user.Id && !await _userManager.IsInRoleAsync(user, Roles.Admin))
+        if (oldForm.Value.SubmitterId != user.Id && !await _userManager.IsInRoleAsync(user, Roles.Admin))
         {
             return Error.Unauthorized("You have no permission to edit this template");
         }
@@ -158,13 +168,14 @@ public class FormService : IFormService
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
-        var form = await _formRepository.GetFormAsync(formId);
-        if (form.IsErr)
+        var formFind = await _formRepository.GetFormAsync(formId);
+        if (formFind.IsErr)
         {
-            return form.Error;
+            return formFind.Error;
         }
 
-        if (form.Value.SubmitterId != user.Id && !await _userManager.IsInRoleAsync(user, Roles.Admin))
+        var form = formFind.Value;
+        if (form.SubmitterId != user.Id && form.Template.CreatorId != user.Id && !await _userManager.IsInRoleAsync(user, Roles.Admin))
         {
             return Error.Unauthorized("You have no permission to delete this form");
         }

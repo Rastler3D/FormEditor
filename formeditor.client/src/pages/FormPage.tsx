@@ -8,6 +8,7 @@ import {Oval} from "solid-spinner";
 import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
 import {AlertCircle, FileText} from "lucide-solid";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
+import {showToast} from "~/components/ui/toast.tsx";
 
 
 const FormPage = () => {
@@ -22,6 +23,7 @@ const FormPage = () => {
 
     createEffect(() => {
         if (formSubmission.data()) {
+            showToast({title: `Form successfully submitted`, variant: 'success'});
             mutate(prev => ({
                 ...prev!,
                 form: {...formSubmission.data()!, answers: formSubmission.args()!.filledForm.answers}

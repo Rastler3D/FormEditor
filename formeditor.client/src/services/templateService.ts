@@ -7,19 +7,19 @@ import {
     LikesInfo,
     TemplateConfiguration,
     AggregatedResults, TableOption, TableData
-} from '~/types/template.ts';
+} from '~/types/types.ts';
 import {api} from "~/lib/api.ts";
 import {uploadImage} from "~/services/imageUploadService.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 
 
 export const fetchUserTemplates = (userId: number, options: TableOption): Promise<TableData<TemplateInfo[]>> => {
-    return api.get<TableData<TemplateInfo[]>>(`/Form/user/${userId}`, {params: optionToQueryParams(options)})
+    return api.get<TableData<TemplateInfo[]>>(`/Template/user/${userId}`, {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 
 export const fetchTemplates = (options: TableOption): Promise<TableData<TemplateInfo[]>> => {
-    return api.get<TableData<TemplateInfo[]>>(`/Form`, {params: optionToQueryParams(options)})
+    return api.get<TableData<TemplateInfo[]>>(`/Template`, {params: optionToQueryParams(options)})
         .then(response => response.data);
 };
 

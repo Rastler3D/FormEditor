@@ -1,4 +1,4 @@
-﻿import { TemplateInfo } from "~/types/template";
+﻿import { TemplateInfo } from "~/types/types.ts";
 import {Card, CardContent, CardFooter} from "~/components/ui/card";
 import {Badge} from "~/components/ui/badge";
 import {A} from "@solidjs/router";

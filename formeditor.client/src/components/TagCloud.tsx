@@ -2,7 +2,7 @@ import {createEffect, createSignal, onCleanup, onMount} from 'solid-js';
 import * as d3 from 'd3';
 import cloud from 'd3-cloud';
 import {Skeleton} from "~/components/ui/skeleton.tsx";
-import {TagInfo} from "~/types/template.ts";
+import {TagInfo} from "~/types/types.ts";
 
 interface TagCloudProps {
     tags?: TagInfo[];

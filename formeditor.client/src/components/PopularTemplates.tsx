@@ -2,7 +2,7 @@
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table.tsx";
 import {Skeleton} from "~/components/ui/skeleton.tsx";
 import {useNavigate} from "@solidjs/router";
-import {TemplateInfo} from "~/types/template.ts";
+import {TemplateInfo} from "~/types/types.ts";
 
 interface PopularTemplateProps {
     templates?: TemplateInfo[],
@@ -29,7 +29,7 @@ const PopularTemplates = (props: PopularTemplateProps) => {
                                 <For each={Array(4).fill(null)}>
                                     {() => (
                                         <TableCell>
-                                            <Skeleton class="h-6 w-full"/>
+                                            <Skeleton class="!h-6 !w-full"/>
                                         </TableCell>
                                     )}
                                 </For>

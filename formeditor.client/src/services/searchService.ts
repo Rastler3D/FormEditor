@@ -9,7 +9,8 @@ export const searchTemplate = async (params: {
 }) => {
     const {query, page, pageSize, filters, sorting} = params;
     const filterString = Object.entries(filters)
-        .map(([key, value]) => `${key} IN [${value.join(', ')}]`)
+        .filter(([_, value]) => value && value.length > 0)
+        .map(([key, value]) => `${key} IN [${value.map(x=> `'${x}'`).join(', ')}]`)
         .join(' AND ');
 
     const results = await searchClient.index('templates').search(query, {

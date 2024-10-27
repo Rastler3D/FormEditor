@@ -11,7 +11,7 @@ public interface IUserService
 {
     Task<TableData<List<UserViewModel>>> GetAllUsersAsync(TableOptionViewModel option);
     Task<Result<UserViewModel, Error>> GetUserAsync(int userId);
-    Task<Result<Error>> PerformBulkActionAsync(ActionViewModel action, int[] userIds);
+    Task<Result<Error>> PerformBulkActionAsync(BulkViewModel bulk);
     Task<Result<Error>> PerformActionAsync(ActionViewModel action, int userId);
     Task<Result<Error>> ChangeRoleAsync(int userId, RoleViewModel role);
     Task<Result<UserViewModel, Error>> UpdateUserAsync(int userId, UpdateUserViewModel user, int updatorId);
@@ -45,11 +45,11 @@ public class UserService : IUserService
             .Map(_mapper.Map<UserViewModel>);
     }
 
-    public async Task<Result<Error>> PerformBulkActionAsync(ActionViewModel action, int[] userIds)
+    public async Task<Result<Error>> PerformBulkActionAsync(BulkViewModel bulk)
     {
-        foreach (var userId in userIds)
+        foreach (var userId in bulk.Ids)
         {
-            var result = await PerformActionAsync(action, userId);
+            var result = await PerformActionAsync(bulk.Action, userId);
             if (result.IsErr)
             {
                 return result;

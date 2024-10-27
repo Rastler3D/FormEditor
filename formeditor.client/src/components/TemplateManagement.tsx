@@ -1,11 +1,20 @@
 import {ColumnDef} from "@tanstack/solid-table";
-import {A} from '@solidjs/router';
+import {A, useNavigate} from '@solidjs/router';
 import DataTable from '~/components/DataTable';
 import {Button} from '~/components/ui/button';
-import {TableData, TableOption, TemplateInfo} from '~/types/template';
-import {deleteTemplate, fetchUsers} from '~/services/templateService.ts';
+import {TableData, TableOption, TemplateInfo} from '~/types/types.ts';
+import {deleteTemplate} from '~/services/templateService.ts';
 import {showToast} from "../components/ui/toast";
 import {createTrigger} from '@solid-primitives/trigger';
+import {Clock, Eye, FileText, MoreHorizontal, Trash, User} from "lucide-solid";
+import {Badge} from "~/components/ui/badge.tsx";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "~/components/ui/dropdown-menu.tsx";
+import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
 
 interface TemplateManagementProps {
     templateFetcher: (options: TableOption) => Promise<TableData<TemplateInfo[]>>;
@@ -13,64 +22,107 @@ interface TemplateManagementProps {
 }
 
 export default function TemplateManagement(props: TemplateManagementProps) {
+    const [track, trigger] = createTrigger();
+    const navigate = useNavigate();
 
     const columns: ColumnDef<TemplateInfo, any>[] = [
         {
             accessorKey: 'name',
             header: 'Name',
-            cell: (info) => <A href={`/templates/${info.row.original.id}`}
-                               class="text-primary hover:underline">{info.getValue()}</A>,
+            cell: (info) => (
+                <A href={`/templates/${info.row.original.id}`}
+                   class="text-primary hover:underline flex items-center space-x-2">
+                    <FileText class="h-4 w-4"/>
+                    <span>{info.getValue()}</span>
+                </A>
+            ),
         },
         {
             accessorKey: 'createdBy',
             header: 'Author',
+            cell: (info) => (
+                <div class="flex items-center space-x-2">
+                    <User class="h-4 w-4 text-muted-foreground"/>
+                    <span>{info.getValue()}</span>
+                </div>
+            ),
         },
         {
             accessorKey: 'createdAt',
             header: 'Created At',
-            cell: (info) => new Date(info.getValue() as string).toLocaleDateString(),
+            cell: (info) => (
+                <div class="flex items-center space-x-2">
+                    <Clock class="h-4 w-4 text-muted-foreground"/>
+                    <span>{new Date(info.getValue() as string).toLocaleString()}</span>
+                </div>
+            ),
+        },
+        {
+            accessorKey: 'topic',
+            header: 'Topic',
+            cell: (info) => (
+                <Badge variant="default">
+                    {info.getValue()}
+                </Badge>
+            ),
         },
         {
             accessorKey: 'filledCount',
-            header: 'Usage Count',
+            header: 'Fills Count',
+            cell: (info) => (
+                <Badge variant="secondary">
+                    {info.getValue()} fills
+                </Badge>
+            ),
         },
         {
             id: 'actions',
+            enableSorting: false,
+            header: 'Actions',
             cell: (info) => (
-                <div class="flex gap-2">
-                    <Button as={A} href={`/templates/${info.row.original.id}`} size="sm">
-                        Use Template
-                    </Button>
-                    <Button size="sm" onClick={() => handleDeleteTemplate(info.row.original.id)}>
-                        Delete
-                    </Button>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger as={Button} variant="ghost" size="sm">
+                        <MoreHorizontal class="h-4 w-4"/>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem class="cursor-pointer" onSelect={() => navigate(`/templates/${info.row.original.id}`)}>
+                            <Eye class="mr-2 h-4 w-4"/>
+                            Use Template
+                        </DropdownMenuItem>
+                        <DropdownMenuItem class="cursor-pointer" onSelect={() => handleDeleteTemplate(info.row.original.id)}>
+                            <Trash class="mr-2 h-4 w-4"/>
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             ),
         },
     ];
 
-    const [track, trigger] = createTrigger();
     const handleDeleteTemplate = async (templateId: number) => {
         try {
             await deleteTemplate(templateId);
-
             trigger();
-            showToast({title: `Deleted template ${templateId}`, variant: "default"});
+            showToast({title: `Deleted template ${templateId}`, variant: "success"});
         } catch (error) {
             showToast({title: "Failed to delete template", variant: "destructive"});
         }
     };
 
     return (
-        <div class="container mx-auto p-4">
-            <h1 class="text-3xl font-bold mb-4">{props.name?? "Forms"}</h1>
-            <DataTable
-                columns={columns}
-                fetchData={props.templateFetcher}
-                isSelectable={false}
-                refetchTrigger={track}
-                rowId="id"
-            />
-        </div>
+        <Card class="bg-background">
+            <CardHeader>
+                <CardTitle>{props.name ?? "Templates"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <DataTable
+                    columns={columns}
+                    fetchData={props.templateFetcher}
+                    isSelectable={false}
+                    refetchTrigger={track}
+                    rowId="id"
+                />
+            </CardContent>
+        </Card>
     );
 }

@@ -52,7 +52,7 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
     
-    [HttpPatch("{userId:int}/{action}")]
+    [HttpPatch("{userId:int}/action/{action}")]
     [Authorize(Roles = "Admin")]
     public async Task<Results<NoContent, ProblemHttpResult>> PerformAction([FromRoute] ActionViewModel action, [FromRoute] int userId)
     {
@@ -65,11 +65,11 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
     
-    [HttpPatch("{action}")]
+    [HttpPatch("action")]
     [Authorize(Roles = "Admin")]
-    public async Task<Results<NoContent, ProblemHttpResult>> PerformBulkAction([FromRoute] ActionViewModel action, [FromBody] BulkViewModel bulk)
+    public async Task<Results<NoContent, ProblemHttpResult>> PerformBulkAction([FromBody] BulkViewModel bulk)
     {
-        var result = await _userService.PerformBulkActionAsync(action, bulk.Ids);
+        var result = await _userService.PerformBulkActionAsync(bulk);
         if (result.IsOk)
         {
             return TypedResults.NoContent();

@@ -1,10 +1,15 @@
-import {lazy} from "solid-js";
+import {ErrorBoundary, lazy} from "solid-js";
 import {Router, Route} from "@solidjs/router";
 import {AuthProvider} from "~/contexts/AuthContext";
 import {ThemeProvider} from "~/contexts/ThemeContext.tsx";
 import {LanguageProvider} from "~/contexts/LanguageContext.tsx";
 import Layout from "~/components/Layout.tsx";
 import AuthorizeRoute from "~/components/AuthorizeRoute.tsx";
+import {showToast, Toaster} from "~/components/ui/toast.tsx";
+import {Button} from "~/components/ui/button.tsx";
+import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
+import {AlertCircle} from "lucide-solid";
+import {Error} from "~/components/Error.tsx";
 
 const UserTemplatesPage = lazy(() => import("~/pages/UserTemplatesPage.tsx"));
 const TemplatePage = lazy(() => import("~/pages/TemplatePage.tsx"));
@@ -27,48 +32,53 @@ function App() {
         <LanguageProvider>
             <ThemeProvider>
                 <AuthProvider>
-                    <Router root={Layout}>
-                        <Route path={["/","/home"]} component={HomePage}/>
-                        <Route path="/search" component={SearchPage}/>
-                        
-                        <Route path="/login">
-                            <Route path="/" component={LoginPage}/>
-                            <Route path="/forgot-password" component={ForgotPasswordPage}/>
-                        </Route>
-                        
-                        <Route path="/registration">
-                            <Route path="/" component={RegistrationPage}/>
-                            <Route path="/confirm-email/:email" component={ConfirmEmailPage}/>
-                        </Route>
+                    <ErrorBoundary fallback={(error, reset) => (
+                        <Error error={error} reset={reset}/>
+                    )}>
+                        <Router root={Layout}>
+                            <Route path={["/", "/home"]} component={HomePage}/>
+                            <Route path="/search" component={SearchPage}/>
 
-                        <Route path="/templates">
-                            <Route path=":id" component={TemplatePage}/>
-                            <Route path="/all" component={AuthorizeRoute(["Admin"])}>
-                                <Route path="/" component={AllTemplatesPage}/>
+                            <Route path="/login">
+                                <Route path="/" component={LoginPage}/>
+                                <Route path="/forgot-password" component={ForgotPasswordPage}/>
                             </Route>
-                            <Route component={AuthorizeRoute(["User", "Admin"])}>
-                                <Route path="/" component={UserTemplatesPage}/>
-                                <Route path="/create" component={TemplateCreationPage}/>
-                            </Route>
-                        </Route>
 
-                        <Route path="/forms">
-                            <Route path=":id" component={FormPage}/>
-                            <Route path="/all" component={AuthorizeRoute(["Admin"])}>
-                                <Route path="/" component={AllFormsPage}/>
+                            <Route path="/registration">
+                                <Route path="/" component={RegistrationPage}/>
+                                <Route path="/confirm-email/:email" component={ConfirmEmailPage}/>
                             </Route>
-                            <Route component={AuthorizeRoute(["User", "Admin"])}>
-                                <Route path="/" component={UserFormsPage}/>
-                            </Route>
-                        </Route>
 
-                        <Route path="/users">
-                            <Route path=":id" component={UserPage}/>
-                            <Route path="/all" component={AuthorizeRoute(["Admin"])}>
-                                <Route path="/" component={AllUsersPage}/>
+                            <Route path="/templates">
+                                <Route path=":id" component={TemplatePage}/>
+                                <Route path="/all" component={AuthorizeRoute(["Admin"])}>
+                                    <Route path="/" component={AllTemplatesPage}/>
+                                </Route>
+                                <Route component={AuthorizeRoute(["User", "Admin"])}>
+                                    <Route path="/" component={UserTemplatesPage}/>
+                                    <Route path="/create" component={TemplateCreationPage}/>
+                                </Route>
                             </Route>
-                        </Route>
-                    </Router>
+
+                            <Route path="/forms">
+                                <Route path=":id" component={FormPage}/>
+                                <Route path="/all" component={AuthorizeRoute(["Admin"])}>
+                                    <Route path="/" component={AllFormsPage}/>
+                                </Route>
+                                <Route component={AuthorizeRoute(["User", "Admin"])}>
+                                    <Route path="/" component={UserFormsPage}/>
+                                </Route>
+                            </Route>
+
+                            <Route path="/users">
+                                <Route path=":id" component={UserPage}/>
+                                <Route path="/all" component={AuthorizeRoute(["Admin"])}>
+                                    <Route path="/" component={AllUsersPage}/>
+                                </Route>
+                            </Route>
+                        </Router>
+                    </ErrorBoundary>
+                    <Toaster/>
                 </AuthProvider>
             </ThemeProvider>
         </LanguageProvider>

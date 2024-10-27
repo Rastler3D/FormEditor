@@ -13,7 +13,6 @@ import {
 import {Avatar, AvatarFallback, AvatarImage} from "~/components/ui/avatar";
 import {Language, useLanguage} from "~/contexts/LanguageContext";
 import {useAuth} from "~/contexts/AuthContext";
-import {Separator} from "~/components/ui/separator";
 import {useMatch, useNavigate} from "@solidjs/router";
 import {createSignal, Show} from "solid-js";
 import {Sheet, SheetContent, SheetTrigger, SheetClose} from "~/components/ui/sheet";
@@ -32,7 +31,7 @@ const Header = () => {
 
     const handleSearch = (e: SubmitEvent) => {
         e.preventDefault();
-        navigate(`/search?query=${query()}`);
+        navigate(`/search?query=${encodeURIComponent(query())}`);
         setQuery("");
         setIsSearchOpen(false);
     };
@@ -43,10 +42,8 @@ const Header = () => {
                 <div class="h-16 flex items-center justify-between">
                     <div class="flex items-center">
                         <Sheet>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" class="md:hidden mr-2">
+                            <SheetTrigger as={Button} variant="ghost" size="icon" class="md:hidden mr-2">
                                     <Menu class="h-5 w-5"/>
-                                </Button>
                             </SheetTrigger>
                             <SheetContent position="left" class="w-60 p-0 !overflow-y-hidden">
                                 <Sidebar isSheet/>
@@ -70,11 +67,9 @@ const Header = () => {
                     </div>
                     <div class="flex items-center gap-2">
                         <Sheet open={isSearchOpen()} onOpenChange={setIsSearchOpen}>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" class="md:hidden">
+                            <SheetTrigger as={Button} variant="ghost" size="icon" class="md:hidden">
                                     <SearchIcon class="h-5 w-5"/>
                                     <span class="sr-only">Search</span>
-                                </Button>
                             </SheetTrigger>
                             <SheetContent position="top" class="w-full p-4 h-24 flex items-end">
                                 <form onSubmit={handleSearch} class="flex gap-2 w-full">
@@ -98,11 +93,9 @@ const Header = () => {
                             <span class="sr-only">Toggle theme</span>
                         </Button>
                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                            <DropdownMenuTrigger as={Button} variant="ghost" size="icon">
                                     <Globe class="h-5 w-5"/>
                                     <span class="sr-only">{t('Select language')}</span>
-                                </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuItem onSelect={() => setLanguage(Language.En)}>English</DropdownMenuItem>
@@ -119,10 +112,8 @@ const Header = () => {
                                         <Button onClick={() => navigate("/registration")}>Sign Up</Button>
                                     </div>
                                     <DropdownMenu>
-                                        <DropdownMenuTrigger asChild class="md:hidden">
-                                            <Button variant="ghost" size="icon">
+                                        <DropdownMenuTrigger as={Button} variant="ghost" size="icon" class="md:hidden">
                                                 <LogIn/>
-                                            </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent  class="w-36">
                                             <DropdownMenuItem class="cursor-pointer" onSelect={() => navigate("/login")}>Sign
@@ -135,13 +126,11 @@ const Header = () => {
                             }
                         >
                             <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" class="relative h-8 w-8 rounded-full">
+                                <DropdownMenuTrigger as={Button} variant="ghost" class="relative h-8 w-8 rounded-full">
                                         <Avatar class="h-8 w-8">
                                             <AvatarImage src={user()?.avatar} alt={user()?.name}/>
-                                            <AvatarFallback>{user()?.name.split(" ").map((n) => n[0]).join("").toUpperCase()}</AvatarFallback>
+                                            <AvatarFallback>{user()?.name.split(" ", 2).map((n) => n.charAt(0)).join("").toUpperCase()}</AvatarFallback>
                                         </Avatar>
-                                    </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent class="w-56">
                                     <DropdownMenuLabel class="font-normal">

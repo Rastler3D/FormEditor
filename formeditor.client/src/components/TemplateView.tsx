@@ -1,6 +1,6 @@
 ﻿import {For, Match, Switch} from 'solid-js';
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card";
-import {Answer, QuestionTypes, TemplateConfiguration} from '~/types/template';
+import {Answer, QuestionTypes, TemplateConfiguration} from '~/types/types.ts';
 import {TextField, TextFieldInput, TextFieldTextArea} from "~/components/ui/text-field";
 import {SetStoreFunction, Store} from "solid-js/store";
 import {Checkbox} from "~/components/ui/checkbox";

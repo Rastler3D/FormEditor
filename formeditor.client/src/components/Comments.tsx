@@ -1,14 +1,13 @@
 ﻿import {createSignal, createEffect, For, onCleanup} from 'solid-js';
-import {HubConnectionBuilder, HubConnection, HttpTransportType} from '@microsoft/signalr';
+import {HubConnectionBuilder, HubConnection, HttpTransportType, LogLevel} from '@microsoft/signalr';
 import {Card, CardContent, CardFooter, CardHeader} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';
 import {useAuth} from '~/contexts/AuthContext';
-import {Template} from "~/types/template.ts";
+import {Template} from "~/types/types.ts";
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
-import {Comment} from "~/types/template.ts";
-import { MessageSquare } from 'lucide-solid';
-
+import {Comment} from "~/types/types.ts";
+import {MessageSquare} from 'lucide-solid';
 
 
 interface CommentsProps {
@@ -20,23 +19,32 @@ export default function Comments(props: CommentsProps) {
     const [newComment, setNewComment] = createSignal('');
     const [error, setError] = createSignal<string>();
     const [connection, setConnection] = createSignal<HubConnection>();
-    const { user, accessToken } = useAuth();
+    const {user, refreshToken} = useAuth();
 
     createEffect(() => {
         const builder = new HubConnectionBuilder();
         if (user()) {
-            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, { accessTokenFactory: accessToken, transport: HttpTransportType.ServerSentEvents  });
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, {
+                accessTokenFactory: refreshToken,
+                transport: HttpTransportType.ServerSentEvents
+            });
         } else {
-            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, { transport: HttpTransportType.ServerSentEvents })
+            builder.withUrl(`${import.meta.env.VITE_HUB_URL}/comment`, {transport: HttpTransportType.ServerSentEvents})
         }
         const newConnection = builder
             .withAutomaticReconnect()
+            .configureLogging(LogLevel.Information)
             .build();
 
-        setConnection(newConnection);
-
+        newConnection.onclose((error) => {
+            console.log('SignalR connection closed', error);
+            setError('Connection closed. Attempting to reconnect...');
+        });
+        
         newConnection.start()
             .then(() => {
+                setConnection(newConnection);
+                setError(undefined);
                 newConnection.invoke('JoinFormGroup', props.template.id);
             })
             .catch(err => {
@@ -118,7 +126,7 @@ export default function Comments(props: CommentsProps) {
                         disabled={!connection() || !user() || !newComment().trim()}
                         class="w-full bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center"
                     >
-                        <MessageSquare class="mr-2 h-4 w-4" />
+                        <MessageSquare class="mr-2 h-4 w-4"/>
                         <span>Send</span>
                     </Button>
                 </div>

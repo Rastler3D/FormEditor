@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import solid from 'vite-plugin-solid'
 import devtools from 'solid-devtools/vite'
 import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
-import { env } from 'process';
-import { createHmac } from 'crypto';
+import {env} from 'process';
+import {createHmac} from 'crypto';
 
 const baseFolder =
     env.APPDATA !== undefined && env.APPDATA !== ''
@@ -25,12 +25,12 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
         '--format',
         'Pem',
         '--no-password',
-    ], { stdio: 'inherit', }).status) {
+    ], {stdio: 'inherit',}).status) {
         throw new Error("Could not create certificate.");
     }
 }
 
-const meiliSearchApiKey = createHmac('sha256', env.MEILISEARCH_MASTER_KEY??'').update(env.MEILISEARCH_API_KEY_UUID??'').digest('hex');
+const meiliSearchApiKey = (env.MEILISEARCH_MASTER_KEY && env.MEILISEARCH_API_KEY_UUID) ? createHmac('sha256', env.MEILISEARCH_MASTER_KEY).update(env.MEILISEARCH_API_KEY_UUID).digest('hex') : undefined;
 
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7090';

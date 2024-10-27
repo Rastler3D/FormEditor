@@ -12,6 +12,9 @@ import DataTable from "~/components/DataTable.tsx";
 import {getUsers} from "~/services/userService.ts";
 import {createSignal} from "solid-js";
 import {Button} from "~/components/ui/button.tsx";
+import {Avatar, AvatarFallback, AvatarImage} from "~/components/ui/avatar.tsx";
+import {Badge} from "~/components/ui/badge.tsx";
+import { A } from "@solidjs/router";
 
 interface UserSelectionProps {
     onClose: () => void;
@@ -21,11 +24,26 @@ interface UserSelectionProps {
 
 const UserSelection = (props: UserSelectionProps) => {
     const [selectedUsers, setSelectedUsers] = createSignal(props.initialSelectedUsers);
-
     const columns: ColumnDef<User, any>[] = [
+        {
+            accessorKey: 'avatar',
+            header: 'Avatar',
+            enableSorting: false,
+            cell: (info) => (
+                <Avatar class="w-10 h-10 rounded-full">
+                    <AvatarImage src={info.getValue()} alt={info.row.original.name}/>
+                    <AvatarFallback>{info.row.original.name.split(" ", 2).map((n) => n.charAt(0)).join("").toUpperCase()}</AvatarFallback>
+                </Avatar>
+            ),
+        },
         {
             accessorKey: 'name',
             header: 'Name',
+            cell: (info) => (
+                <A href={`/users/${info.row.original.id}`} class="text-primary hover:underline">
+                    {info.getValue()}
+                </A>
+            ),
         },
         {
             accessorKey: 'email',
@@ -34,8 +52,36 @@ const UserSelection = (props: UserSelectionProps) => {
         {
             accessorKey: 'role',
             header: 'Role',
+            cell: (info) => (
+                <Badge variant={info.getValue() === 'Admin' ? 'default' : 'secondary'}>
+                    {info.getValue()}
+                </Badge>
+            ),
         },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            cell: (info) => (
+                <Badge variant={info.getValue() === 'Active' ? 'success' : 'destructive'}>
+                    {info.getValue()}
+                </Badge>
+            ),
+        }
     ];
+    // const columns: ColumnDef<User, any>[] = [
+    //     {
+    //         accessorKey: 'name',
+    //         header: 'Name',
+    //     },
+    //     {
+    //         accessorKey: 'email',
+    //         header: 'Email',
+    //     },
+    //     {
+    //         accessorKey: 'role',
+    //         header: 'Role',
+    //     },
+    // ];
 
 
     return (
@@ -57,7 +103,7 @@ const UserSelection = (props: UserSelectionProps) => {
                 />
                 <DialogFooter>
                     <Button variant="outline" onClick={props.onClose}>Cancel</Button>
-                    <Button onClick={()=> props.onSave(selectedUsers())}>Save</Button>
+                    <Button onClick={() => props.onSave(selectedUsers())}>Save</Button>
                 </DialogFooter>
             </DialogContent>
 
