@@ -98,11 +98,12 @@ public class UserService : IUserService
         if (updateUser.Email != null)
         {
             user.Value.Email = updateUser.Email;
+            user.Value.Name = updateUser.Email;
         }
 
         if (updateUser.Name != null)
         {
-            user.Value.UserName = updateUser.Name;
+            user.Value.Name = updateUser.Name;
         }
 
         if (updateUser.Avatar != null)

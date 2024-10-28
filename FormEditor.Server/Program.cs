@@ -1,3 +1,4 @@
+using System.Security.Policy;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using EntityFramework.Exceptions.PostgreSQL;
@@ -27,16 +28,21 @@ if (builder.Environment.IsProduction()){
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddSignalR();
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-            "Host=autorack.proxy.rlwy.net;Port=30121;Username=postgres;Password=kibFlVvxfVHuyROnryjSZYQEOtlJUEgC;Database=railway;SSL Mode=Prefer;")
+            builder.Configuration["DATABASE_URL"])
         .UseExceptionProcessor());
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services
     .AddAuthentication(AuthenticationHandler.Scheme)
     .AddScheme<AuthenticationSchemeOptions, AuthenticationHandler>(AuthenticationHandler.Scheme, null)
+    .AddCookie(IdentityConstants.ApplicationScheme)
+    .AddCookie(IdentityConstants.ExternalScheme, o =>
+    {
+        o.Cookie.Name = IdentityConstants.ExternalScheme;
+        o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+    })
     .AddBearerToken(IdentityConstants.BearerScheme, options =>
     {
         options.BearerTokenExpiration = TimeSpan.FromMinutes(60);
@@ -56,15 +62,27 @@ builder.Services
 
             return Task.CompletedTask;
         };
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["GOOGLE_CLIENT_ID"];
+        options.ClientSecret = builder.Configuration["GOOGLE_CLIENT_SECRET"];
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+        options.ClaimActions.MapJsonKey("picture", "picture", "url");
+        options.CallbackPath = "/api/signin-google";
+    })
+    .AddGitHub(options =>
+    {
+        options.ClientId = builder.Configuration["GITHUB_CLIENT_ID"];
+        options.ClientSecret = builder.Configuration["GITHUB_CLIENT_SECRET"];
+        options.Scope.Add("user:email");
+        options.Scope.Add("read:user");
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+        options.ClaimActions.MapJsonKey("picture", "avatar_url");
+        options.CallbackPath = "/api/signin-github";
     });
-// .AddGoogle(options =>
-// {
-//     options.ClientId = builder.Configuration["Google:ClientId"];
-//     options.ClientSecret = builder.Configuration["Google:ClientSecret"];
-//     options.Scope.Add("profile");
-//     options.SignInScheme = IdentityConstants.ExternalScheme;
-// })
-// .AddGitHub();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;

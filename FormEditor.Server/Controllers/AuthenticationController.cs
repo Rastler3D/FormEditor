@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using FormEditor.Server.Models;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
 
 namespace FormEditor.Server.Controllers;
 
@@ -46,6 +49,71 @@ public class AuthenticationController : ControllerBase
         this._linkGenerator = linkGenerator;
     }
 
+    [HttpGet("external-login")]
+    public IActionResult ExternalLogin([FromQuery] Provider provider, [FromQuery] string returnUrl = null)
+    {
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Authentication", new { returnUrl });
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider.ToString(), redirectUrl);
+        return Challenge(properties, provider.ToString());
+    }
+
+    [HttpGet("external-login-callback")]
+    public async Task<Results<Ok<AccessTokenResponse>, RedirectHttpResult, ProblemHttpResult>> ExternalLoginCallback(
+        string? returnUrl = null, string? remoteError = null)
+    {
+        returnUrl ??= Url.Content("~/");
+        if (remoteError != null)
+        {
+            return TypedResults.Redirect(QueryHelpers.AddQueryString(returnUrl, "error",
+                "Error from external provider: {remoteError}"));
+        }
+
+        var info = await _signInManager.GetExternalLoginInfoAsync();
+        if (info == null)
+        {
+            return TypedResults.Redirect(QueryHelpers.AddQueryString(returnUrl, "error",
+                "Error loading external login information."));
+        }
+
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
+            isPersistent: false, bypassTwoFactor: true);
+        if (!result.Succeeded)
+        {
+            if (result.IsLockedOut)
+            {
+                return TypedResults.Redirect(QueryHelpers.AddQueryString(returnUrl, "error", "User is blocked"));
+            }
+
+            var picture = info.Principal.FindFirstValue("picture");
+            var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+            var newUser = new User { UserName = email, Email = email, EmailConfirmed = true, Avatar = picture, Name = name};
+            var createResult = await _userManager.CreateAsync(newUser);
+            if (createResult.Succeeded)
+            {
+                createResult = await _userManager.AddLoginAsync(newUser, info);
+            }
+
+            if (!createResult.Succeeded)
+            {
+                return TypedResults.Redirect(QueryHelpers.AddQueryString(returnUrl, "error", createResult.Errors.First().Description));
+            }
+        }
+
+        var user = await _userManager.FindByEmailAsync(email);
+        var principal = await _signInManager.CreateUserPrincipalAsync(user);
+        var token = CreateToken(principal);
+        var redirectUrl = QueryHelpers.AddQueryString(returnUrl, new Dictionary<string, string?>
+        {
+            { "accessToken", token.AccessToken },
+            { "refreshToken", token.RefreshToken },
+            { "expiresIn", token.ExpiresIn.ToString() }
+        });
+
+        return TypedResults.Redirect(redirectUrl);
+    }
+
+
     [HttpPost("registration")]
     public async Task<Results<Ok, ValidationProblem>> Registration([FromBody] RegistrationViewModel registration)
     {
@@ -62,8 +130,11 @@ public class AuthenticationController : ControllerBase
         }
 
         var name = registration.Name;
-        var user = new User();
-        await _userStore.SetUserNameAsync(user, name, CancellationToken.None);
+        var user = new User
+        {
+            Name = name,
+        };
+        await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
         await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
         var result = await _userManager.CreateAsync(user, registration.Password);
 
@@ -150,7 +221,13 @@ public class AuthenticationController : ControllerBase
             return TypedResults.Challenge();
         }
 
+        if (await _signInManager.CanSignInAsync(user))
+        {
+            return TypedResults.Unauthorized();
+        }
+
         var newPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+        
         return TypedResults.SignIn(newPrincipal, authenticationScheme: IdentityConstants.BearerScheme);
     }
 
@@ -200,13 +277,14 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("resendConfirmationEmail")]
-    public async Task<Results<Ok, ValidationProblem>> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest resendRequest)
+    public async Task<Results<Ok, ValidationProblem>> ResendConfirmationEmail(
+        [FromBody] ResendConfirmationEmailRequest resendRequest)
     {
         if (await _userManager.FindByEmailAsync(resendRequest.Email) is not { } user)
         {
             return TypedResults.Ok();
         }
-        
+
         try
         {
             await SendConfirmationEmailAsync(user, _userManager, HttpContext, resendRequest.Email);
@@ -216,6 +294,7 @@ public class AuthenticationController : ControllerBase
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 { { "EmailSendFailed", ["Failed to send email. Try again later"] } });
         }
+
         return TypedResults.Ok();
     }
 
@@ -228,17 +307,17 @@ public class AuthenticationController : ControllerBase
         {
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            
+
             try
             {
-                await _emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(code));
+                await _emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email,
+                    HtmlEncoder.Default.Encode(code));
             }
             catch (SmtpException exp)
             {
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]>
                     { { "EmailSendFailed", ["Failed to send email. Try again later"] } });
             }
-            
         }
 
         // Don't reveal that the user does not exist or is not confirmed, so don't return a 200 if we would have
@@ -482,5 +561,41 @@ public class AuthenticationController : ControllerBase
                     throw new NotSupportedException("Users must have an email."),
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user),
         };
+    }
+
+    private AccessTokenResponse CreateToken(ClaimsPrincipal user)
+    {
+        var utcNow = TimeProvider.System.GetUtcNow();
+        var option = _bearerTokenOptions.Get(IdentityConstants.BearerScheme);
+        var response = new AccessTokenResponse
+        {
+            AccessToken = option.BearerTokenProtector.Protect(CreateBearerTicket(user, utcNow)),
+            ExpiresIn = (long)option.BearerTokenExpiration.TotalSeconds,
+            RefreshToken = option.RefreshTokenProtector.Protect(CreateRefreshTicket(user, utcNow)),
+        };
+
+        return response;
+    }
+
+
+    private AuthenticationTicket CreateBearerTicket(ClaimsPrincipal user, DateTimeOffset utcNow)
+    {
+        var option = _bearerTokenOptions.Get(IdentityConstants.BearerScheme);
+        var bearerProperties = new AuthenticationProperties
+        {
+            ExpiresUtc = utcNow + option.RefreshTokenExpiration
+        };
+        return new AuthenticationTicket(user, bearerProperties, $"{IdentityConstants.BearerScheme}:AccessToken");
+    }
+
+    private AuthenticationTicket CreateRefreshTicket(ClaimsPrincipal user, DateTimeOffset utcNow)
+    {
+        var option = _bearerTokenOptions.Get(IdentityConstants.BearerScheme);
+        var refreshProperties = new AuthenticationProperties
+        {
+            ExpiresUtc = utcNow + option.RefreshTokenExpiration
+        };
+
+        return new AuthenticationTicket(user, refreshProperties, $"{IdentityConstants.BearerScheme}:RefreshToken");
     }
 }

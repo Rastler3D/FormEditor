@@ -11,6 +11,7 @@ import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
 import { AlertCircle } from 'lucide-solid';
 import { Oval } from 'solid-spinner';
 import { createWritableMemo } from '@solid-primitives/memo';
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 interface FormDetailsProps {
     error?: string;
@@ -22,12 +23,13 @@ interface FormDetailsProps {
 }
 
 export default function FormDetails(props: FormDetailsProps) {
+    const { t } = useLanguage();
     const [answers, setAnswers] = createStore(props.form.answers);
     const [sendEmail, setSendEmail] = createSignal(false);
     const [isEdit, setIsEdit] = createSignal(false);
-    const [error, setError] = createWritableMemo(()=> props.error);
+    const [error, setError] = createWritableMemo(() => props.error);
     const fillingDate = createMemo(() => isEdit() ? new Date() : new Date(props.form.fillingDate));
-    
+
     createEffect((prevId) => {
         if (props.form.id !== prevId) {
             setIsEdit(false);
@@ -65,14 +67,14 @@ export default function FormDetails(props: FormDetailsProps) {
         <div class="container mx-auto p-4">
             <Card class="w-full max-w-4xl mx-auto">
                 <CardHeader>
-                    <CardTitle class="text-2xl font-bold">Form Details</CardTitle>
+                    <CardTitle class="text-2xl font-bold">{t('FormDetails')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-2">Template: {props.template.name}</h3>
-                        <h3 class="text-lg font-semibold mb-2">Submitted by: {props.form.submittedBy}</h3>
+                        <h3 class="text-lg font-semibold mb-2">{t('Template')}: {props.template.name}</h3>
+                        <h3 class="text-lg font-semibold mb-2">{t('SubmittedBy')}: {props.form.submittedBy}</h3>
                         <p class="text-lg font-semibold mb-2 text-muted-foreground mt-2">
-                            Submitted on: {new Date(props.form.submittedAt).toLocaleString()}
+                            {t('SubmittedOn')}: {new Date(props.form.submittedAt).toLocaleString()}
                         </p>
                     </div>
                     <Separator class="my-6"/>
@@ -88,7 +90,7 @@ export default function FormDetails(props: FormDetailsProps) {
                         <Show when={error()}>
                             <Alert variant="destructive" class="mt-4">
                                 <AlertCircle class="h-4 w-4" />
-                                <AlertTitle>Error</AlertTitle>
+                                <AlertTitle>{t('Error')}</AlertTitle>
                                 <AlertDescription>{error()}</AlertDescription>
                             </Alert>
                         </Show>
@@ -103,25 +105,25 @@ export default function FormDetails(props: FormDetailsProps) {
                                         class="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
                                         onClick={handleEditForm}
                                     >
-                                        Edit
+                                        {t('Edit')}
                                     </Button>
                                 }>
                                     <div class="mt-4 space-y-4">
                                         <div class="flex items-center space-x-2">
                                             <Checkbox id="send-email" checked={sendEmail()} onChange={setSendEmail} />
-                                            <Label for="send-email">Send form via email?</Label>
+                                            <Label for="send-email">{t('SendFormViaEmail')}</Label>
                                         </div>
                                         <Button
                                             class="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                                             onClick={handleSubmit}
                                         >
-                                            Save
+                                            {t('Save')}
                                         </Button>
                                         <Button
                                             class="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
                                             onClick={handleCancelEditForm}
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </Button>
                                     </div>
                                 </Show>

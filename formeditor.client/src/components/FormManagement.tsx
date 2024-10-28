@@ -15,6 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 interface FormManagementProps {
     formFetcher: (options: TableOption) => Promise<TableData<FormInfo[]>>;
@@ -22,13 +23,14 @@ interface FormManagementProps {
 }
 
 export default function FormManagement(props: FormManagementProps) {
+    const { t } = useLanguage();
     const [track, trigger] = createTrigger();
     const navigate = useNavigate();
 
     const columns: ColumnDef<FormInfo, any>[] = [
         {
             accessorKey: 'templateName',
-            header: 'Template Name',
+            header: t('TemplateName'),
             cell: (info) => (
                 <A href={`/forms/${info.row.original.id}`} class="text-primary hover:underline flex items-center space-x-2">
                     <FileText class="h-4 w-4"/>
@@ -38,7 +40,7 @@ export default function FormManagement(props: FormManagementProps) {
         },
         {
             accessorKey: 'submittedBy',
-            header: 'Submitted By',
+            header: t('SubmittedBy'),
             cell: (info) => (
                 <div class="flex items-center space-x-2">
                     <User class="h-4 w-4 text-muted-foreground"/>
@@ -48,7 +50,7 @@ export default function FormManagement(props: FormManagementProps) {
         },
         {
             accessorKey: 'fillingDate',
-            header: 'Filling Date',
+            header: t('FillingDate'),
             cell: (info) => (
                 <div class="flex items-center space-x-2">
                     <Clock class="h-4 w-4 text-muted-foreground"/>
@@ -58,21 +60,21 @@ export default function FormManagement(props: FormManagementProps) {
         },
         {
             id: 'actions',
-            header: 'Actions',
+            header: t('Actions'),
             enableSorting: false,
             cell: (info) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger as={Button} variant="ghost" size="sm">
                         <MoreHorizontal class="h-4 w-4"/>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent  class="w-48">
+                    <DropdownMenuContent class="w-48">
                         <DropdownMenuItem class="cursor-pointer" onSelect={() => navigate(`/forms/${info.row.original.id}`)}>
                             <Eye class="mr-2 h-4 w-4"/>
-                            View
+                            {t('View')}
                         </DropdownMenuItem>
                         <DropdownMenuItem class="cursor-pointer" onSelect={() => handleDeleteForm(info.row.original.id)}>
                             <Trash class="mr-2 h-4 w-4"/>
-                            Delete
+                            {t('Delete')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -84,16 +86,16 @@ export default function FormManagement(props: FormManagementProps) {
         try {
             await deleteForm(formId);
             trigger();
-            showToast({title: `Deleted form ${formId}`, variant: "success"});
+            showToast({ title: t('DeletedForm', { id: formId }), variant: "success" });
         } catch (error) {
-            showToast({title: "Failed to delete form", variant: "destructive"});
+            showToast({ title: t('FailedToDeleteForm'), variant: "destructive" });
         }
     };
 
     return (
         <Card class="bg-background">
             <CardHeader>
-                <CardTitle>{props.name ?? "Forms"}</CardTitle>
+                <CardTitle>{props.name ?? t('Forms')}</CardTitle>
             </CardHeader>
             <CardContent>
                 <DataTable

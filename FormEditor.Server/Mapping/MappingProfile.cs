@@ -30,7 +30,7 @@ public class MappingProfile : Profile
             .ReverseMap()
             .ConstructUsing(t => t.UserId);
         CreateMap<User, string>()
-            .ConstructUsing(u => u.UserName);
+            .ConstructUsing(u => u.Name);
         CreateMap<AnswerViewModel, Answer>()
             .ForMember(dest => dest.QuestionId, opt => opt.MapFrom((src, dest, destMember, context) =>
                 context.Items.TryGetValue("QuestionId", out var id) ? id : 0))
@@ -61,10 +61,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.Creator));
         CreateMap<Form, FormInfoViewModel>()
             .ForMember(dest => dest.TemplateName, opt => opt.MapFrom(src => src.Template.Name))
-            .ForMember(dest => dest.SubmittedBy, opt => opt.MapFrom(src => src.Submitter.UserName));
+            .ForMember(dest => dest.SubmittedBy, opt => opt.MapFrom(src => src.Submitter.Name));
         CreateMap<Form, FormViewModel>()
             .ForMember(dest => dest.TemplateName, opt => opt.MapFrom(src => src.Template.Name))
-            .ForMember(dest => dest.SubmittedBy, opt => opt.MapFrom(src => src.Submitter.UserName))
+            .ForMember(dest => dest.SubmittedBy, opt => opt.MapFrom(src => src.Submitter.Name))
             .ForMember(dest => dest.Answers, opt =>
                 opt.MapFrom<Dictionary<int, AnswerViewModel>>((src, _, _, context) => src.Answers
                     .Select(item => (Id: item.QuestionId, Answer: context.Mapper.Map<AnswerViewModel>(item)))
@@ -94,7 +94,7 @@ public class MappingProfile : Profile
                 (s.FirstOrDefault(x => x.Name == Roles.Admin) == null) ? RoleViewModel.User : RoleViewModel.Admin);
         CreateMap<User, UserViewModel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UserName))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Role, opt =>
                 opt.MapFrom(src => src.Roles))
             .ForMember(dest => dest.Status,
@@ -103,7 +103,7 @@ public class MappingProfile : Profile
                         ? StatusViewModel.Blocked
                         : StatusViewModel.Active));
         CreateMap<Comment, CommentViewModel>()
-            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author.UserName))
+            .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author.Name))
             .ReverseMap();
         CreateMap<TableOptionViewModel, TableOption>()
             .ConstructUsing(s => new TableOption(s.page, s.pageSize, s.filter, s.sort));

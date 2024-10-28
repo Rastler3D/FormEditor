@@ -15,6 +15,7 @@ import {createAction, resolve} from "../lib/action";
 import {AlertCircle} from "lucide-solid";
 import {createEffect, createSignal, For,  Show} from "solid-js";
 import {Oval} from "solid-spinner";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 const Registration = () => {
     const {signUp} = useAuth();
@@ -23,6 +24,7 @@ const Registration = () => {
     const [userName, setUserName] = createSignal("");
     const [email, setEmail] = createSignal("");
     const [password, setPassword] = createSignal("");
+    const {t} = useLanguage();
 
     createEffect(resolve(registration.data, () => navigate(`/registration/confirm-email/${email()}`)));
 
@@ -34,23 +36,23 @@ const Registration = () => {
     return (
         <Card class="w-full max-w-md mx-auto">
             <CardHeader>
-                <CardTitle class="text-2xl font-bold">Sign Up</CardTitle>
+                <CardTitle class="text-2xl font-bold">{t('SignUpPage')}</CardTitle>
                 <CardDescription>
-                    Create an account to get started
+                    {t('CreateAnAccount')} 
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleRegistration} class="space-y-4">
                     <TextField required value={userName()} onChange={(value) => setUserName(value)}>
-                        <TextFieldLabel>User name</TextFieldLabel>
+                        <TextFieldLabel>{t('UserName')}</TextFieldLabel>
                         <TextFieldInput type="text" placeholder="John Doe"/>
                     </TextField>
                     <TextField required value={email()} onChange={(value) => setEmail(value)}>
-                        <TextFieldLabel>Email</TextFieldLabel>
+                        <TextFieldLabel>{t('Email')}</TextFieldLabel>
                         <TextFieldInput type="email" placeholder="m@example.com"/>
                     </TextField>
                     <TextField required value={password()} onChange={(value) => setPassword(value)}>
-                        <TextFieldLabel>Password</TextFieldLabel>
+                        <TextFieldLabel>{t('Password')}</TextFieldLabel>
                         <TextFieldInput type="password"/>
                     </TextField>
                     <Show when={registration.data.error}>
@@ -67,7 +69,7 @@ const Registration = () => {
                         class="w-full"
                         disabled={registration.data.loading}
                     >
-                        {registration.data.loading ? <Oval width="24" height="24" /> : "Create account"}
+                        {registration.data.loading ? <Oval width="24" height="24" /> : t('CreateAccount')}
                     </Button>
                 </form>
                 <div class="relative my-6">
@@ -75,7 +77,7 @@ const Registration = () => {
                         <span class="w-full border-t"/>
                     </div>
                     <div class="relative flex justify-center text-xs uppercase">
-                        <span class="bg-background px-2 text-muted-foreground">Or continue with</span>
+                        <span class="bg-background px-2 text-muted-foreground">{t('OrContinueWith')}</span>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -91,9 +93,9 @@ const Registration = () => {
             </CardContent>
             <CardFooter>
                 <div class="text-center text-sm w-full">
-                    Already have an account?{" "}
+                    {t('AlreadyHaveAccount')}{" "}
                     <A href="/login" class="text-primary underline">
-                        Sign in
+                        {t('SignInTo')}
                     </A>
                 </div>
             </CardFooter>

@@ -13,6 +13,8 @@ import {Label} from "~/components/ui/label.tsx";
 import {Oval} from "solid-spinner";
 import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
+import { AlertCircle } from "lucide-solid";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 interface TemplateSubmissionProps {
     template: Template;
@@ -37,6 +39,7 @@ const fetchSubmission = ({templateId, user}: { templateId: number, user: User | 
 }
 
 export default function TemplateSubmission(props: TemplateSubmissionProps) {
+    const { t } = useLanguage();
     const [sendEmail, setSendEmail] = createSignal(false);
     const formSubmission = createAction(submitOrUpdateForm, () => props.template.id);
     const {user} = useAuth();
@@ -93,12 +96,11 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
         })
         setIsEdit(false);
     }
-
     return (
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
             <form onSubmit={handleSubmit} class="space-y-6">
                 <CardHeader>
-                    <h2 class="text-2xl font-bold">Form Submission</h2>
+                    <h2 class="text-2xl font-bold">{t('FormSubmission')}</h2>
                 </CardHeader>
                 <CardContent>
                     <TemplateView
@@ -112,58 +114,69 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
                     <Show when={formSubmission.data.error}>
                         <Alert variant="destructive" class="mt-4">
                             <AlertCircle class="h-4 w-4" />
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error()}</AlertDescription>
+                            <AlertTitle>{t('Error')}</AlertTitle>
+                            <AlertDescription>{formSubmission.data.error}</AlertDescription>
                         </Alert>
                     </Show>
                 </CardContent>
                 <CardFooter class="flex flex-col space-y-4">
-                    <Show when={!form.loading && !formSubmission.data.loading} fallback={
-                        <Button disabled class="w-full">
-                            <Oval width="24" height="24" class="mr-2"/>
-                        </Button>
-                    }>
-                        <Show when={form()} fallback={
-                            <Switch>
-                                <Match when={!user()}>
-                                    <p class="text-lg font-semibold text-muted-foreground">
-                                        <A href="/login" class="underline">
-                                            Sign in
-                                        </A> to submit this form
-                                    </p>
-                                </Match>
-                                <Match when={!hasPermission()}>
-                                    <p class="text-lg font-semibold text-muted-foreground">
-                                        You don't have permission to fill this form
-                                    </p>
-                                </Match>
-                                <Match when={hasPermission()}>
-                                    <div class="flex items-center space-x-2">
-                                        <Checkbox id="send-email" onChange={(value) => setSendEmail(value)}
-                                                  checked={sendEmail()}/>
-                                        <Label for="send-email">Send form on email?</Label>
-                                    </div>
-                                    <Button type="submit" class="w-full" disabled={!hasPermission()}>
-                                        Submit
-                                    </Button>
-                                </Match>
-                            </Switch>
-                        }>
+                    <Show
+                        when={!form.loading && !formSubmission.data.loading}
+                        fallback={
+                            <Button disabled class="w-full">
+                                <Oval width="24" height="24" class="mr-2" />
+                            </Button>
+                        }
+                    >
+                        <Show
+                            when={form()}
+                            fallback={
+                                <Switch>
+                                    <Match when={!user()}>
+                                        <p class="text-lg font-semibold text-muted-foreground">
+                                            <A href="/login" class="underline">
+                                                {t('SignIn')}
+                                            </A>{' '}
+                                            {t('ToSubmitForm')}
+                                        </p>
+                                    </Match>
+                                    <Match when={!hasPermission()}>
+                                        <p class="text-lg font-semibold text-muted-foreground">{t('NoPermissionToFillForm')}</p>
+                                    </Match>
+                                    <Match when={hasPermission()}>
+                                        <div class="flex items-center space-x-2">
+                                            <Checkbox id="send-email" onChange={(value) => setSendEmail(value)} checked={sendEmail()} />
+                                            <Label for="send-email">{t('SendFormViaEmail')}</Label>
+                                        </div>
+                                        <Button type="submit" class="w-full" disabled={!hasPermission()}>
+                                            {t('Submit')}
+                                        </Button>
+                                    </Match>
+                                </Switch>
+                            }
+                        >
                             <p class="text-sm text-muted-foreground">
-                                Form submitted: {new Date(form()!.submittedAt).toLocaleString()}
+                                {t('FormSubmitted')}: {new Date(form()!.submittedAt).toLocaleString()}
                             </p>
-                            <Show when={isEdit()} fallback={
-                                <Button class="w-full" onClick={handleEditForm}>Edit</Button>
-                            }>
+                            <Show
+                                when={isEdit()}
+                                fallback={
+                                    <Button class="w-full" onClick={handleEditForm}>
+                                        {t('Edit')}
+                                    </Button>
+                                }
+                            >
                                 <div class="flex items-center space-x-2">
-                                    <Checkbox id="send-email-edit" onChange={(value) => setSendEmail(value)}
-                                              checked={sendEmail()}/>
-                                    <Label for="send-email-edit">Send form on email?</Label>
+                                    <Checkbox id="send-email-edit" onChange={(value) => setSendEmail(value)} checked={sendEmail()} />
+                                    <Label for="send-email-edit">{t('SendFormViaEmail')}</Label>
                                 </div>
                                 <div class="flex space-x-2 w-full">
-                                    <Button type="submit" class="flex-1">Save</Button>
-                                    <Button type="button" variant="outline" class="flex-1"
-                                            onClick={handleCancelEditForm}>Cancel</Button>
+                                    <Button type="submit" class="flex-1">
+                                        {t('Save')}
+                                    </Button>
+                                    <Button type="button" variant="outline" class="flex-1" onClick={handleCancelEditForm}>
+                                        {t('Cancel')}
+                                    </Button>
                                 </div>
                             </Show>
                         </Show>
@@ -171,5 +184,5 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
                 </CardFooter>
             </form>
         </Card>
-    )
+    );
 }

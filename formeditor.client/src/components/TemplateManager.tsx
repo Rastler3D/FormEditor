@@ -4,6 +4,7 @@ import {Template, TemplateConfiguration} from "~/types/types.ts";
 import TemplateSubmission from "~/components/TemplateSubmission.tsx";
 import TemplateSubmissions from "~/components/TemplateSubmissions.tsx";
 import FormAggregation from "~/components/FormAggregation.tsx";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 
 interface TemplateManagerProps {
@@ -13,21 +14,23 @@ interface TemplateManagerProps {
 }
 
 const TemplateManager = (props: TemplateManagerProps) => {
+    const { t } = useLanguage();
+
     return (
         <div class="space-y-8">
             <Tabs defaultValue="form" disabled={props.isSavingChanges} class="w-full">
                 <TabsList class="flex w-full border-b border-border mb-4 overflow-x-auto overflow-y-hidden">
                     <TabsTrigger value="form" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
-                        Form
+                        {t('Template')}
                     </TabsTrigger>
                     <TabsTrigger value="answers" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
-                        Answers
+                        {t('AllForms')}
                     </TabsTrigger>
                     <TabsTrigger value="configuration" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
-                        Configuration
+                        {t('GeneralSettings')}
                     </TabsTrigger>
                     <TabsTrigger value="aggregation" class="px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
-                        Aggregation
+                        {t('FormAggregation')}
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="form">
@@ -46,6 +49,5 @@ const TemplateManager = (props: TemplateManagerProps) => {
         </div>
     );
 };
-
 
 export default TemplateManager;

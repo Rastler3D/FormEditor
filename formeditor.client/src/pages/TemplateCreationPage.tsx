@@ -1,10 +1,7 @@
-import {useNavigate, useParams} from "@solidjs/router";
-import {createEffect, createResource, on, Show} from "solid-js";
-import {createTemplate, fetchTemplate, updateTemplate} from "~/services/templateService.ts";
-import {useAuth} from "~/contexts/AuthContext.tsx";
-import {ProgressCircle} from "~/components/ui/progress-circle";
-import TemplateSubmission from "~/components/TemplateSubmission.tsx";
-import TemplateManager from "~/components/TemplateManager.tsx";
+import {useNavigate} from "@solidjs/router";
+import {createEffect,  on, } from "solid-js";
+import {createTemplate, } from "~/services/templateService.ts";
+
 import {createAction} from "~/lib/action.ts";
 import TemplateCreation from "../components/TemplateCreation";
 

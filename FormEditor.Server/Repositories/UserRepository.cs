@@ -37,7 +37,7 @@ public class UserRepository : IUserRepository
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             users = users.Where(f =>
-                EF.Functions.ILike(f.UserName, $"%{options.Filter}%") ||
+                EF.Functions.ILike(f.Name, $"%{options.Filter}%") ||
                 EF.Functions.ILike(f.Email, $"%{options.Filter}%")
             );
         }
@@ -47,7 +47,7 @@ public class UserRepository : IUserRepository
         {
             Expression<Func<User, object>> selector = sortOption.Id switch
             {
-                "name" => x => x.UserName,
+                "name" => x => x.Name,
                 "email" => x => x.Email,
                 "role" => x => x.Roles.Count,
                 "status" => x => x.LockoutEnabled,

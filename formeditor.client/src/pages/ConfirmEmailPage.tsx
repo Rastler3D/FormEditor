@@ -7,11 +7,13 @@ import {createAction} from "../lib/action";
 import {resendConfirmationEmail} from "../services/userService";
 import {showToast} from "../components/ui/toast";
 import { Oval } from "solid-spinner";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 const ConfirmEmailPage = ()=> {
     const params = useParams();
     const email = createMemo(() => params.email);
     const resend = createAction(resendConfirmationEmail, email);
+    const {t} = useLanguage();
     
     createEffect(on(resend.data, () => {
         showToast({ title: 'Confirmation email resended', variant: 'success' });
@@ -21,19 +23,19 @@ const ConfirmEmailPage = ()=> {
         <div class="min-h-screen bg-background flex justify-center items-baseline p-4">
             <Card class="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle class="text-2xl font-bold text-center">Confirm Your Email</CardTitle>
+                    <CardTitle class="text-2xl font-bold text-center">{t("ConfirmYourEmail")}</CardTitle>
                     <CardDescription class="text-center">
+                        {t("CheckEmail")}
                         Please check your email to confirm your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent class="text-center space-y-4">
                     <FaSolidEnvelope class="h-10 w-10 mx-auto text-primary"/>
                     <p>
-                        We've sent a confirmation email to your registered email address.
-                        Please check your inbox and click on the confirmation link to activate your account.
+                        {t("VerificationSent")}
                     </p>
                     <p class="text-sm text-muted-foreground">
-                        If you don't see the email, please check your spam folder.
+                        {t("CheckSpam")}
                     </p>
                 </CardContent>
                 <CardFooter class="flex justify-center space-x-4">
@@ -43,11 +45,12 @@ const ConfirmEmailPage = ()=> {
                         </Button>
                     }>
                         <Button onClick={() => resend(email()!)} variant="outline">
-                            Resend Confirmation
+                            {t("ResendConfirmation")}
                         </Button>
                     </Show>
                     <Button as={A} href="/login">
-                        Back to Login
+                        {t("BackToLogin")}
+                        
                     </Button>
                 </CardFooter>
             </Card>

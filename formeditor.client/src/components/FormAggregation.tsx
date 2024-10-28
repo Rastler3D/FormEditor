@@ -9,6 +9,7 @@ import {Tabs, TabsList, TabsTrigger, TabsContent} from "~/components/ui/tabs";
 import {Chart, Title, Tooltip, Legend, Colors} from 'chart.js';
 import {Pie, Bar} from 'solid-chartjs';
 import {Aggregation} from '~/types/types.ts';
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 Chart.register(Title, Tooltip, Legend, Colors);
 
@@ -17,13 +18,14 @@ interface FormAggregationProps {
 }
 
 const FormAggregation = (props: FormAggregationProps) => {
+    const { t } = useLanguage();
     const [aggregatedResults] = createResource(() => props.template.id, fetchAggregatedResults);
 
     const getChartData = (question: QuestionTypes, aggregation: Aggregation) => {
         switch (question) {
             case QuestionTypes.Integer:
                 return {
-                    labels: ['Minimum', 'Average', 'Maximum'],
+                    labels: [t('Minimum'), t('Average'), t('Maximum')],
                     datasets: [{
                         data: [aggregation.minNumber, aggregation.averageNumber, aggregation.maxNumber],
                         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
@@ -31,7 +33,7 @@ const FormAggregation = (props: FormAggregationProps) => {
                 };
             case QuestionTypes.Checkbox:
                 return {
-                    labels: ['True', 'False'],
+                    labels: [t('Yes'), t('No')],
                     datasets: [{
                         data: [aggregation.trueCountBoolean, aggregation.falseCountBoolean],
                         backgroundColor: ['#36A2EB', '#FF6384']
@@ -47,7 +49,7 @@ const FormAggregation = (props: FormAggregationProps) => {
                 };
             default:
                 return {
-                    labels: ['Unique Answers'],
+                    labels: [t('UniqueAnswers')],
                     datasets: [{
                         data: [aggregation.uniqueCountText],
                         backgroundColor: ['#36A2EB']
@@ -65,7 +67,7 @@ const FormAggregation = (props: FormAggregationProps) => {
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
             <form class="space-y-6">
                 <CardHeader>
-                    <h2 class="text-2xl font-bold">Form Aggregation</h2>
+                    <h2 class="text-2xl font-bold">{t('FormAggregation')}</h2>
                 </CardHeader>
                 <CardContent>
                     <div class="space-y-6">
@@ -75,7 +77,7 @@ const FormAggregation = (props: FormAggregationProps) => {
                                     <CardHeader>
                                         <CardTitle class="flex justify-between items-center">
                                             <span>{question.title}</span>
-                                            <Badge>{question.type}</Badge>
+                                            <Badge>{t(question.type)}</Badge>
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
@@ -91,50 +93,44 @@ const FormAggregation = (props: FormAggregationProps) => {
                                                 return (
                                                     <Tabs defaultValue="summary" class="w-full">
                                                         <TabsList>
-                                                            <TabsTrigger value="summary">Summary</TabsTrigger>
-                                                            <TabsTrigger value="chart">Chart</TabsTrigger>
+                                                            <TabsTrigger value="summary">{t('Summary')}</TabsTrigger>
+                                                            <TabsTrigger value="chart">{t('Chart')}</TabsTrigger>
                                                         </TabsList>
                                                         <TabsContent value="summary">
                                                             <Switch>
                                                                 <Match when={question.type === QuestionTypes.Integer}>
                                                                     <div class="space-y-4">
                                                                         <div>
-                                                                            <span
-                                                                                class="font-semibold">Average:</span> {aggregation.averageNumber?.toFixed(2) ?? "-"}
+                                                                            <span class="font-semibold">{t('Average')}:</span> {aggregation.averageNumber?.toFixed(2) ?? "-"}
                                                                         </div>
                                                                         <div>
-                                                                            <span
-                                                                                class="font-semibold">Minimum:</span> {aggregation.minNumber ?? "-"}
+                                                                            <span class="font-semibold">{t('Minimum')}:</span> {aggregation.minNumber ?? "-"}
                                                                         </div>
                                                                         <div>
-                                                                            <span
-                                                                                class="font-semibold">Maximum:</span> {aggregation.maxNumber ?? "-"}
+                                                                            <span class="font-semibold">{t('Maximum')}:</span> {aggregation.maxNumber ?? "-"}
                                                                         </div>
                                                                         <Progress
                                                                             value={(aggregation.averageNumber! - aggregation.minNumber!) / (aggregation.maxNumber! - aggregation.minNumber!) * 100}
                                                                             class="w-full"/>
                                                                     </div>
                                                                 </Match>
-                                                                <Match
-                                                                    when={question.type === QuestionTypes.SingleLine || question.type === QuestionTypes.MultiLine}>
+                                                                <Match when={question.type === QuestionTypes.SingleLine || question.type === QuestionTypes.MultiLine}>
                                                                     <div class="space-y-4">
                                                                         <div>
-                                                                            <span class="font-semibold">Most common answer:</span> {aggregation.mostCommonText ?? "-"}
+                                                                            <span class="font-semibold">{t('MostCommonAnswer')}:</span> {aggregation.mostCommonText ?? "-"}
                                                                         </div>
                                                                         <div>
-                                                                            <span class="font-semibold">Number of unique answers:</span> {aggregation.uniqueCountText}
+                                                                            <span class="font-semibold">{t('NumberOfUniqueAnswers')}:</span> {aggregation.uniqueCountText}
                                                                         </div>
                                                                     </div>
                                                                 </Match>
                                                                 <Match when={question.type === QuestionTypes.Checkbox}>
                                                                     <div class="space-y-4">
                                                                         <div>
-                                                                            <span
-                                                                                class="font-semibold">True count:</span> {aggregation.trueCountBoolean}
+                                                                            <span class="font-semibold">{t('TrueCount')}:</span> {aggregation.trueCountBoolean}
                                                                         </div>
                                                                         <div>
-                                                                            <span
-                                                                                class="font-semibold">False count:</span> {aggregation.falseCountBoolean}
+                                                                            <span class="font-semibold">{t('FalseCount')}:</span> {aggregation.falseCountBoolean}
                                                                         </div>
                                                                         <Progress
                                                                             value={aggregation.trueCountBoolean / (aggregation.trueCountBoolean + aggregation.falseCountBoolean) * 100}
@@ -146,8 +142,7 @@ const FormAggregation = (props: FormAggregationProps) => {
                                                                         <For each={aggregation.optionCountsSelect}>
                                                                             {({option, count}) => (
                                                                                 <div>
-                                                                                    <span
-                                                                                        class="font-semibold">{option}:</span> {count}
+                                                                                    <span class="font-semibold">{option}:</span> {count}
                                                                                 </div>
                                                                             )}
                                                                         </For>
@@ -158,12 +153,10 @@ const FormAggregation = (props: FormAggregationProps) => {
                                                         <TabsContent value="chart">
                                                             <div class="h-64">
                                                                 <Switch>
-                                                                    <Match
-                                                                        when={question.type === QuestionTypes.Integer || question.type === QuestionTypes.Select}>
+                                                                    <Match when={question.type === QuestionTypes.Integer || question.type === QuestionTypes.Select}>
                                                                         <Bar data={chartData()} options={chartOptions}/>
                                                                     </Match>
-                                                                    <Match
-                                                                        when={question.type === QuestionTypes.Checkbox || question.type === QuestionTypes.SingleLine || question.type === QuestionTypes.MultiLine}>
+                                                                    <Match when={question.type === QuestionTypes.Checkbox || question.type === QuestionTypes.SingleLine || question.type === QuestionTypes.MultiLine}>
                                                                         <Pie data={chartData()} options={chartOptions}/>
                                                                     </Match>
                                                                 </Switch>

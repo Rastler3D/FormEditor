@@ -5,10 +5,7 @@ import {ThemeProvider} from "~/contexts/ThemeContext.tsx";
 import {LanguageProvider} from "~/contexts/LanguageContext.tsx";
 import Layout from "~/components/Layout.tsx";
 import AuthorizeRoute from "~/components/AuthorizeRoute.tsx";
-import {showToast, Toaster} from "~/components/ui/toast.tsx";
-import {Button} from "~/components/ui/button.tsx";
-import {Alert, AlertDescription, AlertTitle} from "~/components/ui/alert.tsx";
-import {AlertCircle} from "lucide-solid";
+import {Toaster} from "~/components/ui/toast.tsx";
 import {Error} from "~/components/Error.tsx";
 
 const UserTemplatesPage = lazy(() => import("~/pages/UserTemplatesPage.tsx"));
@@ -26,6 +23,7 @@ const LoginPage = lazy(() => import("~/pages/LoginPage.tsx"));
 const RegistrationPage = lazy(() => import("~/pages/RegistrationPage.tsx"));
 const ConfirmEmailPage = lazy(() => import("~/pages/ConfirmEmailPage.tsx"));
 const ForgotPasswordPage = lazy(() => import("~/pages/ForgotPasswordPage.tsx"));
+const ExternalLoginPage = lazy(() => import("~/pages/ExternalLoginPage.tsx"));
 
 function App() {
     return (
@@ -42,6 +40,7 @@ function App() {
                             <Route path="/login">
                                 <Route path="/" component={LoginPage}/>
                                 <Route path="/forgot-password" component={ForgotPasswordPage}/>
+                                <Route path="/external" component={ExternalLoginPage}/>
                             </Route>
 
                             <Route path="/registration">

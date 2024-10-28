@@ -52,9 +52,9 @@ public class UserController : ControllerBase
         return result.Error.IntoRespose();
     }
     
-    [HttpPatch("{userId:int}/action/{action}")]
+    [HttpPatch("{userId:int}/action")]
     [Authorize(Roles = "Admin")]
-    public async Task<Results<NoContent, ProblemHttpResult>> PerformAction([FromRoute] ActionViewModel action, [FromRoute] int userId)
+    public async Task<Results<NoContent, ProblemHttpResult>> PerformAction([FromQuery] ActionViewModel action, [FromRoute] int userId)
     {
         var result = await _userService.PerformActionAsync(action, userId);
         if (result.IsOk)

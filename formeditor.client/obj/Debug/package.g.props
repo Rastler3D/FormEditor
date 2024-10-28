@@ -12,6 +12,8 @@
     <PackageJsonDependenciesKobalteCore Condition="$(PackageJsonDependenciesKobalteCore) == ''">^0.13.7</PackageJsonDependenciesKobalteCore>
     <PackageJsonDependenciesMicrosoftSignalr Condition="$(PackageJsonDependenciesMicrosoftSignalr) == ''">^8.0.7</PackageJsonDependenciesMicrosoftSignalr>
     <PackageJsonDependenciesSolidPrimitivesDebounce Condition="$(PackageJsonDependenciesSolidPrimitivesDebounce) == ''">^1.3.0</PackageJsonDependenciesSolidPrimitivesDebounce>
+    <PackageJsonDependenciesSolidPrimitivesDeep Condition="$(PackageJsonDependenciesSolidPrimitivesDeep) == ''">^0.2.9</PackageJsonDependenciesSolidPrimitivesDeep>
+    <PackageJsonDependenciesSolidPrimitivesI18n Condition="$(PackageJsonDependenciesSolidPrimitivesI18n) == ''">^2.1.1</PackageJsonDependenciesSolidPrimitivesI18n>
     <PackageJsonDependenciesSolidPrimitivesMemo Condition="$(PackageJsonDependenciesSolidPrimitivesMemo) == ''">^1.3.9</PackageJsonDependenciesSolidPrimitivesMemo>
     <PackageJsonDependenciesSolidPrimitivesStorage Condition="$(PackageJsonDependenciesSolidPrimitivesStorage) == ''">^4.2.1</PackageJsonDependenciesSolidPrimitivesStorage>
     <PackageJsonDependenciesSolidPrimitivesTrigger Condition="$(PackageJsonDependenciesSolidPrimitivesTrigger) == ''">^1.1.0</PackageJsonDependenciesSolidPrimitivesTrigger>
@@ -27,6 +29,7 @@
     <PackageJsonDependenciesClsx Condition="$(PackageJsonDependenciesClsx) == ''">^2.1.1</PackageJsonDependenciesClsx>
     <PackageJsonDependenciesD3 Condition="$(PackageJsonDependenciesD3) == ''">^7.9.0</PackageJsonDependenciesD3>
     <PackageJsonDependenciesD3Cloud Condition="$(PackageJsonDependenciesD3Cloud) == ''">^1.2.7</PackageJsonDependenciesD3Cloud>
+    <PackageJsonDependenciesI18nJs Condition="$(PackageJsonDependenciesI18nJs) == ''">^4.5.0</PackageJsonDependenciesI18nJs>
     <PackageJsonDependenciesLucideSolid Condition="$(PackageJsonDependenciesLucideSolid) == ''">^0.447.0</PackageJsonDependenciesLucideSolid>
     <PackageJsonDependenciesMarked Condition="$(PackageJsonDependenciesMarked) == ''">^14.1.2</PackageJsonDependenciesMarked>
     <PackageJsonDependenciesMeilisearch Condition="$(PackageJsonDependenciesMeilisearch) == ''">^0.44.1</PackageJsonDependenciesMeilisearch>

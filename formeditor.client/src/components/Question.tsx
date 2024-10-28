@@ -1,25 +1,26 @@
 import {Card} from "./ui/card";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select";
-import {QuestionConfiguration, QuestionTypes, QuestionOptions} from "../types/types.ts";
+import {QuestionConfiguration, QuestionTypes, } from "../types/types.ts";
 import {Button} from "./ui/button";
 import {TextField, TextFieldInput, TextFieldTextArea} from "./ui/text-field";
-import {createSignal, For, Show, createEffect} from "solid-js";
+import {createSignal, For, Show, } from "solid-js";
 import {Switch, SwitchControl, SwitchLabel, SwitchThumb} from "./ui/switch";
 import {GripVertical, Trash, X, Plus} from "lucide-solid";
-import {Listener} from "@thisbeyond/solid-dnd"
+import {DragEventHandler} from "@thisbeyond/solid-dnd"
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 interface QuestionProps {
     question: QuestionConfiguration;
     updateQuestion: <T extends keyof QuestionConfiguration>(field: T, value: QuestionConfiguration[T]) => void;
     removeQuestion: () => void;
-    sortListener?: Listener
+    sortListener?: DragEventHandler
 }
 
 const Question = (props: QuestionProps) => {
     const [option, setOption] = createSignal("");
+    const {t} = useLanguage();
     const addOption = () => {
         if (option().trim()) {
-            props.question.options.co
             props.updateQuestion("options", [...(props.question.options || []), option().trim()]);
             setOption("");
         }
@@ -59,13 +60,13 @@ const Question = (props: QuestionProps) => {
                             onChange={(value) => updateQuestionType(value ?? QuestionTypes.SingleLine)}
                             itemComponent={(props) => (
                                 <SelectItem item={props.item} class="px-3 py-2 hover:bg-accent cursor-pointer">
-                                    {QuestionOptions[props.item.rawValue]}
+                                    {t(props.item.rawValue)}
                                 </SelectItem>
                             )}
                         >
                             <SelectTrigger
                                 class="w-full sm:w-[180px] bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring">
-                                <SelectValue>{QuestionOptions[props.question.type]}</SelectValue>
+                                <SelectValue>{t(props.question.type)}</SelectValue>
                             </SelectTrigger>
                             <SelectContent class="bg-popover border border-border rounded-md shadow-md"/>
                         </Select>
@@ -85,7 +86,7 @@ const Question = (props: QuestionProps) => {
                     >
                         <TextFieldInput
                             type="text"
-                            placeholder="Question title"
+                            placeholder={t('QuestionTitle')}
                             class="mb-2 w-full bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring"
                         />
                     </TextField>
@@ -95,13 +96,13 @@ const Question = (props: QuestionProps) => {
                         onChange={(value) => props.updateQuestion("description", value)}
                     >
                         <TextFieldTextArea
-                            placeholder="Question description"
+                            placeholder={t('QuestionDescription')}
                             class="mb-2 w-full bg-background border border-input rounded-md px-3 py-2 focus:ring-2 focus:ring-ring"
                         />
                     </TextField>
                     <Show when={props.question.type === QuestionTypes.Select}>
                         <div class="mt-4">
-                            <h4 class="text-sm font-medium mb-2">Options</h4>
+                            <h4 class="text-sm font-medium mb-2">{t('Options')}s</h4>
                             <div class="space-y-2">
                                 <For each={props.question.options}>
                                     {(option, index) => (
@@ -134,7 +135,7 @@ const Question = (props: QuestionProps) => {
                                     onClick={addOption}
                                     disabled={!option().trim() || props.question.options?.includes(option())}
                                 >
-                                    <Plus size={16} class="mr-1"/> Add
+                                    <Plus size={16} class="mr-1"/> {t('Add')}
                                 </Button>
                             </div>
                         </div>
@@ -148,7 +149,7 @@ const Question = (props: QuestionProps) => {
                             <SwitchControl class="dark:[&[data-checked]]:bg-primary dark:bg-zinc-600">
                                 <SwitchThumb/>
                             </SwitchControl>
-                            <SwitchLabel>Display in table</SwitchLabel>
+                            <SwitchLabel>{t('DisplayInTable')}</SwitchLabel>
                         </Switch>
                     </div>
                 </div>

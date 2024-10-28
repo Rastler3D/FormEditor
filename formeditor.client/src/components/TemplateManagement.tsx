@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 interface TemplateManagementProps {
     templateFetcher: (options: TableOption) => Promise<TableData<TemplateInfo[]>>;
@@ -24,11 +25,12 @@ interface TemplateManagementProps {
 export default function TemplateManagement(props: TemplateManagementProps) {
     const [track, trigger] = createTrigger();
     const navigate = useNavigate();
+    const {t} = useLanguage();
 
     const columns: ColumnDef<TemplateInfo, any>[] = [
         {
             accessorKey: 'name',
-            header: 'Name',
+            header: t('Name'),
             cell: (info) => (
                 <A href={`/templates/${info.row.original.id}`}
                    class="text-primary hover:underline flex items-center space-x-2">
@@ -39,7 +41,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
         },
         {
             accessorKey: 'createdBy',
-            header: 'Author',
+            header: t('Author'),
             cell: (info) => (
                 <div class="flex items-center space-x-2">
                     <User class="h-4 w-4 text-muted-foreground"/>
@@ -49,7 +51,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
         },
         {
             accessorKey: 'createdAt',
-            header: 'Created At',
+            header: t('CreatedAt'),
             cell: (info) => (
                 <div class="flex items-center space-x-2">
                     <Clock class="h-4 w-4 text-muted-foreground"/>
@@ -59,7 +61,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
         },
         {
             accessorKey: 'topic',
-            header: 'Topic',
+            header: t('Topic'),
             cell: (info) => (
                 <Badge variant="default">
                     {info.getValue()}
@@ -68,7 +70,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
         },
         {
             accessorKey: 'filledCount',
-            header: 'Fills Count',
+            header: t('FillsCount'),
             cell: (info) => (
                 <Badge variant="secondary">
                     {info.getValue()} fills
@@ -78,7 +80,7 @@ export default function TemplateManagement(props: TemplateManagementProps) {
         {
             id: 'actions',
             enableSorting: false,
-            header: 'Actions',
+            header: t('Actions'),
             cell: (info) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger as={Button} variant="ghost" size="sm">
@@ -87,11 +89,11 @@ export default function TemplateManagement(props: TemplateManagementProps) {
                     <DropdownMenuContent>
                         <DropdownMenuItem class="cursor-pointer" onSelect={() => navigate(`/templates/${info.row.original.id}`)}>
                             <Eye class="mr-2 h-4 w-4"/>
-                            Use Template
+                            {t('UseTemplate')}
                         </DropdownMenuItem>
                         <DropdownMenuItem class="cursor-pointer" onSelect={() => handleDeleteTemplate(info.row.original.id)}>
                             <Trash class="mr-2 h-4 w-4"/>
-                            Delete
+                            {t('Delete')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

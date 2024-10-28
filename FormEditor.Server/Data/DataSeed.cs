@@ -33,7 +33,8 @@ public static class DataSeed
 
         var adminUser = new User
         {
-            UserName = Identity.DefaultUserName,
+            Name = Identity.DefaultUserName,
+            UserName = Identity.DefaultEmail,
             Email = Identity.DefaultEmail,
             EmailConfirmed = true,
         };

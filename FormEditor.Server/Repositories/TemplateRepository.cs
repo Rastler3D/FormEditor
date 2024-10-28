@@ -51,7 +51,8 @@ public class TemplateRepository : ITemplateRepository
             templates = templates.Where(f =>
                 EF.Functions.ILike(f.Name, $"%{options.Filter}%") ||
                 EF.Functions.ILike(f.Topic.Name, $"%{options.Filter}%") ||
-                EF.Functions.ILike(f.Description, $"%{options.Filter}%")
+                EF.Functions.ILike(f.Description, $"%{options.Filter}%") ||
+                EF.Functions.ILike(f.Creator.Name, $"%{options.Filter}%")
             );
         }
 
@@ -62,7 +63,7 @@ public class TemplateRepository : ITemplateRepository
             {
                 "topic" => x => x.Topic.Name,
                 "name" => x => x.Name,
-                "createdBy" => x => x.Creator.UserName,
+                "createdBy" => x => x.Creator.Name,
                 "createdAt" => x => x.CreatedAt,
                 "filledCount" => x => x.FilledCount,
                 _ => x => x.Id

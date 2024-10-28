@@ -19,6 +19,7 @@ import {
     ComboboxItemIndicator,
     ComboboxItemLabel, ComboboxTrigger
 } from "~/components/ui/combobox.tsx";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 interface GeneralSettingsProps {
     template: TemplateConfiguration;
@@ -26,6 +27,7 @@ interface GeneralSettingsProps {
 }
 
 export default function GeneralSettings(props: GeneralSettingsProps) {
+    const { t } = useLanguage();
     const [showUserTableList, setShowUserTableList] = createSignal(false);
     const [topics] = createResource(fetchTopics);
     const [tags] = createResource(fetchTags);
@@ -48,13 +50,13 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
             <div class="space-y-6">
                 <CardHeader>
-                    <h2 class="text-2xl font-bold">General Settings</h2>
+                    <h2 class="text-2xl font-bold">{t('GeneralSettings')}</h2>
                 </CardHeader>
                 <CardContent>
                     <div class="space-y-8 ">
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div class="sm:col-span-2">
-                                <Label for="title" class="text-lg font-semibold mb-2">Title</Label>
+                                <Label for="title" class="text-lg font-semibold mb-2">{t('Title')}</Label>
                                 <TextField
                                     required
                                     value={props.template.name}
@@ -68,7 +70,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                 </TextField>
                             </div>
                             <div class="sm:col-span-2">
-                                <Label for="description" class="text-lg font-semibold mb-2">Description</Label>
+                                <Label for="description" class="text-lg font-semibold mb-2">{t('Description')}</Label>
                                 <MarkdownEditor
                                     required
                                     id="description"
@@ -77,13 +79,13 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                 />
                             </div>
                             <div class="sm:col-span-2">
-                                <Label for="topics" class="text-lg font-semibold mb-2">Topic</Label>
+                                <Label for="topics" class="text-lg font-semibold mb-2">{t('Topic')}</Label>
                                 <Combobox<string>
                                     id="topics"
                                     options={(topics()?.length > 0) ? topics()! : ["Education", "Quiz"]}
                                     value={props.template.topic}
                                     onChange={(value) => props.updateTemplate("topic", value ?? "Education")}
-                                    placeholder="Select tags"
+                                    placeholder={t('SelectTopic')}
                                     itemComponent={(props) => (
                                         <ComboboxItem item={props.item} class="p-2 cursor-pointer hover:bg-accent">
                                             <ComboboxItemLabel>{props.item.rawValue}</ComboboxItemLabel>
@@ -91,7 +93,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                         </ComboboxItem>
                                     )}
                                 >
-                                    <ComboboxControl aria-label="Topic"
+                                    <ComboboxControl aria-label={t('Topic')}
                                                      class="flex items-center text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 w-full px-2 text-left  rounded shadow-sm has-[:focus]:outline-none has-[:focus]:ring-2 has-[:focus]:ring-primary">
                                         <ComboboxInput class=""/>
                                         <ComboboxTrigger class=""/>
@@ -100,7 +102,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                 </Combobox>
                             </div>
                             <div class="sm:col-span-2">
-                                <Label for="image" class="text-lg font-semibold mb-2">Image</Label>
+                                <Label for="image" class="text-lg font-semibold mb-2">{t('Image')}</Label>
                                 <ImageUploader
                                     id="image"
                                     image={props.template.image}
@@ -108,7 +110,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                 />
                             </div>
                             <div class="sm:col-span-2">
-                                <Label for="tags" class="text-lg font-semibold mb-2">Tags</Label>
+                                <Label for="tags" class="text-lg font-semibold mb-2">{t('Tags')}</Label>
                                 <TagSelector
                                     id="tags"
                                     tagOptions={tags() ?? []}
@@ -117,7 +119,7 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                 />
                             </div>
                             <div class="sm:col-span-2">
-                                <Label for="access-setting" class="text-lg font-semibold mb-2">Access Setting</Label>
+                                <Label for="access-setting" class="text-lg font-semibold mb-2">{t('AccessSetting')}</Label>
                                 <Select
                                     id="access-setting"
                                     value={props.template.accessSetting}
@@ -126,26 +128,26 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                                     options={Object.values(AccessSetting)}
                                     itemComponent={(props) => (
                                         <SelectItem item={props.item}>
-                                            {props.item.rawValue === AccessSetting.Specified ? 'Specified users only' : 'Public'}
+                                            {props.item.rawValue === AccessSetting.Specified ? t('SpecifiedUsersOnly') : t('Public')}
                                         </SelectItem>
                                     )}
                                 >
                                     <SelectTrigger id="access-setting"
                                                    class="w-full p-2 bg-background border border-input rounded-md focus:ring-2 focus:ring-ring">
-                                        <SelectValue>{(state) => state.selectedOption() === AccessSetting.Specified ? 'Specified users only' : 'Public'}</SelectValue>
+                                        <SelectValue>{(state) => state.selectedOption() === AccessSetting.Specified ? t('SpecifiedUsersOnly') : t('Public')}</SelectValue>
                                     </SelectTrigger>
                                     <SelectContent class="bg-popover border border-border rounded-md shadow-md"/>
                                 </Select>
                             </div>
                             <Show when={props.template.accessSetting === AccessSetting.Specified}>
                                 <div class="sm:col-span-2">
-                                    <Label for="users" class="text-lg font-semibold mb-2">Users</Label>
+                                    <Label for="users" class="text-lg font-semibold mb-2">{t('Users')}</Label>
                                     <Button id="users" onClick={() => setShowUserTableList(true)}
                                             class="w-full">
-                                        Select Users
+                                        {t('SelectUsers')}
                                     </Button>
                                     <div class="mt-2 text-sm text-muted-foreground">
-                                        <p>{props.template.allowList?.length} users selected</p>
+                                        <p>{t('UsersSelected')}{ props.template.allowList?.length ?? 0 }</p>
                                     </div>
                                 </div>
                             </Show>
@@ -161,6 +163,5 @@ export default function GeneralSettings(props: GeneralSettingsProps) {
                 </CardContent>
             </div>
         </Card>
-
     );
 }

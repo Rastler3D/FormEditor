@@ -159,3 +159,8 @@ export interface TableData<T> {
     data: T;
     totalRows: number;
 }
+
+export interface ExternalLoginResponse{
+    type: "error" | "success",
+    message: ExternalLoginResponse["type"] extends "error" ? string : TokenResponse;
+}

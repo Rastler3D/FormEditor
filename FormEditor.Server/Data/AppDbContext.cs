@@ -96,6 +96,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasOne(c => c.Author)
             .WithMany()
             .HasForeignKey(c => c.AuthorId);
+        builder.Entity<AllowList>().HasIndex(x => x.TemplateId);
+        builder.Entity<AllowList>().HasIndex(x => x.UserId);
+        builder.Entity<Comment>().HasIndex(x => x.TemplateId);
+        builder.Entity<Comment>().HasIndex(x => x.AuthorId);
+        builder.Entity<Like>().HasIndex(x => x.TemplateId);
+        builder.Entity<Like>().HasIndex(x => x.UserId);
+        builder.Entity<Topic>().HasIndex(x => x.Name);
+        builder.Entity<Tag>().HasIndex(x => x.Name);
+        builder.Entity<Answer>().HasIndex(x => x.QuestionId);
+        builder.Entity<Answer>().HasIndex(x => x.FormId);
+        builder.Entity<Form>().HasIndex(x => x.TemplateId);
+        builder.Entity<Form>().HasIndex(x => x.SubmitterId);
+        builder.Entity<Form>().HasIndex(x => x.FillingDate);
+        builder.Entity<Form>().HasIndex(x => x.SubmittedAt);
+        builder.Entity<Template>().HasIndex(x => x.CreatedAt);
+        builder.Entity<Template>().HasIndex(x => x.CreatorId);
+        builder.Entity<Template>().HasIndex(x => x.FilledCount);
+        builder.Entity<Template>().HasIndex(x => x.Name);
     }
     
     protected override void ConfigureConventions(

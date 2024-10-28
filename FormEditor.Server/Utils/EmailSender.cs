@@ -10,13 +10,13 @@ public class EmailSender : IEmailSender
     private readonly MailAddress _mailAddress;
     public EmailSender(IConfiguration config)
     {
-        _smtpClient = new SmtpClient(config["SMTP_HOST"]??"smtp.mail.ru")
+        _smtpClient = new SmtpClient(config["SMTP_HOST"])
         {
-            Port = int.Parse(config["SMTP_PORT"] ?? "587"),
-            Credentials = new NetworkCredential(config["SMTP_USERNAME"]??"aleksandr.hvalov@mail.ru", config["SMTP_PASSWORD"]??"uJN5FcQYYAq7j76Z9SiG"),
+            Port = int.Parse(config["SMTP_PORT"]),
+            Credentials = new NetworkCredential(config["SMTP_USERNAME"], config["SMTP_PASSWORD"]),
             EnableSsl = true,
         };
-        _mailAddress = new MailAddress(config["SMTP_SENDER_EMAIL"]??"aleksandr.hvalov@mail.ru", config["SMTP_SENDER_NAME"] ?? "Form Editor");
+        _mailAddress = new MailAddress(config["SMTP_SENDER_EMAIL"], config["SMTP_SENDER_NAME"]);
     }
     
     

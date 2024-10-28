@@ -36,7 +36,7 @@ export const getUser = (userId: number): Promise<User> => {
 };
 
 export const performAction = (action: Action, userId: number): Promise<void> => {
-    return api.patch(`/User/${userId}/action/${action}`)
+    return api.patch(`/User/${userId}/action/?action=${encodeURI(action)}`)
         .then(() => {
         });
 };

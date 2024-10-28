@@ -27,22 +27,24 @@ import {
 } from "~/components/ui/dialog.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 import {Avatar, AvatarFallback, AvatarImage} from "~/components/ui/avatar.tsx";
+import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
 
 export default function UserManagement() {
     const [selection, setSelection] = createSignal<number[]>([]);
     const [fetchedUsers, setFetchedUsers] = createSignal<User[]>([]);
     const [selectedUsers, setSelectedUsers] = createSignal<User[]>([]);
-    const {user, refreshToken} = useAuth();
+    const {user, eagerRefreshToken} = useAuth();
     const [track, trigger] = createTrigger();
     const [deleteDialogOpen, setDeleteDialogOpen] = createSignal(false);
     const [userToDelete, setUserToDelete] = createSignal<number | null>(null);
+    const {t} = useLanguage();
     const navigate = useNavigate();
 
     const columns: ColumnDef<User, any>[] = [
         {
             accessorKey: 'avatar',
-            header: 'Avatar',
+            header: t('Avatar'),
             enableSorting: false,
             cell: (info) => (
                 <Avatar class="w-10 h-10 rounded-full">
@@ -53,7 +55,7 @@ export default function UserManagement() {
         },
         {
             accessorKey: 'name',
-            header: 'Name',
+            header: t('Name'),
             cell: (info) => (
                 <A href={`/users/${info.row.original.id}`} class="text-primary hover:underline">
                     {info.getValue()}
@@ -62,11 +64,11 @@ export default function UserManagement() {
         },
         {
             accessorKey: 'email',
-            header: 'Email',
+            header: t('Email'),
         },
         {
             accessorKey: 'role',
-            header: 'Role',
+            header: t('Role'),
             cell: (info) => (
                 <Badge variant={info.getValue() === 'Admin' ? 'default' : 'secondary'}>
                     {info.getValue()}
@@ -75,7 +77,7 @@ export default function UserManagement() {
         },
         {
             accessorKey: 'status',
-            header: 'Status',
+            header: t('Status'),
             cell: (info) => (
                 <Badge variant={info.getValue() === 'Active' ? 'success' : 'destructive'}>
                     {info.getValue()}
@@ -84,7 +86,7 @@ export default function UserManagement() {
         },
         {
             id: 'actions',
-            header: 'Actions',
+            header: t('Actions'),
             cell: (info) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger as={Button} variant="ghost" size="sm">
@@ -93,23 +95,23 @@ export default function UserManagement() {
                     <DropdownMenuContent>
                         <DropdownMenuItem onSelect={() => navigate(`/users/${info.row.original.id}`)}>
                             <Eye class="mr-2 h-4 w-4"/>
-                            View
+                            {t('View')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={() => handleAction(info.row.original.status === 'Active' ? Action.Block : Action.Unblock, info.row.original.id)}>
                             {info.row.original.status === 'Active' ? <UserX class="mr-2 h-4 w-4"/> :
                                 <UserCheck class="mr-2 h-4 w-4"/>}
-                            {info.row.original.status === 'Active' ? 'Block' : 'Unblock'}
+                            {info.row.original.status === 'Active' ? t('Block') : t('Unblock')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={() => handleToggleAdminRole(info.row.original.id, info.row.original.role)}>
                             {info.row.original.role === 'Admin' ? <ShieldOff class="mr-2 h-4 w-4"/> :
                                 <Shield class="mr-2 h-4 w-4"/>}
-                            {info.row.original.role === 'Admin' ? 'Remove Admin' : 'Make Admin'}
+                            {info.row.original.role === 'Admin' ? t('RemoveAdmin') : t('MakeAdmin')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => openDeleteDialog(info.row.original.id)}>
                             <Trash class="mr-2 h-4 w-4"/>
-                            Delete
+                            {t('Delete')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -122,7 +124,7 @@ export default function UserManagement() {
             const newRole = currentRole === 'Admin' ? 'User' : 'Admin';
             await changeRole(userId, newRole);
             if (userId == user()?.id) {
-                await refreshToken();
+                await eagerRefreshToken();
             }
             trigger();
             showToast({title: `User role updated to ${newRole}`, variant: "success"});
@@ -136,7 +138,7 @@ export default function UserManagement() {
             await performAction(action, userId);
             showToast({title: `User ${action.toLowerCase()}ed successfully`, variant: "success"});
             if (userId == user()?.id) {
-                await refreshToken();
+                await eagerRefreshToken();
             }
             trigger();
         } catch (error) {
@@ -160,7 +162,7 @@ export default function UserManagement() {
             await performBulkAction({ids: selectedIds, action});
             showToast({title: `Selected users ${action.toLowerCase()}ed successfully`, variant: "success"});
             if (user() && selectedIds.includes(user()!.id)) {
-                await refreshToken();
+                await eagerRefreshToken();
             }
             trigger();
         } catch (error) {
@@ -183,7 +185,7 @@ export default function UserManagement() {
             }
             showToast({title: `User(s) deleted successfully`, variant: "success"});
             if (user() && ids.includes(user()!.id)) {
-                await refreshToken();
+                await eagerRefreshToken();
             }
             trigger();
         } catch (error) {
@@ -208,7 +210,7 @@ export default function UserManagement() {
     return (
         <Card class="bg-background">
             <CardHeader>
-                <CardTitle>User Management</CardTitle>
+                <CardTitle>{t('UserManagement')}</CardTitle>
             </CardHeader>
             <CardContent>
                 <div class="mb-4 flex flex-wrap gap-2">

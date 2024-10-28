@@ -35,7 +35,7 @@ public class FormRepository : IFormRepository
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             forms = forms.Where(f =>
-                EF.Functions.ILike(f.Submitter.UserName, $"%{options.Filter}%") ||
+                EF.Functions.ILike(f.Submitter.Name, $"%{options.Filter}%") ||
                 EF.Functions.ILike(f.Template.Name, $"%{options.Filter}%")
             );
         }
@@ -47,7 +47,7 @@ public class FormRepository : IFormRepository
             {
                 "templateName" => x => x.Template.Name,
                 "fillingDate" => x => x.FillingDate,
-                "submittedBy" => x => x.Submitter.UserName,
+                "submittedBy" => x => x.Submitter.Name,
                 _ => x => x.Id
             };
 

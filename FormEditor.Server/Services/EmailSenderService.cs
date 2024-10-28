@@ -51,7 +51,7 @@ public class EmailSenderService : IEmailSenderService
         sb.AppendLine("    <div class=\"container\">");
         sb.AppendLine($"        <h1>Filled Form: {form.Template.Name}</h1>");
         sb.AppendLine("        <div class=\"form-info\">");
-        sb.AppendLine($"            <p><strong>Submitted by:</strong> {form.Submitter.UserName}</p>");
+        sb.AppendLine($"            <p><strong>Submitted by:</strong> {form.Submitter.Name}</p>");
         sb.AppendLine($"            <p><strong>Submitted on:</strong> {form.SubmittedAt.ToString("f")}</p>");
         sb.AppendLine($"            <p><strong>Filling Date:</strong> {form.FillingDate.ToString("d")}</p>");
         sb.AppendLine("        </div>");
