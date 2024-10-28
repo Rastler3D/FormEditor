@@ -6,12 +6,12 @@ import {Skeleton} from "~/components/ui/skeleton";
 import {Progress} from "~/components/ui/progress";
 import {Badge} from "~/components/ui/badge";
 import {Tabs, TabsList, TabsTrigger, TabsContent} from "~/components/ui/tabs";
-import {Chart, Title, Tooltip, Legend, Colors} from 'chart.js';
+import {Chart, Title, Tooltip, Legend, Colors, ArcElement} from 'chart.js';
 import {Pie, Bar} from 'solid-chartjs';
 import {Aggregation} from '~/types/types.ts';
 import {useLanguage} from "~/contexts/LanguageContext.tsx";
 
-Chart.register(Title, Tooltip, Legend, Colors);
+Chart.register(Title, Tooltip, Legend, Colors, ArcElement);
 
 interface FormAggregationProps {
     template: Template;
