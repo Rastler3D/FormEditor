@@ -16,17 +16,33 @@ import {AlertCircle} from "lucide-solid";
 import {createEffect, createSignal, For,  Show} from "solid-js";
 import {Oval} from "solid-spinner";
 import {useLanguage} from "~/contexts/LanguageContext.tsx";
+import { showToast } from "./ui/toast";
 
 const Registration = () => {
-    const {signUp} = useAuth();
+    const {signUp, signInWithProvider} = useAuth();
     const navigate = useNavigate();
     const registration = createAction(signUp);
     const [userName, setUserName] = createSignal("");
     const [email, setEmail] = createSignal("");
     const [password, setPassword] = createSignal("");
+    const externalLogin = createAction(signInWithProvider);
     const {t} = useLanguage();
 
     createEffect(resolve(registration.data, () => navigate(`/registration/confirm-email/${email()}`)));
+    createEffect(resolve(externalLogin.data, () => {
+        showToast({title: t("SuccessfulExternalLogin"), variant: "success"});
+        navigate("/home")
+    }));
+
+    createEffect(() => {
+        if (externalLogin.data.error) {
+            showToast({title: t("ExternalLoginFailed"), description: externalLogin.data.error, variant: "error"});
+        }
+    })
+
+    const handleExternalLogin = (provider: "google" | "github") => {
+        externalLogin(provider)
+    }
 
     const handleRegistration = (e: SubmitEvent) => {
         e.preventDefault();
@@ -81,11 +97,13 @@ const Registration = () => {
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <Button variant="outline" type="button" class="w-full">
+                    <Button variant="outline" type="button" class="w-full"
+                            onClick={() => handleExternalLogin("github")}>
                         <FaBrandsGithub class="mr-2 h-4 w-4"/>
                         Github
                     </Button>
-                    <Button variant="outline" type="button" class="w-full">
+                    <Button variant="outline" type="button" class="w-full"
+                            onClick={() => handleExternalLogin("google")}>
                         <FaBrandsGoogle class="mr-2 h-4 w-4"/>
                         Google
                     </Button>

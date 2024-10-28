@@ -15,7 +15,7 @@ import {
     ComboboxTrigger
 } from "~/components/ui/combobox";
 import {Button} from "~/components/ui/button";
-import {Grid, LayoutGrid, Search as SearchIcon, Filter, X} from "lucide-solid";
+import {Grid, LayoutGrid, Search as SearchIcon, Filter} from "lucide-solid";
 import {
     Pagination,
     PaginationEllipsis,
