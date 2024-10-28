@@ -43,7 +43,7 @@ public class MeiliSearchService : ISearchService
             Actions = [KeyAction.Search],
             Indexes = ["*"],
             ExpiresAt = null,
-            Uid = _configuration["MEILISEARCH_API_KEY_UID"],
+            Uid = _configuration["MEILISEARCH_API_KEY_UUID"],
         });
     }
     

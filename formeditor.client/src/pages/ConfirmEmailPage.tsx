@@ -26,7 +26,6 @@ const ConfirmEmailPage = ()=> {
                     <CardTitle class="text-2xl font-bold text-center">{t("ConfirmYourEmail")}</CardTitle>
                     <CardDescription class="text-center">
                         {t("CheckEmail")}
-                        Please check your email to confirm your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent class="text-center space-y-4">
