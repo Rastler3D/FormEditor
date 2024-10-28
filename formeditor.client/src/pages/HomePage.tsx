@@ -104,7 +104,7 @@ const HomePage = () => {
                                 <TagCloud
                                     tags={tags()}
                                     isLoading={false}
-                                    onTagClick={(tag) => navigate(`/search?tag=${encodeURIComponent(tag)}`)}
+                                    onTagClick={(tag) => navigate(`/search?tags=${encodeURIComponent(tag)}`)}
                                 />
                             </Show>
                         </Show>
