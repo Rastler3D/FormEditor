@@ -7,6 +7,8 @@ import {disconnectSalesforce, salesForceStatus} from "~/services/salesforceServi
 import {createSignal} from "solid-js";
 import {User} from "~/contexts/AuthContext.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
+import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
+import { Key } from "lucide-solid";
 
 interface IntegrationsManagerProps {
     user: User;
@@ -58,46 +60,45 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
     //         showToast({title: t("OdooConnected"), variant: "success"});
     //     }
     // };
-
+    
     return (
-        <div class="space-y-6">
+        <div class="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle class="flex items-center space-x-2">
+                        <Key class="w-5 h-5" />
+                        <span>{t("ApiToken")}</span>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-muted-foreground mb-4">{t("ApiTokenDescription")}</p>
+                    <Button onClick={handleGenerateApiToken} class="w-full sm:w-auto">
+                        {t("GenerateApiToken")}
+                    </Button>
+                </CardContent>
+            </Card>
             <div>
-                <h3 class="text-lg font-semibold mb-2">{t("ApiToken")}</h3>
-                <Button onClick={handleGenerateApiToken} class="w-full sm:w-auto text-nowrap">
-                    {t("GenerateApiToken")}
-                </Button>
+                <h3 class="text-2xl font-semibold mb-4">{t("Integrations")}</h3>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <IntegrationCard
+                        title="Salesforce"
+                        description={t("SalesforceIntegrationDescription")}
+                        connected={salesforceConnected()}
+                        loading={salesforceConnected.loading}
+                        onToggle={handleSalesforceIntegration}
+                    />
+                    {/* Add more IntegrationCard components here as needed */}
+                </div>
             </div>
-            <div class="grid gap-4 md:grid-cols-3">
-                <IntegrationCard
-                    title="Salesforce"
-                    description={t("SalesforceIntegrationDescription")}
-                    connected={salesforceConnected()}
-                    loading={salesforceConnected.loading}
-                    onToggle={handleSalesforceIntegration}
-                />
-                <SalesforceIntegration
-                    onOpenChange={setShowSalesforceDialog}
-                    onResult={(connected) => {
-                        setShowSalesforceDialog(false);
-                        setSalesforceConnected(connected);
-                    }} 
-                    open={showSalesforceDialog()} 
-                    user={props.user}
-                />
-                {/*<IntegrationCard*/}
-                {/*    title="Jira"*/}
-                {/*    description={t("JiraIntegrationDescription")}*/}
-                {/*    connected={jiraConnected()}*/}
-                {/*    onToggle={handleJiraIntegration}*/}
-                {/*    loading={}*/}
-                {/*/>*/}
-                {/*<IntegrationCard*/}
-                {/*    title="Odoo"*/}
-                {/*    description={t("OdooIntegrationDescription")}*/}
-                {/*    connected={odooConnected()}*/}
-                {/*    onToggle={handleOdooIntegration}*/}
-                {/*/>*/}
-            </div>
+            <SalesforceIntegration
+                onOpenChange={setShowSalesforceDialog}
+                onResult={(connected) => {
+                    setShowSalesforceDialog(false);
+                    setSalesforceConnected(connected);
+                }}
+                open={showSalesforceDialog()}
+                user={props.user}
+            />
         </div>
     );
 }

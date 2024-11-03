@@ -159,7 +159,8 @@ const translations = {
         Disconnected: "Disconnected",
         Connected: "Connected",
         ApiToken: "API Token",
-        GenerateApiToken: "Generate API Token"
+        GenerateApiToken: "Generate API Token",
+        ApiTokenDescription: "An API token is a unique key that allows you to securely integrate your profile with external platforms."
         
     },
     ru: {
@@ -305,7 +306,8 @@ const translations = {
         Disconnected: "Подключено",
         Connected: "Отключено",
         ApiToken: "API Токен",
-        GenerateApiToken: "Сгенерировать API Токен"
+        GenerateApiToken: "Сгенерировать API Токен",
+        ApiTokenDescription: "API-токен — это уникальный ключ, который позволяет безопасно интегрировать ваш профиль с внешними платформами."
     }
 };
 

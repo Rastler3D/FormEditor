@@ -36,8 +36,9 @@ function ProfileInfo(props: ProfileInfoProps) {
     };
 
     const handleCancelEditProfile = () => {
+        update.reset();
         setName(props.user.name);
-        setEmail(props.user.email);
+        setEmail(props.user.email); 
         setIsEdit(false);
     };
 
@@ -114,13 +115,13 @@ function ProfileInfo(props: ProfileInfoProps) {
                     </TextField>
                 </div>
             </Show>
+            <Show when={update.data.error}>
+                <div class="text-red-500 flex items-center">
+                    <AlertCircle class="w-4 h-4 mr-2"/>
+                    {update.data.error.detail}
+                </div>
+            </Show>
             <div class="flex flex-wrap gap-3">
-                <Show when={update.data.error}>
-                    <div class="text-red-500 flex items-center">
-                        <AlertCircle class="w-4 h-4 mr-2"/>
-                        {update.data.error.detail}
-                    </div>
-                </Show>
                 <Show when={!props.isReadonly}>
                     <Show
                         when={isEdit()}
@@ -150,7 +151,7 @@ function ProfileInfo(props: ProfileInfoProps) {
                     </Show>
                 </Show>
                 <Show when={!props.isReadonly && !isEdit()}>
-                    <Label for="avatar-upload" class="cursor-pointer">
+                    <Label for="avatar-upload" class="cursor-pointer w-full sm:w-auto ">
                         <input
                             id="avatar-upload"
                             type="file"

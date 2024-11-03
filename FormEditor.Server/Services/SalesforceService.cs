@@ -44,9 +44,10 @@ public class SalesforceService : ISalesforceService
                 accessInfo: auth.AccessInfo
             );
         }
-        catch (Exception ex)
+        catch (ForceAuthException error)
         {
-            return Error.InternalError("Failed to authenticate with Salesforce");
+            return Error.InternalError(error.Message);
+            
         }
     }
 
@@ -146,6 +147,9 @@ public class SalesforceService : ISalesforceService
             var salesforceAccount = contact.AccountId;
             await client.DeleteRecord("Contact", salesforceContact);
             await client.DeleteRecord("Account", salesforceAccount);
+            
+            user.SalesforceContact = null;
+            await _userManager.UpdateAsync(user);
         }
         catch (ForceApiException error)
         {

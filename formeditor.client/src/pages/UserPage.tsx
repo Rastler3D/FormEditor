@@ -44,7 +44,7 @@ const UserPage = () => {
                 }>
                     <UserProfile
                         user={user()!}
-                        isReadonly={user()?.id != currentUser()?.id}
+                        isReadonly={!user() || (user()?.id != currentUser()?.id && user()?.role != 'Admin')}
                         onUserUpdated={user => mutate(currentUser => currentUser?.id == user.id ? user : currentUser)}
                     />
                 </Show>
