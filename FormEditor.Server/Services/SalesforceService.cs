@@ -7,8 +7,8 @@ using NetCoreForce.Client;
 namespace FormEditor.Server.Services;
 public interface ISalesforceService
 {
-    Task<Result<Error>> CreateAccountAsync(SalesforceAccountViewModel request, int userId);
-    Task<Result<Error>> DisconnectAsync(int userId);
+    Task<Result<Error>> CreateAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId);
+    Task<Result<Error>> DisconnectAsync(int userId, int removerId);
     Task<bool> GetConnectionStatusAsync(int userId);
 }
 
@@ -50,9 +50,19 @@ public class SalesforceService : ISalesforceService
         }
     }
 
-    public async Task<Result<Error>> CreateAccountAsync(SalesforceAccountViewModel request, int userId)
+    public async Task<Result<Error>> CreateAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId)
     {
+        var creator = await _userManager.FindByIdAsync(userId.ToString());
+        if (creator == null)
+        {
+            return Error.NotFound("User not found");
+        }
         var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (creatorId != userId && !await _userManager.IsInRoleAsync(creator, Roles.Admin))
+        {
+            return Error.Unauthorized("You have no permission to connect salesforce integration");
+        }
+        
         if (user == null || user.SalesforceContact != null)
         {
             return Error.BadRequest("User already have salesforce account.");
@@ -105,9 +115,18 @@ public class SalesforceService : ISalesforceService
         return Result<Error>.Ok();
     }
 
-    public async Task<Result<Error>> DisconnectAsync(int userId)
+    public async Task<Result<Error>> DisconnectAsync(int userId, int removerId)
     {
+        var remover = await _userManager.FindByIdAsync(userId.ToString());
+        if (remover == null)
+        {
+            return Error.NotFound("User not found");
+        }
         var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (removerId != userId && !await _userManager.IsInRoleAsync(remover, Roles.Admin))
+        {
+            return Error.Unauthorized("You have no permission to disconnect salesforce integration");
+        }
         if (user == null || user.SalesforceContact == null)
         {
             return Error.BadRequest("User don't have salesforce account.");

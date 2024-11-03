@@ -53,7 +53,7 @@ export const changeRole = (userId: number, role: 'User' | 'Admin'): Promise<void
         });
 };
 
-export const updateUser = async (userId: number, user: UpdateUser): Promise<User> => {
+export const updateUser = async ({userId, user} : { userId: number, user: UpdateUser }): Promise<User> => {
     if (user.avatar instanceof File) {
         user.avatar = await uploadImage(user.avatar);
     }

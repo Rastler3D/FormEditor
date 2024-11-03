@@ -84,13 +84,19 @@ public class UserService : IUserService
     public async Task<Result<UserViewModel, Error>> UpdateUserAsync(int userId, UpdateUserViewModel updateUser,
         int updatorId)
     {
+        var updator = await _userRepository.GetUserAsync(updatorId);
+        if (updator.IsErr)
+        {
+            return updator.Error;
+        }
+
         var user = await _userRepository.GetUserAsync(userId);
         if (user.IsErr)
         {
             return user.Error;
         }
 
-        if (updatorId != userId)
+        if (updatorId != userId && !await _userManager.IsInRoleAsync(updator.Value, Roles.Admin))
         {
             return Error.Unauthorized("You have no permission to edit this profile");
         }

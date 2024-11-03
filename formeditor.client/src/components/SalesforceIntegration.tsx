@@ -7,14 +7,16 @@ import { showToast } from '~/components/ui/toast';
 import { Label } from '~/components/ui/label';
 import { Oval } from 'solid-spinner';
 import {User} from "~/contexts/AuthContext.tsx";
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "~/components/ui/dialog.tsx";
 
-interface SalesforceIntegrationFormProps {
+interface SalesforceIntegrationProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     user: User;
-    onResult: (result: boolean) => void;
-    onCancel: () => void;
+    onResult: (connected: boolean) => void;
 }
 
-export default function SalesforceIntegrationForm(props: SalesforceIntegrationFormProps) {
+export default function SalesforceIntegration(props: SalesforceIntegrationProps) {
     const { t } = useLanguage();
     const [isSubmitting, setIsSubmitting] = createSignal(false);
 
@@ -31,7 +33,7 @@ export default function SalesforceIntegrationForm(props: SalesforceIntegrationFo
         setIsSubmitting(true);
 
         try {
-            await createSalesforceAccount(formData());
+            await createSalesforceAccount(formData(), props.user.id);
             showToast({ title: t('SalesforceAccountCreated'), variant: 'success' });
             props.onResult(true);
         } catch (error) {
@@ -47,6 +49,12 @@ export default function SalesforceIntegrationForm(props: SalesforceIntegrationFo
     };
 
     return (
+        <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{t("SalesforceIntegration")}</DialogTitle>
+                    <DialogDescription>{t("CreateSalesforceAccountDescription")}</DialogDescription>
+                </DialogHeader>
         <form onSubmit={handleSubmit} class="space-y-4">
             <TextField>
                 <Label for="firstName">{t('FirstName')}</Label>
@@ -98,7 +106,7 @@ export default function SalesforceIntegrationForm(props: SalesforceIntegrationFo
                 />
             </TextField>
             <div class="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={props.onCancel} disabled={isSubmitting()}>
+                <Button type="button" variant="outline" onClick={() => props.onOpenChange(false)} disabled={isSubmitting()}>
                     {t('Cancel')}
                 </Button>
                 <Button type="submit" disabled={isSubmitting()}>
@@ -106,5 +114,7 @@ export default function SalesforceIntegrationForm(props: SalesforceIntegrationFo
                 </Button>
             </div>
         </form>
+            </DialogContent>
+        </Dialog>
     );
 }

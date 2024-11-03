@@ -27,11 +27,12 @@ public class IntegrationsController : ControllerBase
         //_odooService = odooService;
     }
 
-    [HttpPost("salesforce/account")]
-    public async Task<Results<NoContent, ProblemHttpResult>> CreateSalesforceAccount(SalesforceAccountViewModel request)
+    [HttpPost("salesforce/account/{userId:int}")]
+    public async Task<Results<NoContent, ProblemHttpResult>> CreateSalesforceAccount(
+        [FromBody] SalesforceAccountViewModel request, [FromRoute] int userId)
     {
-        var userId = User.GetUserId();
-        var result = await _salesforceService.CreateAccountAsync(request, userId);
+        var currentUserId = User.GetUserId();
+        var result = await _salesforceService.CreateAccountAsync(request, userId, currentUserId);
         if (result.IsOk)
         {
             return TypedResults.NoContent();
@@ -40,11 +41,11 @@ public class IntegrationsController : ControllerBase
         return result.Error.IntoRespose();
     }
 
-    [HttpDelete("salesforce/account")]
-    public async Task<Results<NoContent, ProblemHttpResult>> DisconnectSalesforce()
+    [HttpDelete("salesforce/account/{userId:int}")]
+    public async Task<Results<NoContent, ProblemHttpResult>> DisconnectSalesforce([FromRoute] int userId)
     {
-        var userId = User.GetUserId();
-        var result = await _salesforceService.DisconnectAsync(userId);
+        var currentUserId = User.GetUserId();
+        var result = await _salesforceService.DisconnectAsync(userId, currentUserId);
         if (result.IsOk)
         {
             return TypedResults.NoContent();
@@ -53,10 +54,9 @@ public class IntegrationsController : ControllerBase
         return result.Error.IntoRespose();
     }
 
-    [HttpGet("salesforce/account/status")]
-    public async Task<Ok<bool>> GetSalesforceStatus()
+    [HttpGet("salesforce/account/{userId:int}/status")]
+    public async Task<Ok<bool>> GetSalesforceStatus([FromRoute] int userId)
     {
-        var userId = User.GetUserId();
         var result = await _salesforceService.GetConnectionStatusAsync(userId);
         return TypedResults.Ok(result);
     }

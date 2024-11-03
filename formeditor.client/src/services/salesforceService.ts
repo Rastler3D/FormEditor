@@ -8,17 +8,17 @@ interface SalesforceAccount {
     phone: string;
 }
 
-export function createSalesforceAccount(account: SalesforceAccount): Promise<void> {
-    return api.post(`/Salesforce/account`, account)
+export function createSalesforceAccount(account: SalesforceAccount, userId: number): Promise<void> {
+    return api.post(`/Integrations/salesforce/account/${userId}`, account)
         .then(response => response.data)
 }
 
-export function disconnectSalesforce(): Promise<void> {
-    return api.delete(`/Salesforce/account`)
+export function disconnectSalesforce(userId: number): Promise<void> {
+    return api.delete(`/Integrations/salesforce/account/${userId}`)
         .then(response => response.data)
 }
 
-export function salesForceStatus(): Promise<boolean> {
-    return api.get<boolean>(`/Salesforce/account/status`)
+export function salesForceStatus(userId: number): Promise<boolean> {
+    return api.get<boolean>(`/Integrations/salesforce/account/${userId}/status`)
         .then(response => response.data)
 }

@@ -158,6 +158,8 @@ const translations = {
         Disconnect: "Disconnect",
         Disconnected: "Disconnected",
         Connected: "Connected",
+        ApiToken: "API Token",
+        GenerateApiToken: "Generate API Token"
         
     },
     ru: {
@@ -302,6 +304,8 @@ const translations = {
         Disconnect: "Отключить",
         Disconnected: "Подключено",
         Connected: "Отключено",
+        ApiToken: "API Токен",
+        GenerateApiToken: "Сгенерировать API Токен"
     }
 };
 
