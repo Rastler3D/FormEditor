@@ -11,6 +11,7 @@ public abstract class Error
     protected Error() { }
     
     public static Error NotFound(string? message) => new NotFound(message);
+    public static Error BadRequest(string? message) => new BadRequest(message);
     public static Error InternalError(string? message) => new InternalError(message);
     public static Error Unauthorized(string? message) => new Unauthorized(message);
     
@@ -42,4 +43,11 @@ public class InternalError(string? message) : Error
     public override string ErrorType => "InternalError";
     public override string Message => message ?? "";
     public override ProblemHttpResult IntoRespose() => TypedResults.Problem(message, statusCode: StatusCodes.Status500InternalServerError);
+}
+
+public class BadRequest(string? message) : Error
+{
+    public override string ErrorType => "BadRequestError";
+    public override string Message => message ?? "";
+    public override ProblemHttpResult IntoRespose() => TypedResults.Problem(message, statusCode: StatusCodes.Status400BadRequest);
 }

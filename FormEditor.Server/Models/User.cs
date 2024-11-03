@@ -10,4 +10,6 @@ public class User : IdentityUser<int>
     public List<Form> Forms { get; set; }
     public List<IdentityRole<int>> Roles { get; set; }
     
+    public string? SalesforceContact { get; set; } 
+    
 }
