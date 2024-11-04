@@ -18,7 +18,7 @@ public interface IJiraService
     Task<Result<TableData<JiraTicket[]>, Error>> GetUserTickets(int userId, TableOptionViewModel options);
 }
 
-public class JiraService: IJiraService
+public class JiraService : IJiraService
 {
     private readonly Jira _jira;
     private readonly string _jiraDomain;
@@ -58,14 +58,16 @@ public class JiraService: IJiraService
             return Error.BadRequest("User already have connected jira account.");
         }
 
-        user.JiraAccount = email;
-        var jiraUser = await CreateOrGetUser(user.JiraAccount!);
-        if (jiraUser.IsErr)
+        var createUser = await CreateOrGetUser(email);
+        if (createUser.IsErr)
         {
-            return jiraUser.Error;
+            return createUser.Error;
         }
 
+        var jiraUser = createUser.Value;
+        user.JiraAccount = jiraUser.AccountId;
         await _userManager.UpdateAsync(user);
+
         return Result<Error>.Ok();
     }
 
@@ -87,13 +89,14 @@ public class JiraService: IJiraService
         {
             return Error.BadRequest("User don't have connected jira account.");
         }
+
         await _jira.Users.DeleteUserAsync(user.JiraAccount);
         user.JiraAccount = null;
         await _userManager.UpdateAsync(user);
-        
+
         return Result<Error>.Ok();
     }
-    
+
     public async Task<bool> GetConnectionStatusAsync(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -101,7 +104,7 @@ public class JiraService: IJiraService
         {
             return false;
         }
-        
+
         return true;
     }
 
@@ -113,19 +116,24 @@ public class JiraService: IJiraService
             return Error.NotFound("User not found");
         }
 
+        JiraUser reportedBy;
         if (user.JiraAccount == null)
         {
-            user.JiraAccount = user.Email;
-        }
+            var createUser = await CreateOrGetUser(user.Email!);
+            if (createUser.IsErr)
+            {
+                return createUser.Error;
+            }
 
-        var jiraUser = await CreateOrGetUser(user.JiraAccount!);
-        if (jiraUser.IsErr)
+            reportedBy = createUser.Value;
+            user.JiraAccount = reportedBy.AccountId;
+            await _userManager.UpdateAsync(user);
+        }
+        else
         {
-            return jiraUser.Error;
+            reportedBy = await _jira.Users.GetUserAsync(user.JiraAccount);
         }
-
-        await _userManager.UpdateAsync(user);
-        var reportedBy = jiraUser.Value;
+        
         try
         {
             var issue = _jira.CreateIssue(_jiraProjectKey);
@@ -133,7 +141,7 @@ public class JiraService: IJiraService
             issue.Summary = request.Summary;
             issue.Priority = request.Priority.ToString();
             issue.Description = request.Description;
-            issue.Reporter = reportedBy.Email;
+            issue.Reporter = reportedBy.AccountId;
             issue["Template ID"] = request.TemplateId;
             issue["Link"] = request.Link;
 
@@ -152,7 +160,8 @@ public class JiraService: IJiraService
         return $"https://{_jiraDomain}.atlassian.net/browse/{issueKey}";
     }
 
-    public async Task<Result<TableData<JiraTicket[]>, Error>> GetUserTickets(int userId, TableOptionViewModel tableOptions)
+    public async Task<Result<TableData<JiraTicket[]>, Error>> GetUserTickets(int userId,
+        TableOptionViewModel tableOptions)
     {
         var options = _mapper.Map<TableOption>(tableOptions);
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -160,15 +169,17 @@ public class JiraService: IJiraService
         {
             return Error.NotFound("User not found");
         }
+
         if (user.JiraAccount == null)
         {
             return Error.NotFound("User don't have connected jira account.");
         }
 
-        var email = user.JiraAccount!;
+        var accoundId = user.JiraAccount!;
         try
         {
-            var data = await ApplyTableOptions(_jira.Issues.Queryable.Where(issue => issue.ReporterUser.Email == email),
+            var data = await ApplyTableOptions(
+                _jira.Issues.Queryable.Where(issue => issue.ReporterUser.AccountId == accoundId),
                 options);
 
             return data.MapData(issues => issues.Select(issue => new JiraTicket
@@ -234,12 +245,12 @@ public class JiraService: IJiraService
             TotalRows = totalRows
         };
     }
-    
+
     private async Task<Result<JiraUser, Error>> CreateOrGetUser(string email)
     {
         try
         {
-            var existingUser = await _jira.Users.GetUserAsync(email);
+            var existingUser = (await _jira.Users.SearchUsersAsync(email)).FirstOrDefault();
             if (existingUser != null)
             {
                 return existingUser;
