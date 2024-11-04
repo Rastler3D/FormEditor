@@ -9,7 +9,7 @@ import {User} from "~/contexts/AuthContext.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
 import { Key } from "lucide-solid";
-import {jiraStatus} from "~/services/jiraService.ts";
+import {disconnectJira, jiraStatus} from "~/services/jiraService.ts";
 import JiraIntegration from "~/components/JiraIntegration.tsx";
 
 interface IntegrationsManagerProps {
@@ -43,7 +43,7 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
     const handleJiraIntegration = async () => {
         if (jiraConnected()) {
             try {
-                await disconnectSalesforce(props.user.id);
+                await disconnectJira(props.user.id);
                 setJiraConnected(false);
                 showToast({title: t("JiraDisconnected"), variant: "success"});
             } catch (err) {
