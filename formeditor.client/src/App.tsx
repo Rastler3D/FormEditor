@@ -49,7 +49,7 @@ function App() {
                             </Route>
 
                             <Route path="/templates">
-                                <Route path=":id" component={TemplatePage}/>
+                                <Route path=":templateId" component={TemplatePage}/>
                                 <Route path="/all" component={AuthorizeRoute(["Admin"])}>
                                     <Route path="/" component={AllTemplatesPage}/>
                                 </Route>

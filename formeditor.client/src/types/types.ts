@@ -164,3 +164,16 @@ export interface ExternalLoginResponse{
     type: "error" | "success",
     message: ExternalLoginResponse["type"] extends "error" ? string : TokenResponse;
 }
+
+export interface Ticket {
+    key: string;
+    summary: string;
+    description: string;
+    priority: "Low" | "Average" | "High";
+    templateId: number;
+    link: string;
+    status: string;
+    reportedBy: string;
+    createdAt: string;
+    url: string;
+}

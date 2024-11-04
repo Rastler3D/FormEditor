@@ -7,8 +7,8 @@ using NetCoreForce.Client;
 namespace FormEditor.Server.Services;
 public interface ISalesforceService
 {
-    Task<Result<Error>> CreateAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId);
-    Task<Result<Error>> DisconnectAsync(int userId, int removerId);
+    Task<Result<Error>> ConnectAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId);
+    Task<Result<Error>> DisconnectAccountAsync(int userId, int removerId);
     Task<bool> GetConnectionStatusAsync(int userId);
 }
 
@@ -51,7 +51,7 @@ public class SalesforceService : ISalesforceService
         }
     }
 
-    public async Task<Result<Error>> CreateAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId)
+    public async Task<Result<Error>> ConnectAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId)
     {
         var creator = await _userManager.FindByIdAsync(userId.ToString());
         if (creator == null)
@@ -116,7 +116,7 @@ public class SalesforceService : ISalesforceService
         return Result<Error>.Ok();
     }
 
-    public async Task<Result<Error>> DisconnectAsync(int userId, int removerId)
+    public async Task<Result<Error>> DisconnectAccountAsync(int userId, int removerId)
     {
         var remover = await _userManager.FindByIdAsync(userId.ToString());
         if (remover == null)

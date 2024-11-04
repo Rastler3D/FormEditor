@@ -17,8 +17,8 @@ import {AlertCircle, Folder} from "lucide-solid";
 const TemplatePage = () => {
     const {user} = useAuth();
     const params = useParams();
-    const [template, {mutate}] = createResource(() => Number(params.id), fetchTemplate);
-    const templateUpdating = createAction(updateTemplate, () => params.id);
+    const [template, {mutate}] = createResource(() => Number(params.templateId), fetchTemplate);
+    const templateUpdating = createAction(updateTemplate, () => params.templateId);
 
     createEffect(on(templateUpdating.data, (updatedTemplate) => {
         if (updatedTemplate) {
@@ -59,7 +59,7 @@ const TemplatePage = () => {
                             <TemplateManager
                                 template={template()!}
                                 onSavedChanges={(updatedTemplate) => templateUpdating({
-                                    templateId: Number(params.id),
+                                    templateId: Number(params.templateId),
                                     template: updatedTemplate
                                 })}
                                 isSavingChanges={templateUpdating.data.loading}

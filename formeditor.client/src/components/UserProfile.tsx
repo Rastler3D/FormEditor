@@ -46,9 +46,7 @@ function UserProfile(props: UserProfileProps) {
                             />
                         </TabsContent>
                         <TabsContent value="integrations">
-                            <IntegrationsManager
-                                user={props.user}
-                            />
+                            <IntegrationsManager user={props.user}/>
                         </TabsContent>
                         <TabsContent value="tickets">
                             <TicketManagement/>

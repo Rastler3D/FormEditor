@@ -119,8 +119,10 @@ builder.Services.AddIdentityCore<User>(options =>
     .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddApiEndpoints();
+
 builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IFormRepository, FormRepository>();
 builder.Services.AddScoped<ITemplateRepository, TemplateRepository>();
@@ -131,6 +133,7 @@ builder.Services.AddScoped<IFormService, FormService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISalesforceService, SalesforceService>();
+builder.Services.AddScoped<IJiraService, JiraService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();

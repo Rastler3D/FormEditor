@@ -8,7 +8,7 @@ interface SalesforceAccount {
     phone: string;
 }
 
-export function createSalesforceAccount(account: SalesforceAccount, userId: number): Promise<void> {
+export function connectSalesforce(account: SalesforceAccount, userId: number): Promise<void> {
     return api.post(`/Integrations/salesforce/account/${userId}`, account)
         .then(response => response.data)
 }

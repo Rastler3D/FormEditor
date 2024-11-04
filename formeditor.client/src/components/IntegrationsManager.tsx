@@ -9,6 +9,8 @@ import {User} from "~/contexts/AuthContext.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
 import { Key } from "lucide-solid";
+import {jiraStatus} from "~/services/jiraService.ts";
+import JiraIntegration from "~/components/JiraIntegration.tsx";
 
 interface IntegrationsManagerProps {
     user: User;
@@ -17,10 +19,9 @@ interface IntegrationsManagerProps {
 function IntegrationsManager(props: IntegrationsManagerProps) {
     const {t} = useLanguage();
     const [showSalesforceDialog, setShowSalesforceDialog] = createSignal(false);
-    //const [showJiraDialog, setShowJiraDialog] = createSignal(false);
+    const [showJiraDialog, setShowJiraDialog] = createSignal(false);
     const [salesforceConnected, {mutate: setSalesforceConnected}] = createResource(()=> props.user.id, salesForceStatus);
-    // const [jiraConnected, setJiraConnected] = createSignal(false);
-    // const [odooConnected, setOdooConnected] = createSignal(false);
+    const [jiraConnected, {mutate: setJiraConnected}] = createResource(()=> props.user.id, jiraStatus);
     const handleGenerateApiToken = async () => {
         // Implement API token generation logic
     };
@@ -39,27 +40,19 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
         }
     };
 
-    // const handleJiraIntegration = () => {
-    //     if (jiraConnected()) {
-    //         // Implement disconnect logic
-    //         setJiraConnected(false);
-    //         showToast({title: t("JiraDisconnected"), variant: "success"});
-    //     } else {
-    //         setShowJiraDialog(true);
-    //     }
-    // };
-    //
-    // const handleOdooIntegration = () => {
-    //     if (odooConnected()) {
-    //         // Implement disconnect logic
-    //         setOdooConnected(false);
-    //         showToast({title: t("OdooDisconnected"), variant: "success"});
-    //     } else {
-    //         // Implement connect logic
-    //         setOdooConnected(true);
-    //         showToast({title: t("OdooConnected"), variant: "success"});
-    //     }
-    // };
+    const handleJiraIntegration = async () => {
+        if (jiraConnected()) {
+            try {
+                await disconnectSalesforce(props.user.id);
+                setJiraConnected(false);
+                showToast({title: t("JiraDisconnected"), variant: "success"});
+            } catch (err) {
+                showToast({title: t("JiraDisconnectionFailed"), variant: "destructive"});
+            }
+        } else {
+            setShowJiraDialog(true);
+        }
+    };
     
     return (
         <div class="space-y-8">
@@ -87,6 +80,13 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                         loading={salesforceConnected.loading}
                         onToggle={handleSalesforceIntegration}
                     />
+                    <IntegrationCard
+                        title="Jira"
+                        description={t("JiraIntegrationDescription")}
+                        connected={jiraConnected()}
+                        loading={jiraConnected.loading}
+                        onToggle={handleJiraIntegration}
+                    />
                     {/* Add more IntegrationCard components here as needed */}
                 </div>
             </div>
@@ -97,6 +97,15 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                     setSalesforceConnected(connected);
                 }}
                 open={showSalesforceDialog()}
+                user={props.user}
+            />
+            <JiraIntegration
+                onOpenChange={setShowJiraDialog}
+                onResult={(connected) => {
+                    setShowJiraDialog(false);
+                    setJiraConnected(connected);
+                }}
+                open={showJiraDialog()}
                 user={props.user}
             />
         </div>

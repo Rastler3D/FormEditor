@@ -10,7 +10,8 @@
     Plus,
     Files,
     UserCog,
-    Search
+    Search,
+    HelpCircle
 } from "lucide-solid";
 import {Motion, Presence} from "solid-motionone";
 import {Button, buttonVariants} from "~/components/ui/button";
@@ -20,6 +21,7 @@ import {Separator} from "~/components/ui/separator";
 import {A, useMatch} from "@solidjs/router";
 import {cn} from "~/lib/utils.ts";
 import {useAuth} from "~/contexts/AuthContext.tsx";
+import TicketDialog from "./TicketDialog";
 
 interface SidebarProps {
     isSheet?: boolean
@@ -28,6 +30,7 @@ interface SidebarProps {
 
 const Sidebar = (props: SidebarProps) => {
     const [isExpanded, setIsExpanded] = createSignal(props.isSheet ?? false);
+    const [isTicketDialogOpen, setIsTicketDialogOpen] = createSignal(false);
     const {user, signOut} = useAuth();
 
     return (
@@ -73,13 +76,14 @@ const Sidebar = (props: SidebarProps) => {
                 </div>
                 <Show when={user()}>
                     <div class="py-2">
-                        <nav
-                            class="grid gap-1 px-2">
-                            <NavItem icon={LogOut} isExpanded={isExpanded()} onClick={() => signOut()} label={"Logout"}/>
+                        <nav class="grid gap-1 px-2">
+                            <NavItem icon={HelpCircle} isExpanded={isExpanded()} onClick={() => setIsTicketDialogOpen(true)} label="Help"/>
+                            <NavItem icon={LogOut} isExpanded={isExpanded()} onClick={() => signOut()} label="Logout"/>
                         </nav>
                     </div>
                 </Show>
             </Motion.div>
+            <TicketDialog open={isTicketDialogOpen()} onOpenChange={setIsTicketDialogOpen} />
         </aside>
     );
 };

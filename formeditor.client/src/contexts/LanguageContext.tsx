@@ -160,8 +160,19 @@ const translations = {
         Connected: "Connected",
         ApiToken: "API Token",
         GenerateApiToken: "Generate API Token",
-        ApiTokenDescription: "An API token is a unique key that allows you to securely integrate your profile with external platforms."
-        
+        ApiTokenDescription: "An API token is a unique key that allows you to securely integrate your profile with external platforms.",
+        JiraAccountCreated: "Jira account connected successfully",
+        JiraAccountCreationFailed: "Failed to connect Jira account",
+        ConnectJira: "Connect Jira",
+        CreateJiraAccountDescription: "Connect Jira account to the profile",
+        JiraIntegration: "Jira Integration",
+        JiraDisconnectionFailed: "Failed to disconnect Jira integration",
+        JiraDisconnected: "Jira integration disconnected",
+        JiraIntegrationDescription: "Integration with Jira platform for tickets management",
+        TicketKey: "Ticket key",
+        Priority: "Priority",
+        OpenInJira: "Open in Jira",
+        YourTickets: "Tickets",
     },
     ru: {
         TemplateManager: 'Менеджер шаблонов',
@@ -307,7 +318,19 @@ const translations = {
         Connected: "Отключено",
         ApiToken: "API Токен",
         GenerateApiToken: "Сгенерировать API Токен",
-        ApiTokenDescription: "API-токен — это уникальный ключ, который позволяет безопасно интегрировать ваш профиль с внешними платформами."
+        ApiTokenDescription: "API-токен — это уникальный ключ, который позволяет безопасно интегрировать ваш профиль с внешними платформами.",
+        JiraAccountCreated: "Jira аккаунт успешно подключен",
+        JiraAccountCreationFailed: "Не удалось подключить Jira аккаунт",
+        ConnectJira: "Подключить Jira",
+        CreateJiraAccountDescription: "Подключить Jira аккаунт к профилю",
+        JiraIntegration: "Jira интеграция",
+        JiraDisconnectionFailed: "Не удалось отключить интеграцию с Jira",
+        JiraDisconnected: "Отключена интеграция с Jira",
+        JiraIntegrationDescription: "Интеграция с платформой Jira для управления обращениями",
+        TicketKey: "Номер обращения",
+        Priority: "Приоритет",
+        OpenInJira: "Открыть в Jira",
+        YourTickets: "Обращения",
     }
 };
 

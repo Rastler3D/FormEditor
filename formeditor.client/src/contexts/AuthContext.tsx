@@ -166,7 +166,7 @@ export function AuthProvider(props: { children: JSX.Element }) {
     };
 
     const updateUser = async (data: UpdateUser): Promise<User> => {
-        return userServices.updateUser(user()!.id, data)
+        return userServices.updateUser({userId: user()!.id, user: data})
             .then(x => (setUser(x), x));
     };
 

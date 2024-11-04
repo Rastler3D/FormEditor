@@ -2,7 +2,7 @@
 import { TextField, TextFieldInput } from '~/components/ui/text-field';
 import { Button } from '~/components/ui/button';
 import { useLanguage } from '~/contexts/LanguageContext';
-import { createSalesforceAccount } from '~/services/salesforceService';
+import { connectSalesforce } from '~/services/salesforceService';
 import { showToast } from '~/components/ui/toast';
 import { Label } from '~/components/ui/label';
 import { Oval } from 'solid-spinner';
@@ -33,7 +33,7 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
         setIsSubmitting(true);
 
         try {
-            await createSalesforceAccount(formData(), props.user.id);
+            await connectSalesforce(formData(), props.user.id);
             showToast({ title: t('SalesforceAccountCreated'), variant: 'success' });
             props.onResult(true);
         } catch (error) {
