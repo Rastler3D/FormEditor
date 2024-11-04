@@ -189,7 +189,6 @@ public class JiraService : IJiraService
             var data = await ApplyTableOptions(
                 _jira.Issues.Queryable.Where(issue => issue.ReporterUser.AccountId == accoundId),
                 options);
-
             return data.MapData(issues => issues.Select(issue => new JiraTicket
             {
                 Key = issue.Key.Value,
@@ -219,8 +218,7 @@ public class JiraService : IJiraService
                 f.Summary.Contains(options.Filter)
             );
         }
-
-        var totalRows = await users.CountAsync();
+        var totalRows = await Task.Run(users.Count);
 
         foreach (var sortOption in options.Sort)
         {
@@ -249,7 +247,7 @@ public class JiraService : IJiraService
 
         return new()
         {
-            Data = await users.ToListAsync(),
+            Data = await Task.Run(users.ToList),
             TotalRows = totalRows
         };
     }

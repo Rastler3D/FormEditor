@@ -1,9 +1,9 @@
-﻿import {ArrowDown, ArrowUp, ArrowUpDown, Search} from "lucide-solid";
+﻿import {AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, Search} from "lucide-solid";
 import {TextField, TextFieldInput} from "~/components/ui/text-field.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "~/components/ui/table.tsx";
 import {debounce} from '@solid-primitives/scheduled';
-import {createResource, For, createEffect, on, createSignal, untrack, Show} from "solid-js";
+import { For, createEffect, on, createSignal, untrack, Show} from "solid-js";
 import {
     ColumnDef,
     createSolidTable,
@@ -22,6 +22,7 @@ import {Skeleton} from "~/components/ui/skeleton.tsx";
 import {TableData, TableOption} from "~/types/types.ts";
 import {Checkbox} from "./ui/checkbox";
 import {createWritableMemo} from "@solid-primitives/memo"
+import {createResource} from "~/lib/action.ts";
 
 const selectionColumn: ColumnDef<any, any> = {
     id: 'select',
@@ -253,7 +254,12 @@ const DataTable = <TData, >(props: DataTableProps<TData>) => {
                         {response()?.totalRows ?? 0} row(s) selected.
                     </div>
                 </Show>
-
+                <Show when={response.error}>
+                    <div class="text-red-500 flex items-center">
+                        <AlertCircle class="w-4 h-4 mr-2"/>
+                        {response.error.detail}
+                    </div>
+                </Show>
                 <Pagination
                     count={table.getPageCount()}
                     page={table.getState().pagination.pageIndex + 1}
