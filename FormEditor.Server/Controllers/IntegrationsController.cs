@@ -109,7 +109,7 @@ public class IntegrationsController : ControllerBase
     }
 
     [HttpGet("jira/ticket/{userId:int}")]
-    public async Task<Ok<TableData<JiraTicket[]>>> GetTickets([FromRoute] int userId,
+    public async Task<Results<Ok<TableData<JiraTicket[]>>, ProblemHttpResult>> GetTickets([FromRoute] int userId,
         [FromQuery] TableOptionViewModel options)
     {
         var result = await _jiraService.GetUserTickets(userId, options);
@@ -118,6 +118,6 @@ public class IntegrationsController : ControllerBase
             return TypedResults.Ok(result.Value);
         }
 
-        return TypedResults.Ok(new TableData<JiraTicket[]> { Data = [], TotalRows = 0 });
+        return result.Error.IntoRespose();
     }
 }

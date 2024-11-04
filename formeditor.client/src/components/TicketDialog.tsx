@@ -19,7 +19,7 @@ export default function TicketDialog(props: TicketDialogProps) {
     const params = useParams();
     const location = useLocation();
     const [summary, setSummary] = createSignal("");
-    const [description, setDescription] = createSignal("Medium");
+    const [description, setDescription] = createSignal("");
     const link= createMemo(on(() => 
         location.pathname || 
         location.search || 
@@ -87,7 +87,7 @@ export default function TicketDialog(props: TicketDialogProps) {
                     <div class="space-y-2">
                         <Label for="link">Link</Label>
                         <TextField readOnly disabled value={link()}>
-                            <TextFieldInput type="number" id="link" placeholder="Link"
+                            <TextFieldInput type="text" id="link" placeholder="Link"
                                             required/>
                         </TextField>
                     </div>
