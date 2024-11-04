@@ -259,7 +259,6 @@ public class JiraService : IJiraService
             var newUser = await _jira.Users.CreateUserAsync(new JiraUserCreationInfo
             {
                 Email = email,
-                Username = email,
                 Notification = true
             });
 
