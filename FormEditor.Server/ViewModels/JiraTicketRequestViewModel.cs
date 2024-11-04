@@ -1,4 +1,7 @@
-﻿namespace FormEditor.Server.ViewModels;
+﻿using Atlassian.Jira;
+using Newtonsoft.Json;
+
+namespace FormEditor.Server.ViewModels;
 
 public class JiraTicketRequestViewModel
 {
@@ -29,3 +32,9 @@ public enum TicketPriority
     Average,
     Low
 }
+
+    public class JiraUserCreation: JiraUserCreationInfo
+    {
+        [JsonProperty("products")] 
+        public string[] Products { get; set; } = [];
+    }

@@ -91,7 +91,14 @@ public class JiraService : IJiraService
             return Error.BadRequest("User don't have connected jira account.");
         }
 
-        await _jira.Users.DeleteUserAsync(user.JiraAccount);
+        try
+        {
+            await _jira.Users.DeleteUserAsync(user.JiraAccount);
+        }
+        catch (InvalidOperationException err)
+        {
+        }
+
         user.JiraAccount = null;
         await _userManager.UpdateAsync(user);
 
@@ -257,10 +264,11 @@ public class JiraService : IJiraService
                 return existingUser;
             }
 
-            var newUser = await _jira.Users.CreateUserAsync(new JiraUserCreationInfo
+            var newUser = await _jira.Users.CreateUserAsync(new JiraUserCreation
             {
                 Email = email,
-                Notification = true
+                Notification = true,
+                Products = ["jira-software"]
             });
 
             return newUser;
