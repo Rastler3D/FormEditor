@@ -4,7 +4,7 @@ public class JiraTicketRequestViewModel
 {
     public string Summary { get; set; }
     public TicketPriority Priority { get; set; }
-    public string TemplateId { get; set; }
+    public int TemplateId { get; set; }
     public string Link { get; set; }
     public string Description { get; set; }
 }
@@ -15,7 +15,7 @@ public class JiraTicket
     public string Summary { get; set; }
     public string Status { get; set; }
     public TicketPriority Priority { get; set; }
-    public string TemplateId { get; set; }
+    public int TemplateId { get; set; }
     public string Link { get; set; }
     public string Description { get; set; }
     public string ReportedBy { get; set; }

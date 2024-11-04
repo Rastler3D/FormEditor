@@ -36,7 +36,8 @@ public class JiraService : IJiraService
         var jiraUser = configuration["JIRA_EMAIL"];
         var jiraApiToken = configuration["JIRA_API_KEY"];
 
-        _jira = Jira.CreateRestClient(jiraUrl, jiraUser, jiraApiToken);
+        _jira = Jira.CreateRestClient(jiraUrl, jiraUser, jiraApiToken,
+            new JiraRestClientSettings { EnableUserPrivacyMode = true });
     }
 
     public async Task<Result<Error>> ConnectAccountAsync(string email, int userId, int creatorId)
@@ -133,7 +134,7 @@ public class JiraService : IJiraService
         {
             reportedBy = await _jira.Users.GetUserAsync(user.JiraAccount);
         }
-        
+
         try
         {
             var issue = _jira.CreateIssue(_jiraProjectKey);
@@ -142,7 +143,7 @@ public class JiraService : IJiraService
             issue.Priority = request.Priority.ToString();
             issue.Description = request.Description;
             issue.Reporter = reportedBy.AccountId;
-            issue["Template ID"] = request.TemplateId;
+            issue["Template ID"] = request.TemplateId.ToString();
             issue["Link"] = request.Link;
 
             await issue.SaveChangesAsync();
@@ -192,7 +193,7 @@ public class JiraService : IJiraService
                 Description = issue.Description,
                 Link = issue["Link"].Value,
                 ReportedBy = issue.ReporterUser.Email,
-                TemplateId = issue["Template ID"].Value,
+                TemplateId = int.Parse(issue["Template ID"].Value),
                 Url = GetJiraTicketUrl(issue.Key.Value),
             }).ToArray());
         }
