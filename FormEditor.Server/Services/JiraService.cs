@@ -189,6 +189,10 @@ public class JiraService : IJiraService
             var data = await ApplyTableOptions(
                 _jira.Issues.Queryable.Where(issue => issue.Reporter == accoundId),
                 options);
+            foreach (var issue in  data.Data)
+            {
+                Console.WriteLine(data);
+            }
             return data.MapData(issues => issues.Select(issue => new JiraTicket
             {
                 Key = issue.Key.Value,
@@ -198,7 +202,7 @@ public class JiraService : IJiraService
                 CreatedAt = issue.Created.GetValueOrDefault(),
                 Description = issue.Description,
                 Link = issue["Link"].Value,
-                ReportedBy = issue.ReporterUser.Email,
+                ReportedBy = issue.ReporterUser?.Email,
                 TemplateId = int.Parse(issue["Template ID"].Value),
                 Url = GetJiraTicketUrl(issue.Key.Value),
             }).ToArray());
