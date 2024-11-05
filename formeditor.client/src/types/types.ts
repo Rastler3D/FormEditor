@@ -155,6 +155,10 @@ export interface TokenResponse {
     expiresIn: number;
 }
 
+export interface ApiTokenResponse {
+    apiToken: string;
+}
+
 export interface TableData<T> {
     data: T;
     totalRows: number;

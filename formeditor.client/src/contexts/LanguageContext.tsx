@@ -173,6 +173,10 @@ const translations = {
         Priority: "Priority",
         OpenInJira: "Open in Jira",
         YourTickets: "Tickets",
+        Regenerate: "Regenerate API Token",
+        ApiTokenGenerationFailed: "Failed to generate API Token",
+        ApiTokenGenerated: "Api Token generated successfully",
+        CopyToClipboard: "Copy to Clipboard"
     },
     ru: {
         TemplateManager: 'Менеджер шаблонов',
@@ -331,6 +335,10 @@ const translations = {
         Priority: "Приоритет",
         OpenInJira: "Открыть в Jira",
         YourTickets: "Обращения",
+        Regenerate: "Сгенерировать API Токен",
+        ApiTokenGenerationFailed: "Не удалось сгенерировать API Токен",
+        ApiTokenGenerated: "API Токен успешно сгенерирован",
+        CopyToClipboard: "Скопировать"
     }
 };
 

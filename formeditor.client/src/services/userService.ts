@@ -1,12 +1,20 @@
 ﻿import {User} from "~/contexts/AuthContext";
-import {Action, Bulk, TableData, TableOption, TokenResponse, UpdateUser} from "~/types/types.ts";
+import {Action, ApiTokenResponse, Bulk, TableData, TableOption, TokenResponse, UpdateUser} from "~/types/types.ts";
 import {api} from "~/lib/api.ts";
 import {uploadImage} from "~/services/imageUploadService.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 
+export const getApiToken = (): Promise<ApiTokenResponse> => {
+    return api.get<ApiTokenResponse>('/Authentication/api-token')
+        .then(response => response.data);
+};
 
+export const generateApiToken = (): Promise<ApiTokenResponse> => {
+    return api.post<ApiTokenResponse>('/Authentication/api-token')
+        .then(response => response.data);
+};
 export const login = (credentials: { email: string, password: string }): Promise<TokenResponse> => {
-    return api.post('/Authentication/login', credentials)
+    return api.post<TokenResponse>('/Authentication/login', credentials)
         .then(response => response.data);
 };
 

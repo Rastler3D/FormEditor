@@ -1,4 +1,3 @@
-
 using FormEditor.Server.Models;
 using FormEditor.Server.Utils;
 using Microsoft.AspNetCore.Identity;
@@ -8,23 +7,28 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FormEditor.Server.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, IdentityRole<int>, int>(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<User, IdentityRole<int>, int>(options)
 {
     public DbSet<Template> Templates { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Form> Forms { get; set; }
     public DbSet<Answer> Answers { get; set; }
-    
+
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Topic> Topics { get; set; }
     public DbSet<Like> Likes { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<AllowList> AllowList { get; set; }
-    
+    public DbSet<ApiToken> ApiTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+        builder.Entity<ApiToken>()
+            .HasOne(a => a.User)
+            .WithOne(u => u.ApiToken)
+            .HasForeignKey<ApiToken>(a => a.UserId);
         builder.Entity<User>().ToTable("Users").Property(p => p.Id).HasColumnName("UserId");
         builder.Entity<User>().HasMany(e => e.Roles)
             .WithMany()
@@ -53,7 +57,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasOne(q => q.Template)
             .WithMany(t => t.Questions)
             .HasForeignKey(q => q.TemplateId);
-        
+
         builder.Entity<Form>()
             .HasOne(f => f.Template)
             .WithMany(t => t.Forms)
@@ -62,7 +66,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasOne(f => f.Submitter)
             .WithMany(t => t.Forms)
             .HasForeignKey(f => f.SubmitterId);
-       
+
 
         builder.Entity<Answer>()
             .HasOne(a => a.Form)
@@ -79,7 +83,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .WithMany()
             .UsingEntity<AllowList>();
         builder.Entity<Template>()
-            .HasOne<User>(t=> t.Creator)
+            .HasOne<User>(t => t.Creator)
             .WithMany(u => u.Templates)
             .HasForeignKey(t => t.CreatorId)
             .IsRequired();
@@ -96,6 +100,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasOne(c => c.Author)
             .WithMany()
             .HasForeignKey(c => c.AuthorId);
+
+        builder.Entity<ApiToken>().HasIndex(x => x.UserId);
+        builder.Entity<ApiToken>().HasIndex(x => x.Token);
         builder.Entity<AllowList>().HasIndex(x => x.TemplateId);
         builder.Entity<AllowList>().HasIndex(x => x.UserId);
         builder.Entity<Comment>().HasIndex(x => x.TemplateId);
@@ -115,12 +122,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.Entity<Template>().HasIndex(x => x.FilledCount);
         builder.Entity<Template>().HasIndex(x => x.Name);
     }
-    
+
     protected override void ConfigureConventions(
         Microsoft.EntityFrameworkCore.ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        
+
         configurationBuilder.Properties<DateTime>()
             .HaveConversion<DateTimeToDateTimeUtc>();
     }

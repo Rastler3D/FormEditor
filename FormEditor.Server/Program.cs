@@ -21,7 +21,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-if (builder.Environment.IsProduction()){
+if (builder.Environment.IsProduction())
+{
     var port = Environment.GetEnvironmentVariable("PORT") ?? "8081";
     builder.WebHost.UseUrls($"http://*:{port}");
 }
@@ -33,10 +34,35 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             builder.Configuration["DATABASE_URL"])
         .UseExceptionProcessor());
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IApiTokenService, ApiTokenService>();
+builder.Services.AddIdentityCore<User>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+        options.SignIn.RequireConfirmedAccount = true;
+        if (builder.Environment.IsProduction())
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequiredLength = 6;
+        }
+        else
+        {
+            options.Password.RequireDigit = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequiredLength = 1;
+        }
+    })
+    .AddRoles<IdentityRole<int>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddApiEndpoints();
 
 builder.Services
-    .AddAuthentication(AuthenticationHandler.Scheme)
-    .AddScheme<AuthenticationSchemeOptions, AuthenticationHandler>(AuthenticationHandler.Scheme, null)
+    .AddAuthentication(AuthenticationHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, AuthenticationHandler>(AuthenticationHandler.SchemeName, null)
     .AddCookie(IdentityConstants.ApplicationScheme)
     .AddCookie(IdentityConstants.ExternalScheme, o =>
     {
@@ -83,6 +109,7 @@ builder.Services
         options.ClaimActions.MapJsonKey("picture", "avatar_url");
         options.CallbackPath = "/api/signin-github";
     });
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -95,30 +122,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
-builder.Services.AddIdentityCore<User>(options =>
-    {
-        options.User.RequireUniqueEmail = true;
-        options.SignIn.RequireConfirmedAccount = true;
-        if (builder.Environment.IsProduction())
-        {
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequiredLength = 6;
-        }
-        else
-        {
-            options.Password.RequireDigit = false;
-            options.Password.RequireLowercase = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequiredLength = 1;
-        }
-    })
-    .AddRoles<IdentityRole<int>>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddApiEndpoints();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(typeof(MappingProfile));

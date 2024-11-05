@@ -12,5 +12,6 @@ public class User : IdentityUser<int>
     
     public string? SalesforceContact { get; set; } 
     public string? JiraAccount { get; set; } 
+    public ApiToken? ApiToken { get; set; } 
     
 }

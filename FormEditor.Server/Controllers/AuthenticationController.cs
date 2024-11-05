@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using FormEditor.Server.Models;
+using FormEditor.Server.Services;
 using FormEditor.Server.ViewModels;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
@@ -31,30 +32,55 @@ public class AuthenticationController : ControllerBase
     private readonly IOptionsMonitor<BearerTokenOptions> _bearerTokenOptions;
     private readonly IEmailSender<User> _emailSender;
     private readonly LinkGenerator _linkGenerator;
+    private readonly IApiTokenService _apiTokenService;
 
     private static readonly EmailAddressAttribute _emailAddressAttribute = new();
 
     public AuthenticationController(UserManager<User> userManager, IUserStore<User> userStore,
         SignInManager<User> signInManager, TimeProvider timeProvider,
         IOptionsMonitor<BearerTokenOptions> bearerTokenOptions, IEmailSender<User> emailSender,
-        LinkGenerator linkGenerator)
+        LinkGenerator linkGenerator, IApiTokenService apiTokenService)
     {
-        this._userManager = userManager;
-        this._userStore = userStore;
-        this._emailStore = (IUserEmailStore<User>)userStore;
-        this._signInManager = signInManager;
-        this._timeProvider = timeProvider;
-        this._bearerTokenOptions = bearerTokenOptions;
-        this._emailSender = emailSender;
-        this._linkGenerator = linkGenerator;
+        _userManager = userManager;
+        _userStore = userStore;
+        _emailStore = (IUserEmailStore<User>)userStore;
+        _signInManager = signInManager;
+        _timeProvider = timeProvider;
+        _bearerTokenOptions = bearerTokenOptions;
+        _emailSender = emailSender;
+        _linkGenerator = linkGenerator;
+        _apiTokenService = apiTokenService;
+    }
+    
+    [HttpGet("api-token")]
+    [Authorize]
+    public async Task<Results<Ok<ApiTokenViewModel>, ProblemHttpResult>> GetApiToken()
+    {
+        var userId = User.GetUserId();
+        var result = await _apiTokenService.GetUserToken(userId);
+        if (result.IsOk)
+        {
+            return TypedResults.Ok(new ApiTokenViewModel { ApiToken = result.Value });
+        }
+
+        return result.Error.IntoRespose();
+    }
+
+    [HttpPost("api-token")]
+    [Authorize]
+    public async Task<Ok<ApiTokenViewModel>> GenerateApiToken()
+    {
+        var userId = User.GetUserId();
+        var token = await _apiTokenService.GenerateTokenForUser(userId);
+        return TypedResults.Ok(new ApiTokenViewModel { ApiToken = token });
     }
 
     [HttpGet("external-login")]
-    public IActionResult ExternalLogin([FromQuery] Provider provider, [FromQuery] string returnUrl = null)
+    public ChallengeHttpResult ExternalLogin([FromQuery] Provider provider, [FromQuery] string returnUrl = null)
     {
         var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Authentication", new { returnUrl });
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider.ToString(), redirectUrl);
-        return Challenge(properties, provider.ToString());
+        return TypedResults.Challenge(properties, [provider.ToString()]);
     }
 
     [HttpGet("external-login-callback")]
@@ -87,7 +113,8 @@ public class AuthenticationController : ControllerBase
 
             var picture = info.Principal.FindFirstValue("picture");
             var name = info.Principal.FindFirstValue(ClaimTypes.Name);
-            var newUser = new User { UserName = email, Email = email, EmailConfirmed = true, Avatar = picture, Name = name};
+            var newUser = new User
+                { UserName = email, Email = email, EmailConfirmed = true, Avatar = picture, Name = name };
             var createResult = await _userManager.CreateAsync(newUser);
             if (createResult.Succeeded)
             {
@@ -96,7 +123,8 @@ public class AuthenticationController : ControllerBase
 
             if (!createResult.Succeeded)
             {
-                return TypedResults.Redirect(QueryHelpers.AddQueryString(returnUrl, "error", createResult.Errors.First().Description));
+                return TypedResults.Redirect(QueryHelpers.AddQueryString(returnUrl, "error",
+                    createResult.Errors.First().Description));
             }
         }
 
@@ -227,7 +255,7 @@ public class AuthenticationController : ControllerBase
         }
 
         var newPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-        
+
         return TypedResults.SignIn(newPrincipal, authenticationScheme: IdentityConstants.BearerScheme);
     }
 

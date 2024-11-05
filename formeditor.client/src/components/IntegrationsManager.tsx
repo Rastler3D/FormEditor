@@ -4,13 +4,16 @@ import IntegrationCard from "./IntegrationCard";
 import SalesforceIntegration from "~/components/SalesforceIntegration.tsx";
 import {createResource} from "~/lib/action.ts";
 import {disconnectSalesforce, salesForceStatus} from "~/services/salesforceService.ts";
-import {createSignal} from "solid-js";
+import {createSignal, Show} from "solid-js";
 import {User} from "~/contexts/AuthContext.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
-import { Key } from "lucide-solid";
+import {CheckCircle, Copy, Key } from "lucide-solid";
 import {disconnectJira, jiraStatus} from "~/services/jiraService.ts";
 import JiraIntegration from "~/components/JiraIntegration.tsx";
+import {TextField, TextFieldInput} from "./ui/text-field";
+import {generateApiToken, getApiToken} from "~/services/userService.ts";
+import { Oval } from "solid-spinner";
 
 interface IntegrationsManagerProps {
     user: User;
@@ -22,8 +25,29 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
     const [showJiraDialog, setShowJiraDialog] = createSignal(false);
     const [salesforceConnected, {mutate: setSalesforceConnected}] = createResource(()=> props.user.id, salesForceStatus);
     const [jiraConnected, {mutate: setJiraConnected}] = createResource(()=> props.user.id, jiraStatus);
+    const [apiToken, { mutate: setApiToken }] = createResource(() => props.user.id, getApiToken);
+    const [isGeneratingToken, setIsGeneratingToken] = createSignal(false);
+    const [isCopied, setIsCopied] = createSignal(false);
+
     const handleGenerateApiToken = async () => {
-        // Implement API token generation logic
+        setIsGeneratingToken(true);
+        try {
+            const apiToken = await generateApiToken();
+            setApiToken(apiToken);
+            showToast({ title: t("ApiTokenGenerated"), variant: "success" });
+        } catch (error) {
+            showToast({ title: t("ApiTokenGenerationFailed"), variant: "destructive" });
+        } finally {
+            setIsGeneratingToken(false);
+        }
+    };
+
+    const copyToClipboard = async () => {
+        if (apiToken()) {
+            await navigator.clipboard.writeText(apiToken()!.apiToken);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        }
     };
 
     const handleSalesforceIntegration = async () => {
@@ -65,9 +89,50 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                 </CardHeader>
                 <CardContent>
                     <p class="text-sm text-muted-foreground mb-4">{t("ApiTokenDescription")}</p>
-                    <Button onClick={handleGenerateApiToken} class="w-full sm:w-auto">
-                        {t("GenerateApiToken")}
-                    </Button>
+                    <Show
+                        when={!apiToken.loading}
+                        fallback={<div class="animate-pulse h-10 bg-muted rounded-md"></div>}
+                    >
+                        <Show
+                            when={apiToken()}
+                            fallback={
+                                <Button
+                                    onClick={handleGenerateApiToken}
+                                    class="w-full sm:w-auto"
+                                    disabled={isGeneratingToken()}
+                                >
+                                    {isGeneratingToken() ? <Oval width="24" height="24"/> : t("GenerateApiToken")}
+                                </Button>
+                            }
+                        >
+                            <div class="flex items-center space-x-2">
+                                <TextField class="flex-grow">
+                                    <TextFieldInput
+                                        type="text"
+                                        value={apiToken()?.apiToken}
+                                        readOnly
+                                        class="font-mono text-sm"
+                                    />
+                                </TextField>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={copyToClipboard}
+                                    title={t("CopyToClipboard")}
+                                >
+                                    <Show when={!isCopied()} fallback={<CheckCircle class="w-4 h-4 text-green-500" />}>
+                                        <Copy class="w-4 h-4" />
+                                    </Show>
+                                </Button>
+                                <Button
+                                    onClick={handleGenerateApiToken}
+                                    disabled={isGeneratingToken()}
+                                >
+                                    {isGeneratingToken() ? <Oval width="24" height="24"/>: t("Regenerate")}
+                                </Button>
+                            </div>
+                        </Show>
+                    </Show>
                 </CardContent>
             </Card>
             <div>
