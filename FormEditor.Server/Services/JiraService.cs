@@ -212,12 +212,11 @@ public class JiraService : IJiraService
         }
     }
 
-    private Expression<Func<Issue, object>> AccessCreateField()
+    private Expression<Func<Issue, DateTime?>> AccessCreateField()
     {
         var parameter = Expression.Parameter(typeof(Issue), "x");
         var property = Expression.Property(parameter, "Created");
-        _logger.LogError("Generating Lambda");
-        return Expression.Lambda<Func<Issue, object>>(property, parameter);
+        return Expression.Lambda<Func<Issue, DateTime?>>(property, parameter);
     }
 
     private async Task<TableData<List<Issue>>> ApplyTableOptions(IQueryable<Issue> users, TableOption options)
@@ -233,25 +232,36 @@ public class JiraService : IJiraService
 
         foreach (var sortOption in options.Sort)
         {
-            _logger.LogError("Sorting {field} Desc {desc}", sortOption.Id, sortOption.Desc);
-            Expression<Func<Issue, object>> selector = sortOption.Id switch
+            if (sortOption.Id == "createdAt")
             {
-                "status" => x => x.Status,
-                "priority" => x => x.Priority,
-                "summary" => x => x.Summary,
-                "createdAt" => AccessCreateField(),
-                _ => x => x.Key
-            };
-
-            if (sortOption.Desc)
-            {
-                users = users.OrderByDescending(selector);
+                if (sortOption.Desc)
+                {
+                    users = users.OrderByDescending(AccessCreateField());
+                }
+                else
+                {
+                    users = users.OrderBy(AccessCreateField());
+                }
             }
             else
             {
-                users = users.OrderBy(selector);
+                Expression<Func<Issue, object>> selector = sortOption.Id switch
+                {
+                    "status" => x => x.Status,
+                    "priority" => x => x.Priority,
+                    "summary" => x => x.Summary,
+                    _ => x => x.Key
+                };
+
+                if (sortOption.Desc)
+                {
+                    users = users.OrderByDescending(selector);
+                }
+                else
+                {
+                    users = users.OrderBy(selector);
+                }
             }
-            _logger.LogError("Sort Applied");
         }
 
         users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
