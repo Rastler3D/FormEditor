@@ -105,6 +105,7 @@ const DataTable = <TData, >(props: DataTableProps<TData>) => {
         get columns() {
             return props.isSelectable ? [selectionColumn, ...props.columns] : props.columns;
         },
+        isMultiSortEvent: () => true,
         getCoreRowModel: getCoreRowModel(),
         onRowSelectionChange: handleRowSelectionChange,
         onSortingChange: (sort) => setSort(sort),
