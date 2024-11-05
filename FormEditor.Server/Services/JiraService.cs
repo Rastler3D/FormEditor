@@ -227,8 +227,8 @@ public class JiraService : IJiraService
             {
                 "status" => x => x.Status,
                 "priority" => x => x.Priority,
-                "createdAt" => x => x.Created!,
                 "summary" => x => x.Summary,
+                "createdAt" => x => x.Created,
                 _ => x => x.Key
             };
 
