@@ -187,7 +187,7 @@ public class JiraService : IJiraService
         try
         {
             var data = await ApplyTableOptions(
-                _jira.Issues.Queryable.Where(issue => issue.ReporterUser.AccountId == accoundId),
+                _jira.Issues.Queryable.Where(issue => issue.Reporter == accoundId),
                 options);
             return data.MapData(issues => issues.Select(issue => new JiraTicket
             {
