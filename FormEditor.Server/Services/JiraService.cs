@@ -27,7 +27,8 @@ public class JiraService : IJiraService
     private readonly UserManager<User> _userManager;
     private readonly ILogger<JiraService> _logger;
 
-    public JiraService(IConfiguration configuration, UserManager<User> userManager, IMapper mapper, ILogger<JiraService> logger)
+    public JiraService(IConfiguration configuration, UserManager<User> userManager, IMapper mapper,
+        ILogger<JiraService> logger)
     {
         _mapper = mapper;
         _userManager = userManager;
@@ -191,7 +192,7 @@ public class JiraService : IJiraService
             var data = await ApplyTableOptions(
                 _jira.Issues.Queryable.Where(issue => issue.Reporter == accoundId),
                 options);
-            
+
             return data.MapData(issues => issues.Select(issue => new JiraTicket
             {
                 Key = issue.Key.Value,
@@ -202,7 +203,9 @@ public class JiraService : IJiraService
                 Description = issue.Description,
                 Link = issue["Link"].ToString(),
                 ReportedBy = issue.ReporterUser?.Email,
-                TemplateId = !string.IsNullOrEmpty(issue["Template ID"]?.ToString())? int.Parse(issue["Template ID"].ToString()) : null,
+                TemplateId = !string.IsNullOrEmpty(issue["Template ID"]?.ToString())
+                    ? int.Parse(issue["Template ID"].ToString())
+                    : null,
                 Url = GetJiraTicketUrl(issue.Key.Value),
             }).ToArray());
         }
@@ -224,10 +227,14 @@ public class JiraService : IJiraService
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             users = users.Where(f =>
+                f.Status == options.Filter ||
+                f.Priority == options.Filter ||
+                f.Key == options.Filter ||
                 f.Description == options.Filter ||
                 f.Summary == options.Filter
             );
         }
+
         var totalRows = await Task.Run(users.Count);
 
         foreach (var sortOption in options.Sort)

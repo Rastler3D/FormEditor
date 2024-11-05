@@ -25,7 +25,7 @@ export default function TicketManagement() {
             header: t('TicketKey'),
             cell: (info) => (
                 <div onClick={() => window.open(info.row.original.url, '_blank')}
-                     class="text-primary hover:underline flex items-center space-x-2">
+                     class="text-primary hover:underline flex items-center space-x-2 cursor-pointer">
                     <FileText class="h-4 w-4 text-muted-foreground"/>
                     <span>{info.getValue()}</span>
                 </div>
@@ -39,7 +39,13 @@ export default function TicketManagement() {
             accessorKey: 'status',
             header: t('Status'),
             cell: (info) => (
-                <Badge variant="default">
+                <Badge
+                    variant={info.getValue() === 'Отказ' ?
+                        'destructive' : info.getValue() === 'В работе' ?
+                            'warning' : info.getValue() === 'Fixed' ?
+                                'success' : info.getValue() === 'Открыто повторно' ?
+                                    'secondary' : 'default'
+                    }>
                     {info.getValue()}
                 </Badge>
             ),
