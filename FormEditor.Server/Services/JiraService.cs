@@ -191,9 +191,11 @@ public class JiraService : IJiraService
             var data = await ApplyTableOptions(
                 _jira.Issues.Queryable.Where(issue => issue.Reporter == accoundId),
                 options);
-            foreach (var issue in  data.Data)
+            foreach (var issue in data.Data)
             {
                 _logger.LogError("{issue}", issue);
+            }
+
             return data.MapData(issues => issues.Select(issue => new JiraTicket
             {
                 Key = issue.Key.Value,
