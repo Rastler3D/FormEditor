@@ -25,13 +25,15 @@ public class JiraService : IJiraService
     private readonly string _jiraProjectKey;
     private readonly IMapper _mapper;
     private readonly UserManager<User> _userManager;
+    private readonly ILogger<JiraService> _logger;
 
-    public JiraService(IConfiguration configuration, UserManager<User> userManager, IMapper mapper)
+    public JiraService(IConfiguration configuration, UserManager<User> userManager, IMapper mapper, ILogger<JiraService> logger)
     {
         _mapper = mapper;
         _userManager = userManager;
         _jiraDomain = configuration["JIRA_DOMAIN"];
         _jiraProjectKey = configuration["JIRA_PROJECT_KEY"];
+        _logger = logger;
         var jiraUrl = $"https://{_jiraDomain}.atlassian.net";
         var jiraUser = configuration["JIRA_EMAIL"];
         var jiraApiToken = configuration["JIRA_API_KEY"];
@@ -215,6 +217,7 @@ public class JiraService : IJiraService
         var parameter = Expression.Parameter(typeof(Issue), "x");
         var property = Expression.Property(parameter, "Created");
         var converted = Expression.Convert(property, typeof(object));
+        _logger.LogError("Generating Lambda");
         return Expression.Lambda<Func<Issue, object>>(converted, parameter);
     }
 
@@ -231,6 +234,7 @@ public class JiraService : IJiraService
 
         foreach (var sortOption in options.Sort)
         {
+            _logger.LogError("Sorting {field} Desc {desc}", sortOption.Id, sortOption.Desc);
             Expression<Func<Issue, object>> selector = sortOption.Id switch
             {
                 "status" => x => x.Status,
@@ -248,6 +252,7 @@ public class JiraService : IJiraService
             {
                 users = users.OrderBy(selector);
             }
+            _logger.LogError("Sort Applied");
         }
 
         users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
