@@ -25,15 +25,13 @@ public class JiraService : IJiraService
     private readonly string _jiraProjectKey;
     private readonly IMapper _mapper;
     private readonly UserManager<User> _userManager;
-    private readonly ILogger<JiraService> _logger;
 
-    public JiraService(IConfiguration configuration, UserManager<User> userManager, IMapper mapper, ILogger<JiraService> logger)
+    public JiraService(IConfiguration configuration, UserManager<User> userManager, IMapper mapper)
     {
         _mapper = mapper;
         _userManager = userManager;
         _jiraDomain = configuration["JIRA_DOMAIN"];
         _jiraProjectKey = configuration["JIRA_PROJECT_KEY"];
-        _logger = logger;
         var jiraUrl = $"https://{_jiraDomain}.atlassian.net";
         var jiraUser = configuration["JIRA_EMAIL"];
         var jiraApiToken = configuration["JIRA_API_KEY"];
@@ -227,10 +225,9 @@ public class JiraService : IJiraService
         {
             Expression<Func<Issue, object>> selector = sortOption.Id switch
             {
-                "templateId" => x => x["Template ID"],
                 "status" => x => x.Status,
                 "priority" => x => x.Priority,
-                "createdAt" => x => x["created"],
+                "createdAt" => x => x.Created!,
                 "summary" => x => x.Summary,
                 _ => x => x.Key
             };
