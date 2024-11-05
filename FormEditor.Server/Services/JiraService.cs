@@ -193,7 +193,7 @@ public class JiraService : IJiraService
                 options);
             foreach (var issue in data.Data)
             {
-                _logger.LogError("{issue}", issue);
+                _logger.LogError("Issue {issue}, {summary}, {status}, {created}, {description}, {template}, {link}, {priority},", issue.Key.Value, issue.Summary, issue.Status, issue.Created, issue.Description, issue["Template ID"], issue["Link"], issue.Priority);
             }
 
             return data.MapData(issues => issues.Select(issue => new JiraTicket
