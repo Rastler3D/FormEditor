@@ -216,9 +216,8 @@ public class JiraService : IJiraService
     {
         var parameter = Expression.Parameter(typeof(Issue), "x");
         var property = Expression.Property(parameter, "Created");
-        var converted = Expression.Convert(property, typeof(object));
         _logger.LogError("Generating Lambda");
-        return Expression.Lambda<Func<Issue, object>>(converted, parameter);
+        return Expression.Lambda<Func<Issue, object>>(property, parameter);
     }
 
     private async Task<TableData<List<Issue>>> ApplyTableOptions(IQueryable<Issue> users, TableOption options)
