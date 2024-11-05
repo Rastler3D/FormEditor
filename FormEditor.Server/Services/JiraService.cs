@@ -210,6 +210,14 @@ public class JiraService : IJiraService
         }
     }
 
+    private Expression<Func<Issue, object>> AccessCreateField()
+    {
+        var parameter = Expression.Parameter(typeof(Issue), "x");
+        var property = Expression.Property(parameter, "Created");
+        var converted = Expression.Convert(property, typeof(object));
+        return Expression.Lambda<Func<Issue, object>>(converted, parameter);
+    }
+
     private async Task<TableData<List<Issue>>> ApplyTableOptions(IQueryable<Issue> users, TableOption options)
     {
         if (!String.IsNullOrWhiteSpace(options.Filter))
@@ -228,7 +236,7 @@ public class JiraService : IJiraService
                 "status" => x => x.Status,
                 "priority" => x => x.Priority,
                 "summary" => x => x.Summary,
-                "createdAt" => x => x.Created,
+                "createdAt" => AccessCreateField(),
                 _ => x => x.Key
             };
 
