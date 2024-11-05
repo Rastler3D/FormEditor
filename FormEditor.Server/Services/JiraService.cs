@@ -191,22 +191,18 @@ public class JiraService : IJiraService
             var data = await ApplyTableOptions(
                 _jira.Issues.Queryable.Where(issue => issue.Reporter == accoundId),
                 options);
-            foreach (var issue in data.Data)
-            {
-                _logger.LogError("Issue {issue}, {summary}, {status}, {created}, {description}, {template}, {link}, {priority},", issue.Key.Value, issue.Summary, issue.Status, issue.Created, issue.Description, issue["Template ID"], issue["Link"], issue.Priority);
-            }
-
+            
             return data.MapData(issues => issues.Select(issue => new JiraTicket
             {
                 Key = issue.Key.Value,
                 Summary = issue.Summary,
-                Status = issue.Status.Name,
-                Priority = Enum.Parse<TicketPriority>(issue.Priority.Name),
+                Status = issue.Status.ToString(),
+                Priority = Enum.Parse<TicketPriority>(issue.Priority.ToString()),
                 CreatedAt = issue.Created.GetValueOrDefault(),
                 Description = issue.Description,
-                Link = issue["Link"].Value,
+                Link = issue["Link"].ToString(),
                 ReportedBy = issue.ReporterUser?.Email,
-                TemplateId = int.Parse(issue["Template ID"].Value),
+                TemplateId = !string.IsNullOrEmpty(issue["Template ID"]?.ToString())? int.Parse(issue["Template ID"].ToString()) : null,
                 Url = GetJiraTicketUrl(issue.Key.Value),
             }).ToArray());
         }
