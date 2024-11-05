@@ -52,10 +52,12 @@ export default function TicketDialog(props: TicketDialogProps) {
                 You can view it at: ${ticketCreation.data()}`,
                 variant: "success",
             });
+            
             props.onOpenChange(false);
             setSummary("");
             setPriority("Average");
         }
+        ticketCreation.reset();
     });
 
     return (
