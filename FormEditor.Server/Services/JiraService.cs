@@ -230,7 +230,8 @@ public class JiraService : IJiraService
                 "templateId" => x => x["Template ID"],
                 "status" => x => x.Status,
                 "priority" => x => x.Priority,
-                "createdAt" => x => x.Created,
+                "createdAt" => x => x["created"],
+                "summary" => x => x.Summary,
                 _ => x => x.Key
             };
 

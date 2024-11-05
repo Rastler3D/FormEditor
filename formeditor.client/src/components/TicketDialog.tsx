@@ -1,4 +1,4 @@
-﻿import {createSignal, createEffect, Show, createMemo, on} from "solid-js";
+﻿import {createSignal, createEffect, Show, createMemo} from "solid-js";
 import {useLocation, useParams} from "@solidjs/router";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "~/components/ui/dialog";
 import {Label} from "~/components/ui/label";
@@ -8,7 +8,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/c
 import {createAction} from "~/lib/action";
 import {Oval} from "solid-spinner";
 import {createTicket} from "~/services/jiraService.ts";
-import { showToast } from "./ui/toast";
+import {showToast} from "./ui/toast";
 
 interface TicketDialogProps {
     open: boolean;
@@ -20,11 +20,7 @@ export default function TicketDialog(props: TicketDialogProps) {
     const location = useLocation();
     const [summary, setSummary] = createSignal("");
     const [description, setDescription] = createSignal("");
-    const link= createMemo(on(() => 
-        location.pathname || 
-        location.search || 
-        location.query, 
-        () => window.location.href));
+    const link = createMemo(() => `${window.location.origin}${location.pathname}${location.search}${location.hash}`);
     const template = createMemo(() => params.templateId && Number(params.templateId));
     const [priority, setPriority] = createSignal("Average" as "Average" | "Low" | "High");
 

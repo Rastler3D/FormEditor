@@ -24,7 +24,8 @@ export default function TicketManagement() {
             accessorKey: 'key',
             header: t('TicketKey'),
             cell: (info) => (
-                <div class="flex items-center space-x-2">
+                <div onClick={() => window.open(info.row.original.url, '_blank')}
+                     class="text-primary hover:underline flex items-center space-x-2">
                     <FileText class="h-4 w-4 text-muted-foreground"/>
                     <span>{info.getValue()}</span>
                 </div>
@@ -38,7 +39,7 @@ export default function TicketManagement() {
             accessorKey: 'status',
             header: t('Status'),
             cell: (info) => (
-                <Badge variant="outline">
+                <Badge variant="default">
                     {info.getValue()}
                 </Badge>
             ),
