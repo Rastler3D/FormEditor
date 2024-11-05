@@ -218,8 +218,8 @@ public class JiraService : IJiraService
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             users = users.Where(f =>
-                f.Description.Contains(options.Filter) ||
-                f.Summary.Contains(options.Filter)
+                f.Description == options.Filter ||
+                f.Summary == options.Filter
             );
         }
         var totalRows = await Task.Run(users.Count);
@@ -229,7 +229,6 @@ public class JiraService : IJiraService
             Expression<Func<Issue, object>> selector = sortOption.Id switch
             {
                 "templateId" => x => x["Template ID"],
-                "reportedBy" => x => x.ReporterUser.Email,
                 "status" => x => x.Status,
                 "priority" => x => x.Priority,
                 "createdAt" => x => x.Created,
@@ -251,7 +250,7 @@ public class JiraService : IJiraService
 
         return new()
         {
-            Data = await Task.Run(users.ToList),
+            Data = (await Task.Run(users.ToList)) ?? new List<Issue>(),
             TotalRows = totalRows
         };
     }
