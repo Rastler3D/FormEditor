@@ -227,9 +227,6 @@ public class JiraService : IJiraService
         if (!String.IsNullOrWhiteSpace(options.Filter))
         {
             users = users.Where(f =>
-                f.Status == options.Filter ||
-                f.Priority == options.Filter ||
-                f.Key == options.Filter ||
                 f.Description == options.Filter ||
                 f.Summary == options.Filter
             );
