@@ -8,24 +8,39 @@ import {createSignal, Show} from "solid-js";
 import {User} from "~/contexts/AuthContext.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
-import {CheckCircle, Copy, Key } from "lucide-solid";
+import {CheckCircle, Copy, Key} from "lucide-solid";
 import {disconnectJira, jiraStatus} from "~/services/jiraService.ts";
 import JiraIntegration from "~/components/JiraIntegration.tsx";
 import {TextField, TextFieldInput} from "./ui/text-field";
 import {generateApiToken, getApiToken} from "~/services/userService.ts";
-import { Oval } from "solid-spinner";
+import {Oval} from "solid-spinner";
+import {ApiTokenResponse} from "~/types/types.ts";
 
 interface IntegrationsManagerProps {
     user: User;
+}
+
+const fetchApiToken = () => {
+    return new Promise<ApiTokenResponse | undefined>((res, rej) => {
+        return getApiToken()
+            .then(res)
+            .catch(err => {
+                if (err.status === 404) {
+                    res(undefined);
+                } else {
+                    rej(err)
+                }
+            });
+    });
 }
 
 function IntegrationsManager(props: IntegrationsManagerProps) {
     const {t} = useLanguage();
     const [showSalesforceDialog, setShowSalesforceDialog] = createSignal(false);
     const [showJiraDialog, setShowJiraDialog] = createSignal(false);
-    const [salesforceConnected, {mutate: setSalesforceConnected}] = createResource(()=> props.user.id, salesForceStatus);
-    const [jiraConnected, {mutate: setJiraConnected}] = createResource(()=> props.user.id, jiraStatus);
-    const [apiToken, { mutate: setApiToken }] = createResource(() => props.user.id, getApiToken);
+    const [salesforceConnected, {mutate: setSalesforceConnected}] = createResource(() => props.user.id, salesForceStatus);
+    const [jiraConnected, {mutate: setJiraConnected}] = createResource(() => props.user.id, jiraStatus);
+    const [apiToken, {mutate: setApiToken}] = createResource(() => props.user.id, fetchApiToken);
     const [isGeneratingToken, setIsGeneratingToken] = createSignal(false);
     const [isCopied, setIsCopied] = createSignal(false);
 
@@ -34,9 +49,9 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
         try {
             const apiToken = await generateApiToken();
             setApiToken(apiToken);
-            showToast({ title: t("ApiTokenGenerated"), variant: "success" });
+            showToast({title: t("ApiTokenGenerated"), variant: "success"});
         } catch (error) {
-            showToast({ title: t("ApiTokenGenerationFailed"), variant: "destructive" });
+            showToast({title: t("ApiTokenGenerationFailed"), variant: "destructive"});
         } finally {
             setIsGeneratingToken(false);
         }
@@ -77,13 +92,13 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
             setShowJiraDialog(true);
         }
     };
-    
+
     return (
         <div class="space-y-8">
             <Card>
                 <CardHeader>
                     <CardTitle class="flex items-center space-x-2">
-                        <Key class="w-5 h-5" />
+                        <Key class="w-5 h-5"/>
                         <span>{t("ApiToken")}</span>
                     </CardTitle>
                 </CardHeader>
@@ -105,7 +120,7 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                                 </Button>
                             }
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2  mb-4">
                                 <TextField class="flex-grow">
                                     <TextFieldInput
                                         type="text"
@@ -120,17 +135,17 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                                     onClick={copyToClipboard}
                                     title={t("CopyToClipboard")}
                                 >
-                                    <Show when={!isCopied()} fallback={<CheckCircle class="w-4 h-4 text-green-500" />}>
-                                        <Copy class="w-4 h-4" />
+                                    <Show when={!isCopied()} fallback={<CheckCircle class="w-4 h-4 text-green-500"/>}>
+                                        <Copy class="w-4 h-4"/>
                                     </Show>
                                 </Button>
-                                <Button
-                                    onClick={handleGenerateApiToken}
-                                    disabled={isGeneratingToken()}
-                                >
-                                    {isGeneratingToken() ? <Oval width="24" height="24"/>: t("Regenerate")}
-                                </Button>
                             </div>
+                            <Button
+                                onClick={handleGenerateApiToken}
+                                disabled={isGeneratingToken()}
+                            >
+                                {isGeneratingToken() ? <Oval width="24" height="24"/> : t("Regenerate")}
+                            </Button>
                         </Show>
                     </Show>
                 </CardContent>
