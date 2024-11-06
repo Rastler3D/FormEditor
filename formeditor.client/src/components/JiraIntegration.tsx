@@ -75,6 +75,8 @@ export default function JiraIntegration(props: JiraIntegrationProps) {
                             type="email"
                             value={email()}
                             onInput={(e) => setEmail(e.currentTarget.value)}
+                            readOnly={props.integrationStatus?.isConnected}
+                            disabled={props.integrationStatus?.isConnected}
                             required
                         />
                     </TextField>

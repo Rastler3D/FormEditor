@@ -51,7 +51,7 @@ function IntegrationCard(props: IntegrationCardProps) {
                         </div>
                         <Button
                             onClick={props.onToggle}
-                            variant={props.connected ? "destructive" : "default"}
+                            variant="default"
                             class="ml-4 transition-all duration-300 hover:shadow-md"
                             size="sm"
                         >

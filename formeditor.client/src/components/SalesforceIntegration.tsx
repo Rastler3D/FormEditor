@@ -80,6 +80,8 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
                     id="firstName"
                     type="text"
                     value={formData().firstName}
+                    readOnly={props.integrationStatus?.isConnected}
+                    disabled={props.integrationStatus?.isConnected}
                     onInput={(e) => handleInputChange('firstName', e.currentTarget.value)}
                     required
                 />
@@ -90,6 +92,8 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
                     id="lastName"
                     type="text"
                     value={formData().lastName}
+                    readOnly={props.integrationStatus?.isConnected}
+                    disabled={props.integrationStatus?.isConnected}
                     onInput={(e) => handleInputChange('lastName', e.currentTarget.value)}
                     required
                 />
@@ -100,6 +104,8 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
                     id="email"
                     type="email"
                     value={formData().email}
+                    readOnly={props.integrationStatus?.isConnected}
+                    disabled={props.integrationStatus?.isConnected}
                     onInput={(e) => handleInputChange('email', e.currentTarget.value)}
                     required
                 />
@@ -110,6 +116,8 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
                     id="company"
                     type="text"
                     value={formData().company}
+                    readOnly={props.integrationStatus?.isConnected}
+                    disabled={props.integrationStatus?.isConnected}
                     onInput={(e) => handleInputChange('company', e.currentTarget.value)}
                     required
                 />
@@ -120,11 +128,13 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
                     id="phone"
                     type="tel"
                     value={formData().phone}
+                    readOnly={props.integrationStatus?.isConnected}
+                    disabled={props.integrationStatus?.isConnected}
                     onInput={(e) => handleInputChange('phone', e.currentTarget.value)}
                 />
             </TextField>
             <div class="flex justify-end gap-2">
-                <Show when={!props.integrationStatus.isConnected} fallback={
+                <Show when={!props.integrationStatus?.isConnected} fallback={
                     <Button disabled={isSubmitting()} variant="destructive" onClick={handleDisable}>
                         {isSubmitting() ? <Oval width="24" height="24" /> : t('Disconnect')}
                     </Button>
