@@ -55,7 +55,7 @@ public class IntegrationsController : ControllerBase
     }
 
     [HttpGet("salesforce/account/{userId:int}/status")]
-    public async Task<Ok<bool>> GetSalesforceStatus([FromRoute] int userId)
+    public async Task<Ok<IntegrationStatus<SalesforceAccountViewModel>>> GetSalesforceStatus([FromRoute] int userId)
     {
         var result = await _salesforceService.GetConnectionStatusAsync(userId);
         return TypedResults.Ok(result);
@@ -89,7 +89,7 @@ public class IntegrationsController : ControllerBase
     }
 
     [HttpGet("jira/account/{userId:int}/status")]
-    public async Task<Ok<bool>> GetJiraStatus([FromRoute] int userId)
+    public async Task<Ok<IntegrationStatus<string>>> GetJiraStatus([FromRoute] int userId)
     {
         var result = await _jiraService.GetConnectionStatusAsync(userId);
         return TypedResults.Ok(result);

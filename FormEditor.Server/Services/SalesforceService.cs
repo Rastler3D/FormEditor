@@ -9,7 +9,7 @@ public interface ISalesforceService
 {
     Task<Result<Error>> ConnectAccountAsync(SalesforceAccountViewModel request, int userId, int creatorId);
     Task<Result<Error>> DisconnectAccountAsync(int userId, int removerId);
-    Task<bool> GetConnectionStatusAsync(int userId);
+    Task<IntegrationStatus<SalesforceAccountViewModel>> GetConnectionStatusAsync(int userId);
 }
 
 public class SalesforceService : ISalesforceService
@@ -158,15 +158,29 @@ public class SalesforceService : ISalesforceService
         
         return Result<Error>.Ok();
     }
-
-    public async Task<bool> GetConnectionStatusAsync(int userId)
+    
+    public async Task<IntegrationStatus<SalesforceAccountViewModel>> GetConnectionStatusAsync(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null || user.SalesforceContact == null)
+        var getClient = await GetAuthenticatedClientAsync();
+        if (user == null || user.SalesforceContact == null || getClient.IsErr)
         {
-            return false;
+            return IntegrationStatus<SalesforceAccountViewModel>.NotConnected();
         }
+        var salesforce = getClient.Value;
         
-        return true;
+        var contact = await salesforce.GetObjectById<SalesforceContact>("Contact", user.SalesforceContact);
+        var account = await salesforce.GetObjectById<SalesforceAccount>("Account", contact.AccountId);
+        
+        var salesforceAccount = new SalesforceAccountViewModel
+        {
+            Company = account.Name,
+            Email = contact.Email,
+            FirstName = contact.FirstName,
+            LastName = contact.LastName,
+            Phone = contact.Phone,
+        };
+        
+        return IntegrationStatus<SalesforceAccountViewModel>.Connected(salesforceAccount);
     }
 }

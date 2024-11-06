@@ -3,13 +3,13 @@ import {useLanguage} from "~/contexts/LanguageContext";
 import IntegrationCard from "./IntegrationCard";
 import SalesforceIntegration from "~/components/SalesforceIntegration.tsx";
 import {createResource} from "~/lib/action.ts";
-import {disconnectSalesforce, salesForceStatus} from "~/services/salesforceService.ts";
+import {salesForceStatus} from "~/services/salesforceService.ts";
 import {createSignal, Show} from "solid-js";
 import {User} from "~/contexts/AuthContext.tsx";
 import {showToast} from "~/components/ui/toast.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "~/components/ui/card.tsx";
 import {CheckCircle, Copy, Key} from "lucide-solid";
-import {disconnectJira, jiraStatus} from "~/services/jiraService.ts";
+import {jiraStatus} from "~/services/jiraService.ts";
 import JiraIntegration from "~/components/JiraIntegration.tsx";
 import {TextField, TextFieldInput} from "./ui/text-field";
 import {generateApiToken, getApiToken} from "~/services/userService.ts";
@@ -38,8 +38,8 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
     const {t} = useLanguage();
     const [showSalesforceDialog, setShowSalesforceDialog] = createSignal(false);
     const [showJiraDialog, setShowJiraDialog] = createSignal(false);
-    const [salesforceConnected, {mutate: setSalesforceConnected}] = createResource(() => props.user.id, salesForceStatus);
-    const [jiraConnected, {mutate: setJiraConnected}] = createResource(() => props.user.id, jiraStatus);
+    const [salesforceConnection, {mutate: setSalesforceConnection}] = createResource(() => props.user.id, salesForceStatus);
+    const [jiraConnection, {mutate: setJiraConnection}] = createResource(() => props.user.id, jiraStatus);
     const [apiToken, {mutate: setApiToken}] = createResource(() => props.user.id, fetchApiToken);
     const [isGeneratingToken, setIsGeneratingToken] = createSignal(false);
     const [isCopied, setIsCopied] = createSignal(false);
@@ -62,34 +62,6 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
             await navigator.clipboard.writeText(apiToken()!.apiToken);
             setIsCopied(true);
             setTimeout(() => setIsCopied(false), 2000);
-        }
-    };
-
-    const handleSalesforceIntegration = async () => {
-        if (salesforceConnected()) {
-            try {
-                await disconnectSalesforce(props.user.id);
-                setSalesforceConnected(false);
-                showToast({title: t("SalesforceDisconnected"), variant: "success"});
-            } catch (err) {
-                showToast({title: t("SalesforceDisconnectionFailed"), variant: "destructive"});
-            }
-        } else {
-            setShowSalesforceDialog(true);
-        }
-    };
-
-    const handleJiraIntegration = async () => {
-        if (jiraConnected()) {
-            try {
-                await disconnectJira(props.user.id);
-                setJiraConnected(false);
-                showToast({title: t("JiraDisconnected"), variant: "success"});
-            } catch (err) {
-                showToast({title: t("JiraDisconnectionFailed"), variant: "destructive"});
-            }
-        } else {
-            setShowJiraDialog(true);
         }
     };
 
@@ -156,35 +128,36 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                     <IntegrationCard
                         title="Salesforce"
                         description={t("SalesforceIntegrationDescription")}
-                        connected={salesforceConnected()}
-                        loading={salesforceConnected.loading}
-                        onToggle={handleSalesforceIntegration}
+                        connected={salesforceConnection().isConnected}
+                        loading={salesforceConnection.loading}
+                        onToggle={() => setShowSalesforceDialog(true)}
                     />
                     <IntegrationCard
                         title="Jira"
                         description={t("JiraIntegrationDescription")}
-                        connected={jiraConnected()}
-                        loading={jiraConnected.loading}
-                        onToggle={handleJiraIntegration}
+                        connected={jiraConnection().isConnected}
+                        loading={jiraConnection.loading}
+                        onToggle={() => setShowJiraDialog(true)}
                     />
-                    {/* Add more IntegrationCard components here as needed */}
                 </div>
             </div>
             <SalesforceIntegration
                 onOpenChange={setShowSalesforceDialog}
-                onResult={(connected) => {
+                onResult={(status) => {
+                    setSalesforceConnection(status);
                     setShowSalesforceDialog(false);
-                    setSalesforceConnected(connected);
                 }}
+                integrationStatus={salesforceConnection()}
                 open={showSalesforceDialog()}
                 user={props.user}
             />
             <JiraIntegration
                 onOpenChange={setShowJiraDialog}
-                onResult={(connected) => {
+                onResult={(status) => {
+                    setJiraConnection(status);
                     setShowJiraDialog(false);
-                    setJiraConnected(connected);
                 }}
+                integrationStatus={jiraConnection()}
                 open={showJiraDialog()}
                 user={props.user}
             />

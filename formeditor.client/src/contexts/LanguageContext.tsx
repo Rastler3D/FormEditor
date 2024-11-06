@@ -176,7 +176,8 @@ const translations = {
         Regenerate: "Regenerate API Token",
         ApiTokenGenerationFailed: "Failed to generate API Token",
         ApiTokenGenerated: "Api Token generated successfully",
-        CopyToClipboard: "Copy to Clipboard"
+        CopyToClipboard: "Copy to Clipboard",
+        Info: "Info"
     },
     ru: {
         TemplateManager: 'Менеджер шаблонов',
@@ -338,7 +339,8 @@ const translations = {
         Regenerate: "Сгенерировать API Токен",
         ApiTokenGenerationFailed: "Не удалось сгенерировать API Токен",
         ApiTokenGenerated: "API Токен успешно сгенерирован",
-        CopyToClipboard: "Скопировать"
+        CopyToClipboard: "Скопировать",
+        Info: "Информация"
     }
 };
 

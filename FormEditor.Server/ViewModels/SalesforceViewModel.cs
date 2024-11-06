@@ -23,8 +23,3 @@ public class SalesforceAccount
     public string Name { get; set; }
     public string Phone { get; set; }
 }
-
-public class SalesforceConnectionStatus
-{
-    public bool Connected { get; set; }
-}

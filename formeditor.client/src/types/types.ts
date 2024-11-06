@@ -181,3 +181,8 @@ export interface Ticket {
     createdAt: string;
     url: string;
 }
+
+export interface IntegrationStatus<T> {
+    isConnected: boolean;
+    info?: T;
+}

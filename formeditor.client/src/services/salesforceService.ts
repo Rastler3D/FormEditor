@@ -1,6 +1,7 @@
 ﻿import {api} from "~/lib/api.ts";
+import {IntegrationStatus} from "~/types/types.ts";
 
-interface SalesforceAccount {
+export interface SalesforceAccount {
     firstName: string;
     lastName: string;
     email: string;
@@ -18,7 +19,7 @@ export function disconnectSalesforce(userId: number): Promise<void> {
         .then(response => response.data)
 }
 
-export function salesForceStatus(userId: number): Promise<boolean> {
-    return api.get<boolean>(`/Integrations/salesforce/account/${userId}/status`)
+export function salesForceStatus(userId: number): Promise<IntegrationStatus<SalesforceAccount>> {
+    return api.get<IntegrationStatus<SalesforceAccount>>(`/Integrations/salesforce/account/${userId}/status`)
         .then(response => response.data)
 }

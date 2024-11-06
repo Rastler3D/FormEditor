@@ -13,7 +13,7 @@ public interface IJiraService
 {
     Task<Result<Error>> ConnectAccountAsync(string email, int userId, int creatorId);
     Task<Result<Error>> DisconnectAccountAsync(int userId, int removerId);
-    Task<bool> GetConnectionStatusAsync(int userId);
+    Task<IntegrationStatus<string>> GetConnectionStatusAsync(int userId);
     Task<Result<string, Error>> CreateTicket(JiraTicketRequestViewModel request, int reporterId);
     Task<Result<TableData<JiraTicket[]>, Error>> GetUserTickets(int userId, TableOptionViewModel options);
 }
@@ -105,15 +105,17 @@ public class JiraService : IJiraService
         return Result<Error>.Ok();
     }
 
-    public async Task<bool> GetConnectionStatusAsync(int userId)
+    public async Task<IntegrationStatus<string>> GetConnectionStatusAsync(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null || user.JiraAccount == null)
         {
-            return false;
+            return IntegrationStatus<string>.NotConnected();
         }
 
-        return true;
+        var jiraUser = await _jira.Users.GetUserAsync(user.JiraAccount);
+        
+        return IntegrationStatus<string>.Connected(jiraUser.Email);
     }
 
     public async Task<Result<string, Error>> CreateTicket(JiraTicketRequestViewModel request, int reporterId)

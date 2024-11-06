@@ -1,5 +1,5 @@
 ﻿import {api} from "~/lib/api.ts";
-import {TableData, TableOption, Ticket} from "~/types/types.ts";
+import {IntegrationStatus, TableData, TableOption, Ticket} from "~/types/types.ts";
 import {optionToQueryParams} from "~/lib/utils.ts";
 
 interface TicketRequest {
@@ -19,8 +19,8 @@ export function disconnectJira(userId: number): Promise<void> {
         .then(response => response.data)
 }
 
-export function jiraStatus(userId: number): Promise<boolean> {
-    return api.get<boolean>(`/Integrations/jira/account/${userId}/status`)
+export function jiraStatus(userId: number): Promise<IntegrationStatus<string>> {
+    return api.get<IntegrationStatus<string>>(`/Integrations/jira/account/${userId}/status`)
         .then(response => response.data)
 }
 

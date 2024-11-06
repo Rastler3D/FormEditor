@@ -1,16 +1,5 @@
 using FormEditor.Server.Models;
 
-// public class Template
-// {
-//     public int Id { get; set; }
-//     public string Name { get; set; }
-//     public string Description { get; set; }
-//     public DateTime CreatedAt { get; set; }
-//     public DateTime UpdatedAt { get; set; }
-//     public List<Question> Questions { get; set; }
-//     public List<Form> FilledForms { get; set; }
-// }
-
 public class Template
 {
     public int Id { get; set; }

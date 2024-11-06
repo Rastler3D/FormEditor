@@ -55,7 +55,7 @@ function IntegrationCard(props: IntegrationCardProps) {
                             class="ml-4 transition-all duration-300 hover:shadow-md"
                             size="sm"
                         >
-                            {props.connected ? t("Disconnect") : t("Connect")}
+                            {props.connected ? t("Info") : t("Connect")}
                         </Button>
                     </div>
                 </Show>
