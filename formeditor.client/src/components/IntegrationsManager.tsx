@@ -128,14 +128,14 @@ function IntegrationsManager(props: IntegrationsManagerProps) {
                     <IntegrationCard
                         title="Salesforce"
                         description={t("SalesforceIntegrationDescription")}
-                        connected={salesforceConnection().isConnected}
+                        connected={salesforceConnection()?.isConnected}
                         loading={salesforceConnection.loading}
                         onToggle={() => setShowSalesforceDialog(true)}
                     />
                     <IntegrationCard
                         title="Jira"
                         description={t("JiraIntegrationDescription")}
-                        connected={jiraConnection().isConnected}
+                        connected={jiraConnection()?.isConnected}
                         loading={jiraConnection.loading}
                         onToggle={() => setShowJiraDialog(true)}
                     />

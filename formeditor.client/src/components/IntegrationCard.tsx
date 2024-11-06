@@ -46,8 +46,8 @@ function IntegrationCard(props: IntegrationCardProps) {
                                     props.connected ? "text-green-600" : "text-red-600"
                                 }`}
                             >
-                {props.connected ? t("Connected") : t("Disconnected")}
-              </span>
+                                {props.connected ? t("Connected") : t("Disconnected")}
+                            </span>
                         </div>
                         <Button
                             onClick={props.onToggle}

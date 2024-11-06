@@ -17,14 +17,14 @@ interface JiraIntegrationProps {
     onOpenChange: (open: boolean) => void;
     user: User;
     onResult: (connected: IntegrationStatus<string>) => void;
-    integrationStatus: IntegrationStatus<string>;
+    integrationStatus?: IntegrationStatus<string>;
 }
 
 export default function JiraIntegration(props: JiraIntegrationProps) {
     const {t} = useLanguage();
     const [isSubmitting, setIsSubmitting] = createSignal(false);
 
-    const [email, setEmail] = createWritableMemo(() => props.integrationStatus.isConnected ? 
+    const [email, setEmail] = createWritableMemo(() => props.integrationStatus?.isConnected ? 
         props.integrationStatus.info : 
         props.user.email
     );

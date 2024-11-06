@@ -16,7 +16,7 @@ interface SalesforceIntegrationProps {
     onOpenChange: (open: boolean) => void;
     user: User;
     onResult: (status: IntegrationStatus<SalesforceAccount>) => void;
-    integrationStatus: IntegrationStatus<SalesforceAccount>
+    integrationStatus?: IntegrationStatus<SalesforceAccount>
 }
 
 export default function SalesforceIntegration(props: SalesforceIntegrationProps) {
@@ -24,11 +24,11 @@ export default function SalesforceIntegration(props: SalesforceIntegrationProps)
     const [isSubmitting, setIsSubmitting] = createSignal(false);
 
     const [formData, setFormData] = createWritableMemo(() => ({
-        firstName: props.integrationStatus.isConnected ? props.integrationStatus.info.firstName : props.user.name.split(' ')?.[0] ?? '',
-        lastName: props.integrationStatus.isConnected ? props.integrationStatus.info.lastName : props.user.name.split(' ')?.[1] ?? '',
-        email: props.integrationStatus.isConnected ? props.integrationStatus.info.email : props.user.email,
-        company: props.integrationStatus.isConnected ? props.integrationStatus.info.company : '',
-        phone: props.integrationStatus.isConnected ? props.integrationStatus.info.phone : '',
+        firstName: props.integrationStatus?.isConnected ? props.integrationStatus.info.firstName : props.user.name.split(' ')?.[0] ?? '',
+        lastName: props.integrationStatus?.isConnected ? props.integrationStatus.info.lastName : props.user.name.split(' ')?.[1] ?? '',
+        email: props.integrationStatus?.isConnected ? props.integrationStatus.info.email : props.user.email,
+        company: props.integrationStatus?.isConnected ? props.integrationStatus.info.company : '',
+        phone: props.integrationStatus?.isConnected ? props.integrationStatus.info.phone : '',
     }));
 
     const handleSubmit = async (e: Event) => {
