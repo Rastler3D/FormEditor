@@ -64,8 +64,11 @@ public class UserRepository : IUserRepository
             }
         }
 
-        users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
-            .Take(options.Pagination.PageSize);
+        if (options.Pagination.PageSize >= 0)
+        {
+            users = users.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
+                .Take(options.Pagination.PageSize);
+        }
 
         return new()
         {

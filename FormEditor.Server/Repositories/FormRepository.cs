@@ -39,6 +39,7 @@ public class FormRepository : IFormRepository
                 EF.Functions.ILike(f.Template.Name, $"%{options.Filter}%")
             );
         }
+
         var totalRows = await forms.CountAsync();
 
         foreach (var sortOption in options.Sort)
@@ -61,8 +62,11 @@ public class FormRepository : IFormRepository
             }
         }
 
-        forms = forms.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
-            .Take(options.Pagination.PageSize);
+        if (options.Pagination.PageSize >= 0)
+        {
+            forms = forms.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
+                .Take(options.Pagination.PageSize);
+        }
 
         return new()
         {

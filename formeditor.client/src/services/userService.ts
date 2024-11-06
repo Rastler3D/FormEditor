@@ -19,8 +19,8 @@ export const login = (credentials: { email: string, password: string }): Promise
 };
 
 export const register = (data: { name: string, email: string, password: string }): Promise<void> => {
-        return api.post<void>('/Authentication/registration', data)
-            .then(response => response.data)
+    return api.post<void>('/Authentication/registration', data)
+        .then(response => response.data)
 }
 
 export const refreshToken = (refreshToken: string): Promise<TokenResponse> => {
@@ -61,7 +61,7 @@ export const changeRole = (userId: number, role: 'User' | 'Admin'): Promise<void
         });
 };
 
-export const updateUser = async ({userId, user} : { userId: number, user: UpdateUser }): Promise<User> => {
+export const updateUser = async ({userId, user}: { userId: number, user: UpdateUser }): Promise<User> => {
     if (user.avatar instanceof File) {
         user.avatar = await uploadImage(user.avatar);
     }
@@ -76,7 +76,7 @@ export const resendConfirmationEmail = (email: string): Promise<void> => {
 };
 
 export const forgotPassword = (email: string): Promise<void> => {
-    return api.post('/Authentication/forgotPassword', { email })
+    return api.post('/Authentication/forgotPassword', {email})
         .then(() => {
         });
 };

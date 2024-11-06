@@ -78,10 +78,12 @@ public class TemplateRepository : ITemplateRepository
                 templates = templates.OrderBy(selector);
             }
         }
-
-        templates = templates.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
-            .Take(options.Pagination.PageSize);
-
+        if (options.Pagination.PageSize >= 0)
+        {
+            templates = templates.Skip(options.Pagination.PageSize * options.Pagination.PageIndex)
+                .Take(options.Pagination.PageSize);
+        }
+        
         return new()
         {
             Data = await templates.ToListAsync(),
@@ -121,7 +123,8 @@ public class TemplateRepository : ITemplateRepository
 
     public async Task<TableData<List<Template>>> GetTemplatesAsync(TableOption option)
     {
-        var template = LoadProperties(_context.Templates);
+        var template = LoadProperties(_context.Templates)
+            .Include(t => t.Questions);
 
         return await ApplyTableOptions(template, option);
     }
@@ -129,6 +132,7 @@ public class TemplateRepository : ITemplateRepository
     public async Task<TableData<List<Template>>> GetUserTemplatesAsync(int userId, TableOption option)
     {
         var template = LoadProperties(_context.Templates)
+            .Include(t => t.Questions)
             .Where(t => t.CreatorId == userId);
 
 

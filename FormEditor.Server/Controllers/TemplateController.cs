@@ -20,7 +20,7 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet("user/{userId:int}")]
-    public async Task<Ok<TableData<List<TemplateInfoViewModel>>>> GetUserTemplates([FromRoute] int userId, [FromQuery] TableOptionViewModel options)
+    public async Task<Ok<TableData<List<TemplateViewModel>>>> GetUserTemplates([FromRoute] int userId, [FromQuery] TableOptionViewModel options)
     {
         var result = await _templateService.GetUserTemplatesAsync(userId, options);
         
@@ -28,7 +28,7 @@ public class TemplateController: ControllerBase
     }
     
     [HttpGet]
-    public async Task<Ok<TableData<List<TemplateInfoViewModel>>>> GetTemplates([FromQuery] TableOptionViewModel options)
+    public async Task<Ok<TableData<List<TemplateViewModel>>>> GetTemplates([FromQuery] TableOptionViewModel options)
     {
         var result = await _templateService.GetTemplatesAsync(options);
         
