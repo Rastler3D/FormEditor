@@ -115,7 +115,7 @@ export default function TemplateView(props: TemplateViewProps) {
                                             checked={props?.answers?.[question.id!]?.booleanValue}
                                             onChange={(checked) => props?.setAnswers?.(question.id!, {booleanValue: checked})}
                                             readOnly={props.isReadonly}
-                                            bool:required={!props?.answers?.[question.id!]}
+                                            required={!props?.answers?.[question.id!]}
                                             indeterminate={!props?.answers?.[question.id!]}
                                             disabled={props.isReadonly}
                                             class="has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 peer"
