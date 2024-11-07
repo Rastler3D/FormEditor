@@ -2,7 +2,7 @@
 import {TextField, TextFieldInput} from '~/components/ui/text-field';
 import {Button} from '~/components/ui/button';
 import {useLanguage} from '~/contexts/LanguageContext';
-import {connectJira} from '~/services/jiraService';
+import {connectJira, disconnectJira} from '~/services/jiraService';
 import {showToast} from '~/components/ui/toast';
 import {Label} from '~/components/ui/label';
 import {Oval} from 'solid-spinner';
@@ -10,7 +10,6 @@ import {User} from "~/contexts/AuthContext.tsx";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "~/components/ui/dialog.tsx";
 import {createWritableMemo} from '@solid-primitives/memo';
 import {IntegrationStatus} from "~/types/types.ts";
-import {disconnectSalesforce} from "~/services/salesforceService.ts";
 
 interface JiraIntegrationProps {
     open: boolean;
@@ -25,7 +24,7 @@ export default function JiraIntegration(props: JiraIntegrationProps) {
     const [isSubmitting, setIsSubmitting] = createSignal(false);
 
     const [email, setEmail] = createWritableMemo(() => props.integrationStatus?.isConnected ? 
-        props.integrationStatus.info : 
+        props.integrationStatus.info?? "********@**.**" : 
         props.user.email
     );
 
@@ -49,7 +48,7 @@ export default function JiraIntegration(props: JiraIntegrationProps) {
     const handleDisable = async () => {
         setIsSubmitting(true);
         try {
-            await disconnectSalesforce(props.user.id);
+            await disconnectJira(props.user.id);
             showToast({title: t("JiraDisconnected"), variant: "success"});
             props.onResult({isConnected: false});
         } catch (err) {
