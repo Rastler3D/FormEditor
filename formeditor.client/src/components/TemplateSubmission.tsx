@@ -39,6 +39,7 @@ const fetchSubmission = ({templateId, user}: { templateId: number, user: User | 
 }
 
 export default function TemplateSubmission(props: TemplateSubmissionProps) {
+    let htmlForm: HTMLFormElement;
     const { t } = useLanguage();
     const [sendEmail, setSendEmail] = createSignal(false);
     const formSubmission = createAction(submitOrUpdateForm, () => props.template.id);
@@ -72,7 +73,7 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
         }
     }));
     createEffect(on(() => formSubmission.data.error, (error) => error && setIsEdit(true)));
-
+    
 
     const handleEditForm = () => setIsEdit(true);
     const handleCancelEditForm = () => {
@@ -83,8 +84,18 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
         setIsEdit(false);
     }
 
-    const handleSubmit = (e: Event) => {
+    const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
+        const checkboxes = htmlForm.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        for (const checkbox of checkboxes) {
+            if (checkbox.indeterminate) {
+                checkbox.setCustomValidity("Please confirm by selecting or deselecting this checkbox.");
+            } else {
+                checkbox.setCustomValidity("");
+            }
+        }
+        if (!htmlForm.reportValidity()) return;
+        
         formSubmission({
             formId: form()?.id,
             filledForm: {
@@ -98,7 +109,7 @@ export default function TemplateSubmission(props: TemplateSubmissionProps) {
     }
     return (
         <Card class="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden">
-            <form onSubmit={handleSubmit} class="space-y-6">
+            <form onSubmit={handleSubmit} ref={htmlForm} class="space-y-6">
                 <CardHeader>
                     <h2 class="text-2xl font-bold">{t('FormSubmission')}</h2>
                 </CardHeader>

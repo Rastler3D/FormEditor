@@ -27,6 +27,7 @@ interface TemplateViewProps {
 
 
 export default function TemplateView(props: TemplateViewProps) {
+    
     return (
         <Card class="rounded-lg overflow-hidden">
             <CardHeader class="relative bg-muted p-6 min-h-52">
@@ -114,6 +115,8 @@ export default function TemplateView(props: TemplateViewProps) {
                                             checked={props?.answers?.[question.id!]?.booleanValue}
                                             onChange={(checked) => props?.setAnswers?.(question.id!, {booleanValue: checked})}
                                             readOnly={props.isReadonly}
+                                            indeterminate={!props?.answers?.[question.id!]}
+                                            required
                                             disabled={props.isReadonly}
                                             class="has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 peer"
                                         />
